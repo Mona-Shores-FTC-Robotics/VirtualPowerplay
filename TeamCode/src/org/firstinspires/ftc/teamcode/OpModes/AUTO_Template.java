@@ -5,10 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
 import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
-import org.firstinspires.ftc.teamcode.ObjectClasses.OpenCVWebcam;
 
-@Autonomous(name = "AutoOp")
-public class AutoOp extends LinearOpMode {
+@Autonomous(name = "AUTO_Template")
+public class AUTO_Template extends LinearOpMode {
 
     int Signal;
 
@@ -41,7 +40,6 @@ public class AutoOp extends LinearOpMode {
         }
 
         //Autonomous Routine Example
-        //MecDrive.encoderDrive(.3, 10, 10, this);
 
         MecDrive.encoderDrive(.4, -10, -10, this);
         MecDrive.encoderDrive(.4, 55, 55, this);

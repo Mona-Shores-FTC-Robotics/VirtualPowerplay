@@ -10,7 +10,9 @@ public class ButtonConfig {
 
     public String startingLocationString;
     public String allianceColorString;
-
+    public int allianceColor;
+    public int startLocation;
+    public int allianceLocationFactor;
     /* Constructor */
     public ButtonConfig() {
 
@@ -19,6 +21,9 @@ public class ButtonConfig {
     public void init() {
         startingLocationString = "Row 2";
         allianceColorString = "Blue";
+        allianceColor = 1; //1 = Blue // -1 = Red
+        startLocation = 1; //1 = close to audience A2/F2 // -1 =opposite side as audience A5/F5
+        allianceLocationFactor = allianceColor*startLocation;
     }
 
     public void ConfigureAllianceColor(LinearOpMode activeOpMode) {
@@ -26,11 +31,13 @@ public class ButtonConfig {
             {
                 if (allianceColorString.equals("Blue")) {
                     allianceColorString = "Red";
+                    allianceColor = -1;
                 } else if (allianceColorString.equals("Red")) {
                     allianceColorString = "Blue";
+                    allianceColor = 1;
                 }
-
-              activeOpMode.sleep(250);
+                allianceLocationFactor = allianceColor*startLocation;
+                activeOpMode.sleep(250);
             }
     }
 
@@ -38,9 +45,12 @@ public class ButtonConfig {
         if (activeOpMode.gamepad1.dpad_down) {
                 if (startingLocationString.equals("Row 2")) {
                     startingLocationString = "Row 5";
+                    startLocation = -1;
                 } else if (startingLocationString.equals("Row 5")) {
                     startingLocationString = "Row 2";
+                    startLocation = 1;
                 }
+            allianceLocationFactor = allianceColor*startLocation;
             activeOpMode.sleep(250);
             }
     }

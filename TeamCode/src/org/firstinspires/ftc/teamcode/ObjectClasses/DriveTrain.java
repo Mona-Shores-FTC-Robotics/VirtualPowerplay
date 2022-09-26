@@ -154,7 +154,6 @@ public class DriveTrain
         LBDrive.setPower(leftBackPower*multiplier);
         RBDrive.setPower(rightBackPower*multiplier);
 
-
     }
 
 
@@ -226,6 +225,7 @@ public class DriveTrain
         RBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         period.reset();
+
         RFDrive.setPower(abs(speed));
         LFDrive.setPower(abs(speed));
         LBDrive.setPower(abs(speed));
@@ -238,9 +238,7 @@ public class DriveTrain
             activeOpMode.telemetry.addData("Encoder FR", RFDrive.getCurrentPosition());
             activeOpMode.telemetry.addData("Encoder BL", LBDrive.getCurrentPosition());
             activeOpMode.telemetry.addData("Encoder BR", RBDrive.getCurrentPosition());
-
             activeOpMode.telemetry.addData("Encoder Target", newLeftFrontTarget);
-
             activeOpMode.telemetry.update();
         }
 
@@ -257,9 +255,6 @@ public class DriveTrain
         RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
-
-
-
 
     public void resetAngle() {
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);

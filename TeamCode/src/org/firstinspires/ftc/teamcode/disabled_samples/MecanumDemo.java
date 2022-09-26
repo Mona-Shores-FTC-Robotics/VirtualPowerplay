@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.OpModes;
+package org.firstinspires.ftc.teamcode.disabled_samples;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -15,6 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.*;
  *
  */
 
+@Disabled
 @TeleOp(name = "mecanum bot demo", group = "MecanumBot")
 public class MecanumDemo extends LinearOpMode {
 
