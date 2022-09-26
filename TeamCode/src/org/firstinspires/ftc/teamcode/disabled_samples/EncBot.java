@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.disabled_samples;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -9,6 +10,7 @@ import virtual_robot.util.AngleUtils;
 /**
  * Utility class that represents a robot with mecanum drive wheels and three "dead-wheel" encoders.
  */
+@Disabled
 public class EncBot {
 
     public final double WHEEL_DIAMETER = 4;
