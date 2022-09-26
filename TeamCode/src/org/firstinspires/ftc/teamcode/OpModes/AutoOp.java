@@ -13,7 +13,6 @@ public class AutoOp extends LinearOpMode {
     int Signal;
 
     DriveTrain MecDrive = new DriveTrain();
-
     ButtonConfig ButtonConfig = new ButtonConfig();
 
     @Override
@@ -43,16 +42,12 @@ public class AutoOp extends LinearOpMode {
 
         //Autonomous Routine Example
         //MecDrive.encoderDrive(.3, 10, 10, this);
-        //MecDrive.strafeDrive(.3, -10, -10, this);
 
-        MecDrive.encoderDrive(.4, 30, 30, this);
-
-        MecDrive.encoderDrive(.4, 30, 30, this);
-
+        MecDrive.encoderDrive(.4, -10, -10, this);
+        MecDrive.encoderDrive(.4, 55, 55, this);
+        MecDrive.strafeDrive(.3, -20, -20, this);
         MecDrive.turn(45,this);
-        sleep(1000);
-        MecDrive.turnTo(0,this);
-
+        MecDrive.turnTo(-20,this);
     }
 }
 

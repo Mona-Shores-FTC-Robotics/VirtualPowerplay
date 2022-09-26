@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.ObjectClasses;
 
+import static java.lang.Thread.sleep;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.teamcode.OpModes.TeleOp_Iterative;
 
 public class ButtonConfig {
 
@@ -40,4 +44,30 @@ public class ButtonConfig {
             activeOpMode.sleep(250);
             }
     }
+
+    public void ConfigureMultiplier(TeleOp_Iterative activeOpMode, DriveTrain MecDrive) {
+        if (activeOpMode.gamepad1.left_stick_y > .25 && MecDrive.multiplier > MecDrive.MINMULT) {
+            MecDrive.multiplier = (MecDrive.multiplier * 10 - 1) / 10;
+
+            try {
+                sleep(400);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            if (activeOpMode.gamepad1.left_stick_y < -.25 && MecDrive.multiplier < MecDrive.MAXMULT) {
+                MecDrive.multiplier = (MecDrive.multiplier * 10 + 1) / 10;
+            }
+
+            try {
+                sleep(400);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        activeOpMode.telemetry.addData("Drive Multiplier", MecDrive.multiplier);
+        activeOpMode.telemetry.update();
+    }
+
 }
