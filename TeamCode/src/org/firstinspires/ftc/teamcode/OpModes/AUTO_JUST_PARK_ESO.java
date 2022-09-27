@@ -1,15 +1,13 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
 import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
 
-@Disabled
-@Autonomous(name = "AUTO_Template")
-public class AUTO_Template extends LinearOpMode {
+@Autonomous(name = "AUTO_JUST_PARK_ESO")
+public class AUTO_JUST_PARK_ESO extends LinearOpMode {
 
     int Signal;
 
@@ -38,16 +36,27 @@ public class AUTO_Template extends LinearOpMode {
             telemetry.addData("Starting Location ", ButtonConfig.startingLocationString);
             telemetry.update();
             //Use Webcam to find out Signal and store in Signal variable
-            Signal = 1;
+            Signal = 3;
         }
 
         //Autonomous Routine Example
 
-        MecDrive.encoderDrive(.4, -10, -10, this);
-        MecDrive.encoderDrive(.4, 55, 55, this);
-        MecDrive.strafeDrive(.3, -20, -20, this);
-        MecDrive.turn(45,this);
-        MecDrive.turnTo(-20,this);
+        //MecDrive.encoderDrive(.4, -10, -10, this);
+        //MecDrive.encoderDrive(.4, 55, 55, this);
+        //MecDrive.strafeDrive(.3, -20, -20, this);
+        //MecDrive.turn(45,this);
+        //MecDrive.turnTo(-20,this);
+
+        if(Signal == 1){
+            MecDrive.encoderDrive(.4, 55,55, this);
+            MecDrive.strafeDrive(.4, -48, -48, this);
+        }else if(Signal == 2){
+            MecDrive.encoderDrive(.4, 55, 55, this);
+        }else if(Signal == 3){
+            MecDrive.encoderDrive(.4, 55, 55, this);
+            MecDrive.strafeDrive(.4, 48, 48, this);
+        }
+
     }
 }
 
