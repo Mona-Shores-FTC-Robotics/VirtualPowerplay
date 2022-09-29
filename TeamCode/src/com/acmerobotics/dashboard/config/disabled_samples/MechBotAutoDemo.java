@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.disabled_samples;
+package com.acmerobotics.dashboard.config.disabled_samples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.ColorSensor;

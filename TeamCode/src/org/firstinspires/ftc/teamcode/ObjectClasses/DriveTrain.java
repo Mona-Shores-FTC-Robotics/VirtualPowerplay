@@ -79,6 +79,9 @@ public class DriveTrain
     double COUNTS_PER_INCH = (TICKS_PER_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
 
 
+    public final double LOW_SPEED = .3;
+    public final double MED_SPEED = .5;
+    public final double HIGH_SPEED = .9;
 
     BNO055IMU imu;
 

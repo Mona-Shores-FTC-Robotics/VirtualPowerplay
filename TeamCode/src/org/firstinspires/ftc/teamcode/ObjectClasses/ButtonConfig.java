@@ -10,8 +10,12 @@ public class ButtonConfig {
 
     public String startingLocationString;
     public String allianceColorString;
+
+    //-1 = RED 1 = blue
     public int allianceColor;
+    //1 is row 2 and -1 is row 5
     public int startLocation;
+    // alliance color times starting location
     public int allianceLocationFactor;
     /* Constructor */
     public ButtonConfig() {
