@@ -6,7 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
 import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
-import org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain.*;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.*;
 
 
 @Autonomous(name = "AUTO_SCORE_AND_PARK_ADVANCED_CTM")
@@ -51,10 +52,10 @@ public class AUTO_SCORE_AND_PARK_ADVANCED_CTM extends LinearOpMode {
 
         if (Signal == 1) {
             //strafe until in parking zone 1
-            MecDrive.strafeDrive(MecDrive.LOW_SPEED, GameConstants.FULL_TILE_DISTANCE * (ButtonConfig.allianceColor * ButtonConfig.startLocation), -25, this);
+            MecDrive.strafeDrive(LOW_SPEED, FULL_TILE_DISTANCE * (ButtonConfig.allianceColor * ButtonConfig.startLocation), -25, this);
             sleep(1000);
-            MecDrive.strafeDrive(.3, -25, -25, this);
-            MecDrive.encoderDrive(.4, -5, -5, this);
+            MecDrive.strafeDrive(LOW_SPEED, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE, this);
+            MecDrive.encoderDrive(MED_SPEED, -5, -5, this);
 
         } else if (Signal == 2) {
             MecDrive.strafeDrive(.3, -25, -25, this);
