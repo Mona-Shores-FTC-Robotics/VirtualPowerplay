@@ -4,8 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
 import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
-
-
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.*;
 
 @Autonomous(name = "AUTO_JUST_PARK_MJL")
 public class AUTO_JUST_PARK_MJL extends LinearOpMode {
@@ -14,14 +13,6 @@ public class AUTO_JUST_PARK_MJL extends LinearOpMode {
 
     DriveTrain MecDrive = new DriveTrain();
     ButtonConfig ButtonConfig = new ButtonConfig();
-
-    // int code to get Full tile distance its easier
-
-    public static int FULL_TILE_DISTANCE = 50;
-    public static int HALF_TILE_DISTANCE = FULL_TILE_DISTANCE /2;
-    public static int QUARTER_TILE_DISTANCE = HALF_TILE_DISTANCE /2;
-    public static int EIGHTH_TILE_DISTANCE = QUARTER_TILE_DISTANCE /2;
-
 
     @Override
 
