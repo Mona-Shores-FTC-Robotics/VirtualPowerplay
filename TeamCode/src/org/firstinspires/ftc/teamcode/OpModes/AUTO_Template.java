@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
 import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain.*;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.*;
 
 @Autonomous(name = "AUTO_Template")
 public class AUTO_Template extends LinearOpMode {
@@ -41,9 +43,9 @@ public class AUTO_Template extends LinearOpMode {
 
         //Autonomous Routine Example
 
-        MecDrive.encoderDrive(.4, -10, -10, this);
-        MecDrive.encoderDrive(.4, 55, 55, this);
-        MecDrive.strafeDrive(.3, -20, -20, this);
+        MecDrive.encoderDrive(LOW_SPEED, -10, -10, this);
+        MecDrive.encoderDrive(MED_SPEED, ((FULL_TILE_DISTANCE*2)+EIGHTH_TILE_DISTANCE), ((FULL_TILE_DISTANCE*2)+EIGHTH_TILE_DISTANCE), this);
+        MecDrive.strafeDrive(LOW_SPEED, -20, -20, this);
         MecDrive.turn(45,this);
         MecDrive.turnTo(-20,this);
     }
