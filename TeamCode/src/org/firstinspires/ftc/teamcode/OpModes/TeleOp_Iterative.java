@@ -36,20 +36,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
 
-/**
- * This file contains an example of an iterative (Non-Linear) "OpMode".
- * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
- * The names of OpModes appear on the menu of the FTC Driver Station.
- * When an selection is made from the menu, the corresponding OpMode
- * class is instantiated on the Robot Controller and executed.
- *
- * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
- * It includes all the skeletal structure that all iterative OpModes contain.
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opMode to the Driver Station OpMode list
- */
-
 @TeleOp(name="TeleOp Mode", group="Iterative OpMode")
 //@Disabled
 public class TeleOp_Iterative extends OpMode
@@ -81,18 +67,27 @@ public class TeleOp_Iterative extends OpMode
 
     @Override
     public void loop() {
+
+
         // GamePad Inputs
         MecDrive.drive = -gamepad1.left_stick_y; //-1.0 to 1.0
         MecDrive.strafe = gamepad1.left_stick_x; //-1.0 to 1.0 // right trigger strafe right, left trigger strafe left
         MecDrive.turn  = -gamepad1.right_stick_x; //-1.0 to 1.0
 
-       //  Robot Functions
+        //  Robot Functions
         MecDrive.MecanumDrive();
+
         // Show the elapsed game time and wheel power.
         telemetry.setDisplayFormat(Telemetry.DisplayFormat.CLASSIC);
         telemetry.addData("Status", "Run Time: " + runtime);
-        telemetry.addData("Motors", "leftfront(%.2f), rightfront (%.2f)",MecDrive.leftFrontPower,MecDrive.rightFrontPower);
-        telemetry.addData("Motors", "leftback (%.2f), rightback (%.2f)",MecDrive.leftBackPower,MecDrive.rightBackPower);
+        telemetry.addData("Motors", "leftfront(%.2f), rightfront (%.2f)", MecDrive.LFDrive.getPower(), MecDrive.RFDrive.getPower());
+        telemetry.addData("Motors", "leftback (%.2f), rightback (%.2f)",MecDrive.LBDrive.getPower(), MecDrive.RBDrive.getPower());
+        telemetry.addData("Drive", MecDrive.drive);
+        telemetry.addData("Strafe", MecDrive.strafe);
+        telemetry.addData("Turn", MecDrive.turn);
+        telemetry.addData("Color","R %d  G %d  B %d", MecDrive.colorSensor.red(), MecDrive.colorSensor.green(), MecDrive.colorSensor.blue());
+
+        telemetry.addData("Motors ", MecDrive.LFDrive.getMode());
         telemetry.update();
     }
 
