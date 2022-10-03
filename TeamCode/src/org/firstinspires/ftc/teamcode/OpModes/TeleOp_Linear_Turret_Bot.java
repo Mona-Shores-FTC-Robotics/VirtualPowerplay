@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 
 import static org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain.HIGH_SPEED;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain.LOW_SPEED;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.CONE_INTAKE_HEIGHT_CHANGE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.EIGHTH_TILE_DISTANCE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.FULL_TILE_DISTANCE;
@@ -12,10 +11,7 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.MEDIUM_
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.ONE_CONE_INTAKE_HEIGHT;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.QUARTER_TILE_DISTANCE;
 
-import static java.lang.Thread.sleep;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -29,7 +25,7 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
  */
 
 @TeleOp(name = "Teleop Mode w/ Turret", group = "TurretBot")
-public class TeleOp_Iterative_Turret_Bot extends OpMode    {
+public class TeleOp_Linear_Turret_Bot extends LinearOpMode    {
 
     DriveTrain MecDrive = new DriveTrain();
     org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig ButtonConfig = new ButtonConfig();
@@ -43,8 +39,8 @@ public class TeleOp_Iterative_Turret_Bot extends OpMode    {
     private ColorSensor colorSensor;
     private int teleopConeDeliveryTracker = 0;
 
-    @Override
-    public void init() {
+    public void runOpMode(){
+
         telemetry.addData("Status", "Initializing");
         telemetry.update();
 
@@ -55,28 +51,22 @@ public class TeleOp_Iterative_Turret_Bot extends OpMode    {
 
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Press Start When Ready","");
-    }
 
-    @Override
-    public void init_loop() {
-        ButtonConfig.ConfigureMultiplier( this, MecDrive);
-    }
+        while (!isStarted()) {
+            ButtonConfig.ConfigureMultiplier(this, MecDrive);
+        }
 
-    @Override
-    public void start() {
         runtime.reset();
-    }
 
-    public void loop(){
-
-
-            //MecDrive.drive = -gamepad1.left_stick_y; //-1.0 to 1.0
-            //MecDrive.strafe = gamepad1.right_trigger-gamepad1.left_trigger; //-1.0 to 1.0 // right trigger strafe right, left trigger strafe left
-            //MecDrive.turn  =  gamepad1.right_stick_x; //-1.0 to 1.0
+        while (opModeIsActive()) {
 
         MecDrive.drive = -gamepad1.left_stick_y; //-1.0 to 1.0
         MecDrive.strafe = gamepad1.left_stick_x; //-1.0 to 1.0
         MecDrive.turn  =  gamepad1.right_stick_x; //-1.0 to 1.0
+
+            // MecDrive.drive = -gamepad1.left_stick_y; //-1.0 to 1.0
+            //MecDrive.strafe = gamepad1.right_trigger-gamepad1.left_trigger; //-1.0 to 1.0 // right trigger strafe right, left trigger strafe left
+            //MecDrive.turn  =  gamepad1.right_stick_x; //-1.0 to 1.0
 
         MecDrive.MecanumDrive();
 
@@ -104,7 +94,7 @@ public class TeleOp_Iterative_Turret_Bot extends OpMode    {
             }
 
             // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("Status", "Run Time: " + runtime);
             telemetry.addData("Motors", "leftfront(%.2f), rightfront (%.2f)",MecDrive.leftFrontPower,MecDrive.rightFrontPower);
             telemetry.addData("Motors", "leftback (%.2f), rightback (%.2f)",MecDrive.leftBackPower,MecDrive.rightBackPower);
             telemetry.addData("Color","R %d  G %d  B %d", colorSensor.red(), colorSensor.green(), colorSensor.blue());
@@ -112,26 +102,24 @@ public class TeleOp_Iterative_Turret_Bot extends OpMode    {
             telemetry.update();
         }
 
-    @Override
-    public void stop() {
         MecDrive.drive = 0;
         MecDrive.strafe = 0;
         MecDrive.turn  = 0;
 
         MecDrive.MecanumDrive();
-    }
+        }
 
     public void auto_deliver() {
-        try {
+        if (opModeIsActive())
+            {
             turret.setPosition(TURRET_INTAKE2);
 
-            MecDrive.encoderDrive(HIGH_SPEED, -(FULL_TILE_DISTANCE + QUARTER_TILE_DISTANCE), -(FULL_TILE_DISTANCE + QUARTER_TILE_DISTANCE));
+            MecDrive.encoderDrive(HIGH_SPEED, -(FULL_TILE_DISTANCE + QUARTER_TILE_DISTANCE), -(FULL_TILE_DISTANCE + QUARTER_TILE_DISTANCE), this);
 
             //lower lift by set amount based on current lift position
             lift.setPosition(lift.getPosition() - CONE_INTAKE_HEIGHT_CHANGE);
 
             //activate intake to grab cone
-            sleep(400);
 
             //raise lift by set amount based on current lift position
             lift.setPosition(lift.getPosition() + CONE_INTAKE_HEIGHT_CHANGE);
@@ -140,7 +128,7 @@ public class TeleOp_Iterative_Turret_Bot extends OpMode    {
             lift.setPosition(MEDIUM_CONE_JUNCTION_SCORE_HEIGHT);
 
             //Drive toward middle of field
-            MecDrive.encoderDrive(HIGH_SPEED, (FULL_TILE_DISTANCE + HALF_TILE_DISTANCE + EIGHTH_TILE_DISTANCE), (FULL_TILE_DISTANCE + HALF_TILE_DISTANCE + EIGHTH_TILE_DISTANCE));
+            MecDrive.encoderDrive(HIGH_SPEED, (FULL_TILE_DISTANCE + HALF_TILE_DISTANCE + EIGHTH_TILE_DISTANCE), (FULL_TILE_DISTANCE + HALF_TILE_DISTANCE + EIGHTH_TILE_DISTANCE), this);
 
             //raise lift to height to deliver to High Junction
             lift.setPosition(HIGH_CONE_JUNCTION_SCORE_HEIGHT);
@@ -149,12 +137,12 @@ public class TeleOp_Iterative_Turret_Bot extends OpMode    {
             turret.setPosition(TURRET_LEFT_OUTTAKE);
 
             //Strafe to the high pole
-            MecDrive.strafeDrive(HIGH_SPEED, -(QUARTER_TILE_DISTANCE), -(QUARTER_TILE_DISTANCE));
+            MecDrive.strafeDrive(HIGH_SPEED, -(QUARTER_TILE_DISTANCE), -(QUARTER_TILE_DISTANCE), this);
 
             //drop off cone
 
             //strafe away from the high pole
-            MecDrive.strafeDrive(HIGH_SPEED, (QUARTER_TILE_DISTANCE), (QUARTER_TILE_DISTANCE));
+            MecDrive.strafeDrive(HIGH_SPEED, (QUARTER_TILE_DISTANCE), (QUARTER_TILE_DISTANCE), this);
 
             //lower lift for next code
             lift.setPosition(ONE_CONE_INTAKE_HEIGHT);
@@ -163,15 +151,12 @@ public class TeleOp_Iterative_Turret_Bot extends OpMode    {
             turret.setPosition(TURRET_INTAKE2);
 
             //Drive to Alliance Station
-            MecDrive.encoderDrive(HIGH_SPEED, -(HALF_TILE_DISTANCE + EIGHTH_TILE_DISTANCE), -(HALF_TILE_DISTANCE + EIGHTH_TILE_DISTANCE));
+            MecDrive.encoderDrive(HIGH_SPEED, -(HALF_TILE_DISTANCE + EIGHTH_TILE_DISTANCE), -(HALF_TILE_DISTANCE + EIGHTH_TILE_DISTANCE), this);
+            }
         }
-        catch (InterruptedException f) {
-            f.printStackTrace();
-        }
-
-    }
-
 }
+
+
 
 
 

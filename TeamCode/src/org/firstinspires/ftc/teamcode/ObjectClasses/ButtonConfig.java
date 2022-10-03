@@ -4,7 +4,7 @@ import static java.lang.Thread.sleep;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.OpModes.TeleOp_Iterative_Turret_Bot;
+import org.firstinspires.ftc.teamcode.OpModes.TeleOp_Linear_Turret_Bot;
 
 public class ButtonConfig {
 
@@ -60,7 +60,7 @@ public class ButtonConfig {
             }
     }
 
-    public void ConfigureMultiplier(TeleOp_Iterative_Turret_Bot activeOpMode, DriveTrain MecDrive) {
+    public void ConfigureMultiplier(TeleOp_Linear_Turret_Bot activeOpMode, DriveTrain MecDrive) {
         if (activeOpMode.gamepad1.left_stick_y > .25 && MecDrive.multiplier > MecDrive.MINMULT) {
             MecDrive.multiplier = (MecDrive.multiplier * 10 - 1) / 10;
 

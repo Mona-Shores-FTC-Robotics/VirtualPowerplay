@@ -22,13 +22,11 @@ import javafx.scene.shape.HLineTo;
 public class AUTO_Template extends LinearOpMode {
 
     int Signal;
-
     DriveTrain MecDrive = new DriveTrain();
     ButtonConfig ButtonConfig = new ButtonConfig();
     public final ElapsedTime runtime = new ElapsedTime();
 
     @Override
-
     public void runOpMode() {
         telemetry.addData("Status", "Initializing");
         telemetry.update();
@@ -36,8 +34,6 @@ public class AUTO_Template extends LinearOpMode {
         MecDrive.init(hardwareMap);
         ButtonConfig.init();
 
-
-        // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         sleep(1000);

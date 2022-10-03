@@ -169,125 +169,123 @@ public class DriveTrain
 
 
     public void encoderDrive(double speed, int leftInches, int rightInches, LinearOpMode activeOpMode) {
+        if (activeOpMode.opModeIsActive()) {
+            LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            int newLeftFrontTarget = (int) (leftInches * COUNTS_PER_INCH);
+            int newRightFrontTarget = (int) (rightInches * COUNTS_PER_INCH);
+            int newLeftBackTarget = (int) (leftInches * COUNTS_PER_INCH);
+            int newRightBackTarget = (int) (rightInches * COUNTS_PER_INCH);
 
-        int newLeftFrontTarget = (int) (leftInches * COUNTS_PER_INCH);
-        int newRightFrontTarget = (int) (rightInches * COUNTS_PER_INCH);
-        int newLeftBackTarget = (int) (leftInches * COUNTS_PER_INCH);
-        int newRightBackTarget = (int) (rightInches * COUNTS_PER_INCH);
+            LFDrive.setTargetPosition(newLeftFrontTarget);
+            RFDrive.setTargetPosition(newRightFrontTarget);
+            LBDrive.setTargetPosition(newLeftBackTarget);
+            RBDrive.setTargetPosition(newRightBackTarget);
 
-        LFDrive.setTargetPosition(newLeftFrontTarget);
-        RFDrive.setTargetPosition(newRightFrontTarget);
-        LBDrive.setTargetPosition(newLeftBackTarget);
-        RBDrive.setTargetPosition(newRightBackTarget);
+            LFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            RFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            LBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            RBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        LFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        LBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            period.reset();
+            RFDrive.setPower(abs(speed));
+            LFDrive.setPower(abs(speed));
+            LBDrive.setPower(abs(speed));
+            RBDrive.setPower(abs(speed));
 
-        period.reset();
-        RFDrive.setPower(abs(speed));
-        LFDrive.setPower(abs(speed));
-        LBDrive.setPower(abs(speed));
-        RBDrive.setPower(abs(speed));
+            while (activeOpMode.opModeIsActive() &&
+                    (period.seconds() < 5) &&
+                    (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy())) {
 
+                activeOpMode.telemetry.addData("Encoder BL", LFDrive.getCurrentPosition());
+                activeOpMode.telemetry.addData("Encoder FR", RFDrive.getCurrentPosition());
+                activeOpMode.telemetry.addData("Encoder BL", LBDrive.getCurrentPosition());
+                activeOpMode.telemetry.addData("Encoder BR", RBDrive.getCurrentPosition());
+                activeOpMode.telemetry.addData("Encoder Target", newLeftFrontTarget);
+                activeOpMode.telemetry.addData("Color", "R %d  G %d  B %d", colorSensor.red(), colorSensor.green(), colorSensor.blue());
+                activeOpMode.telemetry.addData("Status", "Run Time: " + activeOpMode.getRuntime());
+                activeOpMode.telemetry.update();
+            }
 
+            setAllPower(0);
+            LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        while (activeOpMode.opModeIsActive() &&
-                (period.seconds() < 5) &&
-                (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy())) {
-            /**
-            activeOpMode.telemetry.addData("Encoder BL", LFDrive.getCurrentPosition());
-            activeOpMode.telemetry.addData("Encoder FR", RFDrive.getCurrentPosition());
-            activeOpMode.telemetry.addData("Encoder BL", LBDrive.getCurrentPosition());
-            activeOpMode.telemetry.addData("Encoder BR", RBDrive.getCurrentPosition());
-            activeOpMode.telemetry.addData("Encoder Target", newLeftFrontTarget);
-            activeOpMode.telemetry.addData("Color","R %d  G %d  B %d", colorSensor.red(), colorSensor.green(), colorSensor.blue());
-            activeOpMode.telemetry.addData("Status", "Run Time: " + activeOpMode.getRuntime());
-            activeOpMode.telemetry.update();
-            **/
+            LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-
-        setAllPower(0);
-        LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
     }
 
     public void strafeDrive(double speed, int leftInches, int rightInches, LinearOpMode activeOpMode) {
+        if (activeOpMode.opModeIsActive()) {
+            LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            int newLeftFrontTarget = (int) (leftInches * COUNTS_PER_INCH);
+            int newRightFrontTarget = (int) (rightInches * COUNTS_PER_INCH);
+            int newLeftBackTarget = (int) (leftInches * COUNTS_PER_INCH);
+            int newRightBackTarget = (int) (rightInches * COUNTS_PER_INCH);
 
-        int newLeftFrontTarget = (int) (leftInches * COUNTS_PER_INCH);
-        int newRightFrontTarget = (int) (rightInches * COUNTS_PER_INCH);
-        int newLeftBackTarget = (int) (leftInches * COUNTS_PER_INCH);
-        int newRightBackTarget = (int) (rightInches * COUNTS_PER_INCH);
+            LFDrive.setTargetPosition(newLeftFrontTarget);
+            RFDrive.setTargetPosition(-newRightFrontTarget);
+            LBDrive.setTargetPosition(-newLeftBackTarget);
+            RBDrive.setTargetPosition(newRightBackTarget);
 
-        LFDrive.setTargetPosition(newLeftFrontTarget);
-        RFDrive.setTargetPosition(-newRightFrontTarget);
-        LBDrive.setTargetPosition(-newLeftBackTarget);
-        RBDrive.setTargetPosition(newRightBackTarget);
+            LFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            RFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            LBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            RBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        LFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        LBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            period.reset();
 
-        period.reset();
+            RFDrive.setPower(abs(speed));
+            LFDrive.setPower(abs(speed));
+            LBDrive.setPower(abs(speed));
+            RBDrive.setPower(abs(speed));
 
-        RFDrive.setPower(abs(speed));
-        LFDrive.setPower(abs(speed));
-        LBDrive.setPower(abs(speed));
-        RBDrive.setPower(abs(speed));
+            while (activeOpMode.opModeIsActive() &&
+                    (period.seconds() < 5) &&
+                    (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy())) {
+                /**
+                 activeOpMode.telemetry.addData("Encoder BL", LFDrive.getCurrentPosition());
+                 activeOpMode.telemetry.addData("Encoder FR", RFDrive.getCurrentPosition());
+                 activeOpMode.telemetry.addData("Encoder BL", LBDrive.getCurrentPosition());
+                 activeOpMode.telemetry.addData("Encoder BR", RBDrive.getCurrentPosition());
+                 activeOpMode.telemetry.update();
+                 **/
+            }
 
-        while (activeOpMode.opModeIsActive() &&
-                (period.seconds() < 5) &&
-                (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy())) {
-            /**
-            activeOpMode.telemetry.addData("Encoder BL", LFDrive.getCurrentPosition());
-            activeOpMode.telemetry.addData("Encoder FR", RFDrive.getCurrentPosition());
-            activeOpMode.telemetry.addData("Encoder BL", LBDrive.getCurrentPosition());
-            activeOpMode.telemetry.addData("Encoder BR", RBDrive.getCurrentPosition());
-            activeOpMode.telemetry.update();
-            **/
+            setAllPower(0);
+
+            LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-
-        setAllPower(0);
-
-        LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void resetAngle() {
@@ -337,7 +335,6 @@ public class DriveTrain
 
     public void turnTo(double degrees, LinearOpMode activeOpMode)
     {
-
         Orientation orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double error = degrees - orientation.firstAngle + gyroOffset;
 
@@ -350,7 +347,6 @@ public class DriveTrain
             error+=360;
         }
         turn(error, activeOpMode);
-
     }
 
 
@@ -406,11 +402,9 @@ public class DriveTrain
             }
 
         }
-
         setAllPower(0);
         activeOpMode.telemetry.addData("Color","R %d  G %d  B %d", colorSensor.red(), colorSensor.green(), colorSensor.blue());
         activeOpMode.telemetry.update();
-
     }
 
     public void calibrateGyro(LinearOpMode activeOpMode)
@@ -420,109 +414,6 @@ public class DriveTrain
 
         activeOpMode.telemetry.addData("Gyro Offset", gyroOffset);
         activeOpMode.telemetry.update();
-
-    }
-
-    public void encoderDrive(double speed, int leftInches, int rightInches) {
-
-        LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        int newLeftFrontTarget = (int) (leftInches * COUNTS_PER_INCH);
-        int newRightFrontTarget = (int) (rightInches * COUNTS_PER_INCH);
-        int newLeftBackTarget = (int) (leftInches * COUNTS_PER_INCH);
-        int newRightBackTarget = (int) (rightInches * COUNTS_PER_INCH);
-
-        LFDrive.setTargetPosition(newLeftFrontTarget);
-        RFDrive.setTargetPosition(newRightFrontTarget);
-        LBDrive.setTargetPosition(newLeftBackTarget);
-        RBDrive.setTargetPosition(newRightBackTarget);
-
-        LFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        LBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        period.reset();
-        RFDrive.setPower(abs(speed));
-        LFDrive.setPower(abs(speed));
-        LBDrive.setPower(abs(speed));
-        RBDrive.setPower(abs(speed));
-
-        while ( (period.seconds() < 5) &&
-                (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy())) {
-        }
-
-        setAllPower(0);
-        LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-
-
-    public void strafeDrive(double speed, int leftInches, int rightInches) {
-
-        LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        int newLeftFrontTarget = (int) (leftInches * COUNTS_PER_INCH);
-        int newRightFrontTarget = (int) (rightInches * COUNTS_PER_INCH);
-        int newLeftBackTarget = (int) (leftInches * COUNTS_PER_INCH);
-        int newRightBackTarget = (int) (rightInches * COUNTS_PER_INCH);
-
-        LFDrive.setTargetPosition(newLeftFrontTarget);
-        RFDrive.setTargetPosition(-newRightFrontTarget);
-        LBDrive.setTargetPosition(-newLeftBackTarget);
-        RBDrive.setTargetPosition(newRightBackTarget);
-
-        LFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        LBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        period.reset();
-
-        RFDrive.setPower(abs(speed));
-        LFDrive.setPower(abs(speed));
-        LBDrive.setPower(abs(speed));
-        RBDrive.setPower(abs(speed));
-
-        while ( (period.seconds() < 5) &&
-                (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy())) {
-        }
-
-        setAllPower(0);
-
-        LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
     }
 }
 
