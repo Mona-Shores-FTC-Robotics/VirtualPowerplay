@@ -178,7 +178,8 @@ public class AUTO_OTS_TURRET_SCORE_6_AND_PARK extends LinearOpMode {
             MecDrive.encoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE, this);
         }
 
-        sleep (5000);
+        MecDrive.turnTo(90, this);
+        MecDrive.encoderDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, this);
 
     }
 }

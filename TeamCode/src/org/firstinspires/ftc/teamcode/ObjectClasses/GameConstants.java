@@ -26,4 +26,9 @@ public final class GameConstants {
     public static final double TWO_CONE_STACK_INTAKE_HEIGHT = .4;
     public static final double ONE_CONE_INTAKE_HEIGHT = .3;
 
+    public static final int W_3_JUNCTION = 1;
+    public static final int Y_3_JUNCTION = -1;
+    public static final int X_2_JUNCTION = 2;
+    public static final int X_4_JUNCTION = -2;
+
 }

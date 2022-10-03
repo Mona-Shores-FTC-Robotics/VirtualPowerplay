@@ -116,6 +116,11 @@ public class AUTO_OTS_TERMINAL_COLOR_SENSOR_SCORE_6 extends LinearOpMode {
         telemetry.addData("Run Time: ", getRuntime());
         telemetry.update();
 
+        MecDrive.turnTo(90, this);
+        MecDrive.encoderDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, this);
+
+
+
         sleep (5000);
 
     }
