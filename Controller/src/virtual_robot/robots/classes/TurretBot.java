@@ -8,6 +8,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
+import virtual_robot.controller.BotConfig;
 
 /**
  * For internal use only. Represents a robot with four mechanum wheels, color sensor, four distance sensors,
@@ -21,7 +22,7 @@ import javafx.scene.transform.Rotate;
  * combo box. The filename refers to the fxml file that contains the markup for the graphical UI.
  * Note: the fxml file must be located in the virtual_robot.robots.classes.fxml folder.
  */
-//@BotConfig(name = "Turret Bot", filename = "turret_bot")
+@BotConfig(name = "Turret Bot", filename = "turret_bot")
 public class TurretBot extends MechanumBase {
     private static double TURRET_LENGTH = 35;
     private static double TURRET_WIDTH = 10;
@@ -101,19 +102,38 @@ public class TurretBot extends MechanumBase {
     }
 
     private double getTurretAngle() {
-        // Using GoBilda servos programmed to 300 degrees of rotation
-        double servoAngle = 300 * (turretServo.getInternalPosition() - 0.5);
-        // 5:1 gear reduction
-        double turretAngle = servoAngle / 5.0;
-        return turretAngle;
+            // Using GoBilda servos programmed to 300 degrees of rotation
+            double servoAngle = 360 * (turretServo.getInternalPosition() - 0.5);
+            // 5:1 gear reduction
+            double turretAngle = servoAngle;
+            return turretAngle;
     }
 
     private double getElevationAngle() {
         // Using GoBilda servos programmed to 300 degrees of rotation
-        double servoAngle = 300 * elevationServo.getInternalPosition();
+        double servoAngle = 360 * elevationServo.getInternalPosition();
         // 9:1 gear reduction
-        double elevationAngle = 15 + (servoAngle / 9.0);
+        double elevationAngle = servoAngle;
         return elevationAngle;
+
+        /* This is the original getElevationAngle and getTurretAngle code.
+
+         private double getTurretAngle() {
+            // Using GoBilda servos programmed to 300 degrees of rotation
+            double servoAngle = 300 * (turretServo.getInternalPosition() - 0.5);
+            // 5:1 gear reduction
+            double turretAngle = servoAngle / 5.0;
+            return turretAngle;
+        }
+
+         private double getElevationAngle() {
+            // Using GoBilda servos programmed to 300 degrees of rotation
+            double servoAngle = 300 * elevationServo.getInternalPosition();
+            // 9:1 gear reduction
+            double elevationAngle = 15 + (servoAngle / 9.0);
+            return elevationAngle;
+         */
+
     }
 
     /**

@@ -4,18 +4,21 @@ import static java.lang.Thread.sleep;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.OpModes.TeleOp_Iterative;
-
 public class ButtonConfig {
 
     public String startingLocationString;
     public String allianceColorString;
-    public int allianceColor;
-    public int startLocation;
-    public int allianceLocationFactor;
-    /* Constructor */
-    public ButtonConfig() {
 
+    //-1 = RED 1 = blue
+    public int allianceColor;
+
+    //1 is row 2 and -1 is row 5
+    public int startLocation;
+
+    // alliance color times starting location
+    public int allianceLocationFactor;
+
+    public ButtonConfig() {
     }
 
     public void init() {
@@ -55,7 +58,7 @@ public class ButtonConfig {
             }
     }
 
-    public void ConfigureMultiplier(TeleOp_Iterative activeOpMode, DriveTrain MecDrive) {
+    public void ConfigureMultiplier(LinearOpMode activeOpMode, DriveTrain MecDrive) {
         if (activeOpMode.gamepad1.left_stick_y > .25 && MecDrive.multiplier > MecDrive.MINMULT) {
             MecDrive.multiplier = (MecDrive.multiplier * 10 - 1) / 10;
 
@@ -79,5 +82,4 @@ public class ButtonConfig {
         activeOpMode.telemetry.addData("Drive Multiplier", MecDrive.multiplier);
         activeOpMode.telemetry.update();
     }
-
 }

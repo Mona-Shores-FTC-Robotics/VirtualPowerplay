@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.disabled_samples;
+package com.acmerobotics.dashboard.config.disabled_samples;
 
 import android.graphics.PointF;
 import com.qualcomm.robotcore.hardware.CRServo;

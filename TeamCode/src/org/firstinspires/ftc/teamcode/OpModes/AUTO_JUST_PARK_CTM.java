@@ -2,12 +2,12 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
 import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.*;
 
-@Autonomous(name = "AUTO_JUST_PARK_MJL")
-public class AUTO_JUST_PARK_MJL extends LinearOpMode {
+@Autonomous(name = "AUTO_JUST_PARK_CTM")
+public class AUTO_JUST_PARK_CTM extends LinearOpMode {
 
     int Signal;
 
@@ -28,33 +28,33 @@ public class AUTO_JUST_PARK_MJL extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         sleep(1000);
-
+        Signal = 1;
         while (!isStarted()) {
             ButtonConfig.ConfigureAllianceColor(this);
-            ButtonConfig.ConfigureStartingLocation( this);
+            ButtonConfig.ConfigureStartingLocation(this);
             telemetry.addData("Alliance Color ", ButtonConfig.allianceColorString);
             telemetry.addData("Starting Location ", ButtonConfig.startingLocationString);
             telemetry.update();
             //Use Webcam to find out Signal and store in Signal variable
-            Signal = 3;
+
         }
 
-        //Autonomous Routine Example using FullTileDistance thing
+        //Autonomous Routine Example
+        //backup to make sure that its square to the wall
+
         MecDrive.encoderDrive(.4, -10, -10, this);
-        MecDrive.encoderDrive(.4, FULL_TILE_DISTANCE*2+EIGHTH_TILE_DISTANCE, FULL_TILE_DISTANCE*2+EIGHTH_TILE_DISTANCE, this);
+        //we go forward until we are at the ground junction
+        MecDrive.encoderDrive(.4, 55, 55, this);
 
-        //Just_PARK drive code
-        if(Signal == 1) {
-            MecDrive.strafeDrive(.3, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, this);
-        }
-        else if (Signal == 2) {
-        }
-         else if (Signal == 3){
-                MecDrive.strafeDrive(.3, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);
-        }
+        if (Signal == 1) {
+            //strafe until in parking zone 1
+            MecDrive.strafeDrive(.3, -50, -50, this);
 
+        } else if (Signal == 3) {
+            //strafe until in parking zone 1
+            MecDrive.strafeDrive(.3, 50, 50, this);
+        }
     }
 }
-
 
 

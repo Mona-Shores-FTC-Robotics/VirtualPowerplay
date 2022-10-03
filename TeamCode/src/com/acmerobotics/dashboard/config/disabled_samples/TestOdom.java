@@ -1,10 +1,8 @@
-package org.firstinspires.ftc.teamcode.disabled_samples;
+package com.acmerobotics.dashboard.config.disabled_samples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-import org.firstinspires.ftc.teamcode.disabled_samples.EncBot;
 
 /**
  * TeleOp op mode to test odometry with three "dead-wheel" encoders. This op mode will work with
