@@ -8,8 +8,8 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.*;
 
 
-@Autonomous(name = "AUTO_JUST_PARK_ESO")
-public class AUTO_JUST_PARK_ESO extends LinearOpMode {
+@Autonomous(name = "AUTO_SCORE_PARK_ESO")
+public class AUTO_SCORE_PARK_ESO extends LinearOpMode {
 
     int Signal;
 
@@ -48,6 +48,9 @@ public class AUTO_JUST_PARK_ESO extends LinearOpMode {
         //MecDrive.strafeDrive(.3, -20, -20, this);
         //MecDrive.turn(45,this);
         //MecDrive.turnTo(-20,this);
+
+        MecDrive.encoderDrive(.4, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE, this);
+
 
         if(Signal == 1){
             MecDrive.encoderDrive(.4, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);

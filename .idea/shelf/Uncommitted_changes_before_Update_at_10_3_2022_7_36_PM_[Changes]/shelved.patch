@@ -1,0 +1,117 @@
+Index: TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_SCORE_PARK_ESO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_SCORE_PARK_ESO.java b/TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_SCORE_PARK_ESO.java
+new file mode 100644
+--- /dev/null	(date 1664497033090)
++++ b/TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_SCORE_PARK_ESO.java	(date 1664497033090)
+@@ -0,0 +1,69 @@
++package org.firstinspires.ftc.teamcode.OpModes;
++
++import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
++import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
++
++import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
++import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
++import org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants;
++
++
++@Autonomous(name = "AUTO_SCORE_PARK_ESO")
++public class AUTO_SCORE_PARK_ESO extends LinearOpMode {
++
++    int Signal;
++
++    DriveTrain MecDrive = new DriveTrain();
++    ButtonConfig ButtonConfig = new ButtonConfig();
++
++    @Override
++
++    public void runOpMode() {
++        telemetry.addData("Status", "Initializing");
++        telemetry.update();
++
++        MecDrive.init(hardwareMap);
++
++        ButtonConfig.init();
++
++        // Tell the driver that initialization is complete.
++        telemetry.addData("Status", "Initialized");
++        telemetry.update();
++        sleep(1000);
++
++        while (!isStarted()) {
++            ButtonConfig.ConfigureAllianceColor(this);
++            ButtonConfig.ConfigureStartingLocation( this);
++            telemetry.addData("Alliance Color ", ButtonConfig.allianceColorString);
++            telemetry.addData("Starting Location ", ButtonConfig.startingLocationString);
++            telemetry.update();
++            //Use Webcam to find out Signal and store in Signal variable
++            Signal = 3;
++        }
++
++        //Autonomous Routine Example
++
++        //MecDrive.encoderDrive(.4, -10, -10, this);
++        //MecDrive.encoderDrive(.4, 55, 55, this);
++        //MecDrive.strafeDrive(.3, -20, -20, this);
++        //MecDrive.turn(45,this);
++        //MecDrive.turnTo(-20,this);
++
++        MecDrive.encoderDrive(.4,GameConstants.DHS_HALF_TILE_DISTANCE, GameConstants.DHS_HALF_TILE_DISTANCE, this);
++
++
++        if(Signal == 1){
++            MecDrive.encoderDrive(.4, GameConstants.DHS_FULL_TILE_DISTANCE, GameConstants.DHS_FULL_TILE_DISTANCE, this);
++            MecDrive.strafeDrive(.4, -GameConstants.DHS_FULL_TILE_DISTANCE, -GameConstants.DHS_FULL_TILE_DISTANCE, this);
++        }else if(Signal == 2){
++            MecDrive.encoderDrive(.4, GameConstants.DHS_FULL_TILE_DISTANCE, GameConstants.DHS_FULL_TILE_DISTANCE, this);
++        }else if(Signal == 3){
++            MecDrive.encoderDrive(.4, GameConstants.DHS_FULL_TILE_DISTANCE, GameConstants.DHS_FULL_TILE_DISTANCE, this);
++            MecDrive.strafeDrive(.4, GameConstants.DHS_FULL_TILE_DISTANCE, GameConstants.DHS_FULL_TILE_DISTANCE, this);
++        }
++
++    }
++}
++
++
++
+Index: TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_JUST_PARK_ESO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.firstinspires.ftc.teamcode.OpModes;\r\n\r\nimport com.qualcomm.robotcore.eventloop.opmode.Autonomous;\r\nimport com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;\r\n\r\nimport org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;\r\nimport org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;\r\n\r\n@Autonomous(name = \"AUTO_JUST_PARK_ESO\")\r\npublic class AUTO_JUST_PARK_ESO extends LinearOpMode {\r\n\r\n    int Signal;\r\n\r\n    DriveTrain MecDrive = new DriveTrain();\r\n    ButtonConfig ButtonConfig = new ButtonConfig();\r\n\r\n    @Override\r\n\r\n    public void runOpMode() {\r\n        telemetry.addData(\"Status\", \"Initializing\");\r\n        telemetry.update();\r\n\r\n        MecDrive.init(hardwareMap);\r\n\r\n        ButtonConfig.init();\r\n\r\n        // Tell the driver that initialization is complete.\r\n        telemetry.addData(\"Status\", \"Initialized\");\r\n        telemetry.update();\r\n        sleep(1000);\r\n\r\n        while (!isStarted()) {\r\n            ButtonConfig.ConfigureAllianceColor(this);\r\n            ButtonConfig.ConfigureStartingLocation( this);\r\n            telemetry.addData(\"Alliance Color \", ButtonConfig.allianceColorString);\r\n            telemetry.addData(\"Starting Location \", ButtonConfig.startingLocationString);\r\n            telemetry.update();\r\n            //Use Webcam to find out Signal and store in Signal variable\r\n            Signal = 3;\r\n        }\r\n\r\n        //Autonomous Routine Example\r\n\r\n        //MecDrive.encoderDrive(.4, -10, -10, this);\r\n        //MecDrive.encoderDrive(.4, 55, 55, this);\r\n        //MecDrive.strafeDrive(.3, -20, -20, this);\r\n        //MecDrive.turn(45,this);\r\n        //MecDrive.turnTo(-20,this);\r\n\r\n        if(Signal == 1){\r\n            MecDrive.encoderDrive(.4, 55,55, this);\r\n            MecDrive.strafeDrive(.4, -48, -48, this);\r\n        }else if(Signal == 2){\r\n            MecDrive.encoderDrive(.4, 55, 55, this);\r\n        }else if(Signal == 3){\r\n            MecDrive.encoderDrive(.4, 55, 55, this);\r\n            MecDrive.strafeDrive(.4, 48, 48, this);\r\n        }\r\n\r\n    }\r\n}\r\n\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_JUST_PARK_ESO.java b/TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_JUST_PARK_ESO.java
+--- a/TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_JUST_PARK_ESO.java	(revision 2f3c3a78651c6794c4d6495793bfe6604c1f1467)
++++ b/TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_JUST_PARK_ESO.java	(date 1664495898027)
+@@ -5,6 +5,8 @@
+ 
+ import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
+ import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
++import org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants;
++
+ 
+ @Autonomous(name = "AUTO_JUST_PARK_ESO")
+ public class AUTO_JUST_PARK_ESO extends LinearOpMode {
+@@ -48,13 +50,13 @@
+         //MecDrive.turnTo(-20,this);
+ 
+         if(Signal == 1){
+-            MecDrive.encoderDrive(.4, 55,55, this);
+-            MecDrive.strafeDrive(.4, -48, -48, this);
++            MecDrive.encoderDrive(.4, GameConstants.DHS_FULL_TILE_DISTANCE, GameConstants.DHS_FULL_TILE_DISTANCE, this);
++            MecDrive.strafeDrive(.4, -GameConstants.DHS_FULL_TILE_DISTANCE, -GameConstants.DHS_FULL_TILE_DISTANCE, this);
+         }else if(Signal == 2){
+-            MecDrive.encoderDrive(.4, 55, 55, this);
++            MecDrive.encoderDrive(.4, GameConstants.DHS_FULL_TILE_DISTANCE, GameConstants.DHS_FULL_TILE_DISTANCE, this);
+         }else if(Signal == 3){
+-            MecDrive.encoderDrive(.4, 55, 55, this);
+-            MecDrive.strafeDrive(.4, 48, 48, this);
++            MecDrive.encoderDrive(.4, GameConstants.DHS_FULL_TILE_DISTANCE, GameConstants.DHS_FULL_TILE_DISTANCE, this);
++            MecDrive.strafeDrive(.4, GameConstants.DHS_FULL_TILE_DISTANCE, GameConstants.DHS_FULL_TILE_DISTANCE, this);
+         }
+ 
+     }

@@ -19,7 +19,7 @@ import javafx.scene.shape.HLineTo;
 
 @Disabled
 @Autonomous(name = "AUTO_Template")
-@Disabled
+
 public class AUTO_Template extends LinearOpMode {
 
     int Signal;
