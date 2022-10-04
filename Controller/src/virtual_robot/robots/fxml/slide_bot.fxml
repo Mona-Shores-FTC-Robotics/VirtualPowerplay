@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Group?><?import javafx.scene.paint.RadialGradient?><?import javafx.scene.paint.Stop?><?import javafx.scene.shape.Circle?><?import javafx.scene.shape.Rectangle?><?import javafx.scene.control.Label?>
+
+<Group xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="virtual_robot.robots.classes.SlideBot">
+    <children>
+
+        <Rectangle arcHeight="2.0" arcWidth="5.0" fill="YELLOW" height="65.0" stroke="BLACK" strokeType="INSIDE" width="65.0" x="5" y="5" />
+
+        <!--Left back wheel-->
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" rotate="-45.0" stroke="BLACK" strokeType="INSIDE" width="6.0" x="11.192" y="50.807" />
+
+        <!--Left front wheel-->
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" rotate="45.0" stroke="BLACK" strokeType="INSIDE" width="6.0" x="11.192" y="5" />
+
+        <!--Right front wheel-->
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" rotate="-45.0" stroke="BLACK" strokeType="INSIDE" width="6.0" x="57.807" y="5" />
+
+        <!--Right back wheel-->
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" rotate="45.0" stroke="BLACK" strokeType="INSIDE" width="6.0" x="57.807" y="50.807" />
+
+        <!--Green square indicating the lift intake-->
+        <Rectangle fx:id="slide" arcHeight="5.0" fill="LIME" height="10.0" stroke="BLACK" strokeType="INSIDE" width="10.0" x="32.5" y="45" />
+
+        <!-- The arm: note the fx:id attribute. This will instantiate a variable named "turret" in the TurretBot class. That
+             variable is of type Rectangle and is annotated with @FXML-->
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="5.0" stroke="BLACK" strokeType="INSIDE" width="70.0" x="2.5" y="40" />
+
+        <Label fx:id="elevation" text="15.0" translateX="25.0" translateY="20.0" />
+    </children>
+
+</Group>

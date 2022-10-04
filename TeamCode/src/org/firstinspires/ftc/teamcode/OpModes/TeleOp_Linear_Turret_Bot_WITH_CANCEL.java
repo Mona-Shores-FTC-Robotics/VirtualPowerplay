@@ -95,6 +95,23 @@ public class TeleOp_Linear_Turret_Bot_WITH_CANCEL extends LinearOpMode {
                 lift.setPosition(HIGH_CONE_JUNCTION_SCORE_HEIGHT);
             }
 
+            if (gamepad1.dpad_up){
+                MecDrive.turnTo(0, this);
+                MecDrive.encoderDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this );
+            }
+            if (gamepad1.dpad_down) {
+                MecDrive.turnTo(0, this);
+                MecDrive.encoderDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, this);
+            }
+            if (gamepad1.dpad_left) {
+                MecDrive.turnTo(0, this);
+                MecDrive.strafeDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, this);
+            }
+            if (gamepad1.dpad_right) {
+                MecDrive.turnTo(0, this);
+                MecDrive.strafeDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);
+            }
+
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime);
             telemetry.addData("Motors", "leftfront(%.2f), rightfront (%.2f)", MecDrive.leftFrontPower, MecDrive.rightFrontPower);
