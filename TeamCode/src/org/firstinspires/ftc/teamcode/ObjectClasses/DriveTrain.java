@@ -196,14 +196,27 @@ public class DriveTrain
             RBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             period.reset();
-            RFDrive.setPower(abs(speed));
-            LFDrive.setPower(abs(speed));
-            LBDrive.setPower(abs(speed));
-            RBDrive.setPower(abs(speed));
+
+            double ramp = .1;
+
+            RFDrive.setPower(abs(ramp));
+            LFDrive.setPower(abs(ramp));
+            LBDrive.setPower(abs(ramp));
+            RBDrive.setPower(abs(ramp));
 
             while (activeOpMode.opModeIsActive() &&
                     (period.seconds() < 5) &&
                     (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy())) {
+
+                RFDrive.setPower(abs(ramp));
+                LFDrive.setPower(abs(ramp));
+                LBDrive.setPower(abs(ramp));
+                RBDrive.setPower(abs(ramp));
+                if (ramp < speed) {
+                    ramp = ramp + .001;
+                } else if (ramp > speed) {
+                    ramp = ramp - .001;
+                }
 
                 activeOpMode.telemetry.addData("Encoder BL", LFDrive.getCurrentPosition());
                 activeOpMode.telemetry.addData("Encoder FR", RFDrive.getCurrentPosition());
@@ -211,6 +224,7 @@ public class DriveTrain
                 activeOpMode.telemetry.addData("Encoder BR", RBDrive.getCurrentPosition());
                 activeOpMode.telemetry.addData("Encoder Target", newLeftFrontTarget);
                 activeOpMode.telemetry.addData("Color", "R %d  G %d  B %d", colorSensor.red(), colorSensor.green(), colorSensor.blue());
+                activeOpMode.telemetry.addData("Speed", ramp);
                 activeOpMode.telemetry.addData("Status", "Run Time: " + activeOpMode.getRuntime());
                 activeOpMode.telemetry.update();
             }
@@ -257,14 +271,29 @@ public class DriveTrain
 
             period.reset();
 
-            RFDrive.setPower(abs(speed));
-            LFDrive.setPower(abs(speed));
-            LBDrive.setPower(abs(speed));
-            RBDrive.setPower(abs(speed));
+            double ramp = .1;
+
+            RFDrive.setPower(abs(ramp));
+            LFDrive.setPower(abs(ramp));
+            LBDrive.setPower(abs(ramp));
+            RBDrive.setPower(abs(ramp));
 
             while (activeOpMode.opModeIsActive() &&
                     (period.seconds() < 5) &&
                     (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy())) {
+
+                RFDrive.setPower(abs(ramp));
+                LFDrive.setPower(abs(ramp));
+                LBDrive.setPower(abs(ramp));
+                RBDrive.setPower(abs(ramp));
+                if (ramp<speed){
+                    ramp = ramp + .01;
+                }
+                else if (ramp>speed){
+                    ramp = ramp -.01;
+                }
+
+
                 /**
                  activeOpMode.telemetry.addData("Encoder BL", LFDrive.getCurrentPosition());
                  activeOpMode.telemetry.addData("Encoder FR", RFDrive.getCurrentPosition());
