@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode.OpModes;
+package com.acmerobotics.dashboard.config.disabled_samples;
 
 import com.acmerobotics.roadrunner.drive.Drive;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
@@ -11,6 +12,7 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.*;
 
 
 @Autonomous(name = "AUTO_SCORE_AND_PARK_ADVANCED_CTM")
+@Disabled
 public class AUTO_SCORE_AND_PARK_ADVANCED_CTM extends LinearOpMode {
 
     int Signal;

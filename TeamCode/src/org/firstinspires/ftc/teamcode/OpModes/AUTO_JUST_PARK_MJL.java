@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
 import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.*;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain.*;
 
 @Autonomous(name = "AUTO_JUST_PARK_MJL")
 public class AUTO_JUST_PARK_MJL extends LinearOpMode {
@@ -40,18 +41,19 @@ public class AUTO_JUST_PARK_MJL extends LinearOpMode {
         }
 
         //Autonomous Routine Example using FullTileDistance thing
-        MecDrive.encoderDrive(.4, -10, -10, this);
-        MecDrive.encoderDrive(.4, FULL_TILE_DISTANCE*2+EIGHTH_TILE_DISTANCE, FULL_TILE_DISTANCE*2+EIGHTH_TILE_DISTANCE, this);
+        MecDrive.encoderDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE, this);
+        MecDrive.encoderDrive(MED_SPEED, FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE+SIXTEENTH_TILE_DISTANCE, FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE+SIXTEENTH_TILE_DISTANCE, this);
 
         //Just_PARK drive code
         if(Signal == 1) {
-            MecDrive.strafeDrive(.3, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, this);
+            MecDrive.strafeDrive(MED_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, this);
         }
         else if (Signal == 2) {
         }
          else if (Signal == 3){
-                MecDrive.strafeDrive(.3, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);
+                MecDrive.strafeDrive(MED_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);
         }
+
 
     }
 }

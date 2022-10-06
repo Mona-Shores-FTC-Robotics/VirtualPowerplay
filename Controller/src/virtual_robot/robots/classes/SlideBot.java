@@ -23,8 +23,8 @@ import virtual_robot.controller.BotConfig;
  * combo box. The filename refers to the fxml file that contains the markup for the graphical UI.
  * Note: the fxml file must be located in the virtual_robot.robots.classes.fxml folder.
  */
-@BotConfig(name = "Slide Bot", filename = "slide_bot")
-public class SlideBot extends XDrivePhysicsBase {
+//@BotConfig(name = "Slide Bot", filename = "slide_bot")
+public class SlideBot extends MecanumPhysicsBase {
     private static double SLIDE_LENGTH = 10;
     private static double SLIDE_WIDTH = 10;
     private static double SLIDE_X = 35;
@@ -34,7 +34,7 @@ public class SlideBot extends XDrivePhysicsBase {
     private ServoImpl elevationServo = null;
     private ServoImpl slideServo = null;
 
-    private Translate slideTranslate = new Translate(SLIDE_X, SLIDE_Y);
+    private Translate slideTranslate = new Translate(0, 0);
 
 
     /*

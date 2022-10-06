@@ -52,13 +52,13 @@
                 </RadialGradient>
             </fill>
         </Circle>
-      <Rectangle fx:id="arm1" arcHeight="5.0" arcWidth="5.0" fill="SILVER" height="57.5" stroke="BLACK" strokeType="INSIDE" width="5.0" x="35.0" y="17.5" />
+      <Rectangle fx:id="arm1" arcHeight="5.0" arcWidth="5.0" fill="SILVER" height="5" stroke="BLACK" strokeType="INSIDE" width="80" x="0.0" y="37.5" />
       <Group fx:id="armGroup">
          <children>
       
               <!-- The arm: note the fx:id attribute. This will instantiate a variable named "arm" in the ArmBot class. That
                    variable is of type Rectangle and is annotated with @FXML-->
-              <Rectangle fx:id="arm" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="57.5" stroke="BLACK" strokeType="INSIDE" width="5.0" x="35.0" y="17.5" />
+              <Rectangle fx:id="arm" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="25" stroke="BLACK" strokeType="INSIDE" width="5.0" x="35.0" y="17.5" />
       
               <!-- The hand and fingers: note the fx:id attributes-->
               <Rectangle fx:id="hand" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="5.0" stroke="BLACK" strokeType="INSIDE" width="45.0" x="15.0" y="17.5" />

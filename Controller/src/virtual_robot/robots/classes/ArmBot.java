@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import org.dyn4j.collision.CategoryFilter;
@@ -70,6 +71,8 @@ public class ArmBot extends MecanumPhysicsBase {
      * Transform objects that will be instantiated in the initialize() method, and will be used in the
      * updateDisplay() method to manipulate the arm, hand, and fingers.
      */
+
+
     Translate armTranslateTransform;
     Translate leftFingerTranslateTransform;
     Translate rightFingerTranslateTransform;
@@ -115,8 +118,8 @@ public class ArmBot extends MecanumPhysicsBase {
         hardwareMap.setActive(true);
 
         armMotor = (DcMotorExImpl)hardwareMap.get(DcMotorEx.class, "arm_motor");
-        armMotor.setActualPositionLimits(0, 2240);
-        armMotor.setPositionLimitsEnabled(true);
+        //armMotor.setActualPositionLimits(0, 2240);
+        //armMotor.setPositionLimitsEnabled(true);
 
         //Instantiate the hand servo. Note the cast to ServoImpl.
         handServo = (ServoImpl)hardwareMap.servo.get("hand_servo");
@@ -127,6 +130,7 @@ public class ArmBot extends MecanumPhysicsBase {
         /*
          * Translates the arm (only the Y-dimension will be used).
          */
+
         armTranslateTransform = new Translate(0, 0);
         armGroup.getTransforms().add(armTranslateTransform);
 
@@ -152,7 +156,7 @@ public class ArmBot extends MecanumPhysicsBase {
         armMap.put(hand, new FixtureData(ARM_FILTER, 1.0, 0, 0.25, 1, 2));
         armBody = Dyn4jUtil.createBody(armGroup, this, 9, 9, armMap);
         world.addBody(armBody);
-        armSlide = new Slide(chassisBody, armBody, new Vector2(0,0), new Vector2(0,-1),
+        armSlide = new Slide(chassisBody, armBody, new Vector2(0,0), new Vector2(-1,0),
                 VirtualField.Unit.PIXEL);
         world.addJoint(armSlide);
 
@@ -235,16 +239,18 @@ public class ArmBot extends MecanumPhysicsBase {
 
         // Extend or retract the arm based on the value of armScale.
 
-        armTranslateTransform.setY(-armTranslation);
-        leftFingerTranslateTransform.setY(-armTranslation);
-        rightFingerTranslateTransform.setY(-armTranslation);
+        armTranslateTransform.setX(-armTranslation);
+        leftFingerTranslateTransform.setX(-armTranslation);
+        rightFingerTranslateTransform.setX(-armTranslation);
 
         // Mover fingers in the X-direction (i.e., open/close fingers) based on position of the handServo.
 
+        /*
         if (Math.abs(fingerPos - leftFingerTranslateTransform.getX()) > 0.001) {
             leftFingerTranslateTransform.setX(fingerPos);
             rightFingerTranslateTransform.setX(-fingerPos);
         }
+         */
 
 
     }

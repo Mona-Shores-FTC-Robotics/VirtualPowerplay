@@ -36,6 +36,7 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -108,10 +109,10 @@ public class DriveTrain
         LBDrive  = ahwMap.get(DcMotor.class, "back_left_motor");
         RBDrive = ahwMap.get(DcMotor.class, "back_right_motor");
 
-        LFDrive.setDirection(DcMotor.Direction.FORWARD);
-        RFDrive.setDirection(DcMotor.Direction.REVERSE);
-        LBDrive.setDirection(DcMotor.Direction.FORWARD);
-        RBDrive.setDirection(DcMotor.Direction.REVERSE);
+        LFDrive.setDirection(DcMotor.Direction.REVERSE);
+        RFDrive.setDirection(DcMotor.Direction.FORWARD);
+        LBDrive.setDirection(DcMotor.Direction.REVERSE);
+        RBDrive.setDirection(DcMotor.Direction.FORWARD);
 
         // Set all motors to zero power
         LFDrive.setPower(0);
@@ -213,9 +214,9 @@ public class DriveTrain
                 LBDrive.setPower(abs(ramp));
                 RBDrive.setPower(abs(ramp));
                 if (ramp < speed) {
-                    ramp = ramp + .001;
+                    ramp = ramp + .003;
                 } else if (ramp > speed) {
-                    ramp = ramp - .001;
+                    ramp = ramp - .003;
                 }
 
                 activeOpMode.telemetry.addData("Encoder BL", LFDrive.getCurrentPosition());
@@ -287,10 +288,10 @@ public class DriveTrain
                 LBDrive.setPower(abs(ramp));
                 RBDrive.setPower(abs(ramp));
                 if (ramp<speed){
-                    ramp = ramp + .01;
+                    ramp = ramp + .003;
                 }
                 else if (ramp>speed){
-                    ramp = ramp -.01;
+                    ramp = ramp -.003;
                 }
 
 
@@ -345,7 +346,7 @@ public class DriveTrain
         double error = degrees;
         while (activeOpMode.opModeIsActive() && Math.abs(error) > 1)
         {
-            double motorPower = (error < 0 ? .6 : -.6);
+            double motorPower = (error < 0 ? -.8 : .8);
             setMotorPower(-motorPower, motorPower, -motorPower, motorPower);
             error = degrees - getAngle();
 

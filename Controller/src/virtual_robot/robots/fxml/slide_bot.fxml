@@ -8,17 +8,10 @@
 
         <Rectangle arcHeight="2.0" arcWidth="5.0" fill="YELLOW" height="65.0" stroke="BLACK" strokeType="INSIDE" width="65.0" x="5" y="5" />
 
-        <!--Left back wheel-->
-        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" rotate="-45.0" stroke="BLACK" strokeType="INSIDE" width="6.0" x="11.192" y="50.807" />
-
-        <!--Left front wheel-->
-        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" rotate="45.0" stroke="BLACK" strokeType="INSIDE" width="6.0" x="11.192" y="5" />
-
-        <!--Right front wheel-->
-        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" rotate="-45.0" stroke="BLACK" strokeType="INSIDE" width="6.0" x="57.807" y="5" />
-
-        <!--Right back wheel-->
-        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" rotate="45.0" stroke="BLACK" strokeType="INSIDE" width="6.0" x="57.807" y="50.807" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" stroke="BLACK" strokeType="INSIDE" width="10.0" x="5" y="50.0" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" stroke="BLACK" strokeType="INSIDE" width="10.0" x="5" y="5"/>
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" stroke="BLACK" strokeType="INSIDE" width="10.0" x="60.0" y= "5"/>
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" stroke="BLACK" strokeType="INSIDE" width="10.0" x="60.0" y="50.0" />
 
         <!--Green square indicating the lift intake-->
         <Rectangle fx:id="slide" arcHeight="5.0" fill="LIME" height="10.0" stroke="BLACK" strokeType="INSIDE" width="10.0" x="32.5" y="45" />

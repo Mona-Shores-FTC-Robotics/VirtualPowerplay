@@ -1,13 +1,15 @@
-package org.firstinspires.ftc.teamcode.OpModes;
+package com.acmerobotics.dashboard.config.disabled_samples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
 import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
 
 @Autonomous(name = "AUTO_SCORE_AND_PARK_CTM")
-public class AUTO_SCORE_SIX_CONES_AND_PARK_CTM extends LinearOpMode {
+@Disabled
+public class AUTO_SCORE_AND_PARK_CTM extends LinearOpMode {
 
     int Signal;
 
