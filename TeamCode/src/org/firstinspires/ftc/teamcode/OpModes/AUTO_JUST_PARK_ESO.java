@@ -49,13 +49,15 @@ public class AUTO_JUST_PARK_ESO extends LinearOpMode {
         //MecDrive.turn(45,this);
         //MecDrive.turnTo(-20,this);
 
+        MecDrive.encoderDrive(.4, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE, this);
+
         if(Signal == 1){
-            MecDrive.encoderDrive(.4, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);
+            MecDrive.encoderDrive(.4, FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE, FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE, this);
             MecDrive.strafeDrive(.4, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, this);
         }else if(Signal == 2){
-            MecDrive.encoderDrive(.4, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);
+            MecDrive.encoderDrive(.4, FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE, FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE, this);
         }else if(Signal == 3){
-            MecDrive.encoderDrive(.4, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);
+            MecDrive.encoderDrive(.4, FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE, FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE, this);
             MecDrive.strafeDrive(.4, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);
         }
 
