@@ -166,6 +166,14 @@ public class DriveTrain
             LBDrive.setPower(leftBackPower);
             RBDrive.setPower(rightBackPower);
         }
+        else
+        {
+            LFDrive.setPower(0);
+            RFDrive.setPower(0);
+            LBDrive.setPower(0);
+            RBDrive.setPower(0);
+        }
+
     }
 
 
