@@ -48,6 +48,10 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
         Lift.init(hardwareMap);
         Lift.moveLift(ONE_CONE_INTAKE_HEIGHT_MM,this);
 
+
+        boolean aToggleReady = false;
+        boolean xToggleReady = false;
+
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Press Start When Ready", "");
 
@@ -69,15 +73,29 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
             MecDrive.MecanumDrive();
 
-            if (gamepad1.x) {
+            boolean G1a = gamepad1.a;
+            boolean G1x = gamepad1.x;
+
+            if (G1a == false){
+                aToggleReady = true;
+            }
+
+            if (G1x == false){
+                xToggleReady = true;
+            }
+
+            if (G1a && aToggleReady) {
+                aToggleReady = false;
                 ServoArm.setPosition(ARM_LEFT_OUTTAKE);
                 sleep(100);
             }
-            else if (gamepad1.y) {
+
+
+            if (gamepad1.y) {
                 ServoArm.setPosition(ARM_INTAKE);
                 sleep(100);
             }
-            else if (gamepad1.b) {
+            if (gamepad1.b) {
                 ServoArm.setPosition(ARM_RIGHT_OUTTAKE);
                 sleep(100);
             }
@@ -87,10 +105,12 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
                 sleep(100);
             }
 
-            if (gamepad1.a) {
+            if (G1x && xToggleReady) {
+                xToggleReady = false;
                 ServoClaw.toggleClaw();
                 sleep(100);
             }
+
 
             if (gamepad1.left_bumper) {
                 Lift.moveLift(ONE_CONE_INTAKE_HEIGHT_MM, this);
@@ -100,9 +120,9 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
                 Lift.moveLift(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM, this);
             }
 
-            if (gamepad1.dpad_up){
+            if (gamepad1.dpad_up) {
                 MecDrive.turnTo(0, this);
-                MecDrive.encoderDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this );
+                MecDrive.encoderDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);
             }
             if (gamepad1.dpad_down) {
                 MecDrive.turnTo(0, this);
