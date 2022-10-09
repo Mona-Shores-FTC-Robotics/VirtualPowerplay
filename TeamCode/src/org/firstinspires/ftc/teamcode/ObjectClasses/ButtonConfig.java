@@ -39,12 +39,7 @@ public class ButtonConfig {
     public void ConfigureAllianceColor() {
 
         while (!confirmAllianceColorSelection) {
-
-
-
-
-            activeOpMode.telemetry.addLine("Select Alliance Color");
-            activeOpMode.telemetry.addLine("D-pad up (Red) / D-pad down (Blue)");
+            activeOpMode.telemetry.addLine("Select Alliance Color with D-pad");
             activeOpMode.telemetry.addData("Current Alliance Color", currentAllianceColor);
             activeOpMode.telemetry.addData("Press B", "Press B to confirm selection");
             activeOpMode.telemetry.update();
@@ -79,7 +74,7 @@ public class ButtonConfig {
 
         while (!confirmStartingPositionSelection) {
 
-            activeOpMode.telemetry.addLine("Select Starting Position with D-pad up (Row 5) / D-pad down (Row 2)");
+            activeOpMode.telemetry.addLine("Select Starting Position with D-pad");
             activeOpMode.telemetry.addData("Current Starting Position ", currentStartPosition);
             activeOpMode.telemetry.addData("Press B", "Press B to confirm selection");
             activeOpMode.telemetry.update();

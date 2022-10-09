@@ -73,6 +73,7 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
             MecDrive.MecanumDrive();
 
+
             boolean G1a = gamepad1.a;
             boolean G1x = gamepad1.x;
 
@@ -113,11 +114,11 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
 
             if (gamepad1.left_bumper) {
-                Lift.moveLift(ONE_CONE_INTAKE_HEIGHT_MM, this);
+                //Lift.moveLift(ONE_CONE_INTAKE_HEIGHT_MM, this);
             }
 
             if (gamepad1.right_bumper) {
-                Lift.moveLift(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM, this);
+                //Lift.moveLift(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM, this);
             }
 
             if (gamepad1.dpad_up) {

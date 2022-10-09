@@ -54,6 +54,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
  *
  */
 
+
+
+
 public class DriveTrain
 {
     /* Public OpMode members. */
@@ -93,6 +96,9 @@ public class DriveTrain
     HardwareMap hwMap           =  null;
     private ElapsedTime period  = new ElapsedTime();
 
+
+    public enum robotState {HUMAN_CONTROLLED, AUTOMATIC_TASK}
+    public robotState currentRobotState;
     /* Constructor */
     public DriveTrain(){
     }
@@ -236,6 +242,13 @@ public class DriveTrain
                 activeOpMode.telemetry.addData("Speed", ramp);
                 activeOpMode.telemetry.addData("Status", "Run Time: " + activeOpMode.getRuntime());
                 activeOpMode.telemetry.update();
+
+                if (activeOpMode.gamepad1.b)
+                {
+                    currentRobotState = robotState.HUMAN_CONTROLLED;
+                    break;
+                }
+
             }
 
             setAllPower(0);
@@ -302,14 +315,13 @@ public class DriveTrain
                     ramp = ramp -.003;
                 }
 
+                if (activeOpMode.gamepad1.b)
+                {
+                    currentRobotState = robotState.HUMAN_CONTROLLED;
 
-                /**
-                 activeOpMode.telemetry.addData("Encoder BL", LFDrive.getCurrentPosition());
-                 activeOpMode.telemetry.addData("Encoder FR", RFDrive.getCurrentPosition());
-                 activeOpMode.telemetry.addData("Encoder BL", LBDrive.getCurrentPosition());
-                 activeOpMode.telemetry.addData("Encoder BR", RBDrive.getCurrentPosition());
-                 activeOpMode.telemetry.update();
-                 **/
+                    break;
+                }
+
             }
 
             setAllPower(0);
