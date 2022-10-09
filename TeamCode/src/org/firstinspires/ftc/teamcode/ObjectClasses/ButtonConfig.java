@@ -3,62 +3,116 @@ package org.firstinspires.ftc.teamcode.ObjectClasses;
 import static java.lang.Thread.sleep;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.sun.org.apache.xpath.internal.functions.FuncFalse;
 
 public class ButtonConfig {
 
-    public String startingLocationString;
-    public String allianceColorString;
+    private boolean confirmAllianceColorSelection = false;
+    private boolean confirmStartingPositionSelection = false;
+    boolean toggleReadyB = false;
 
-    //-1 = RED 1 = blue
-    public int allianceColor;
+    LinearOpMode activeOpMode;
+    public AllianceColor currentAllianceColor;
+    public int allianceColorMultiplier;//-1 = RED 1 = blue
 
-    //1 is row 2 and -1 is row 5
-    public int startLocation;
+    public StartPosition currentStartPosition;
+    public int startPositionMultiplier; //1 is row 2 and -1 is row 5
 
     // alliance color times starting location
-    public int allianceLocationFactor;
+    public int allianceColorAndLocationFactor;
 
-    public ButtonConfig() {
+    public ButtonConfig(LinearOpMode activeOpMode) {
+        this.activeOpMode = activeOpMode;
     }
 
     public void init() {
-        startingLocationString = "Row 2";
-        allianceColorString = "Blue";
-        allianceColor = 1; //1 = Blue // -1 = Red
-        startLocation = 1; //1 = close to audience A2/F2 // -1 =opposite side as audience A5/F5
-        allianceLocationFactor = allianceColor*startLocation;
+
+        currentAllianceColor = AllianceColor.NOT_SET_YET;
+        allianceColorMultiplier = 1; //1 = Blue // -1 = Red
+
+        currentStartPosition = StartPosition.NOT_SET_YET;
+        startPositionMultiplier = 1; //1 = close to audience A2/F2 // -1 =opposite side as audience A5/F5
+
+        allianceColorAndLocationFactor = allianceColorMultiplier*startPositionMultiplier;
     }
 
-    public void ConfigureAllianceColor(LinearOpMode activeOpMode) {
-        if (activeOpMode.gamepad1.dpad_up)
-            {
-                if (allianceColorString.equals("Blue")) {
-                    allianceColorString = "Red";
-                    allianceColor = -1;
-                } else if (allianceColorString.equals("Red")) {
-                    allianceColorString = "Blue";
-                    allianceColor = 1;
-                }
-                allianceLocationFactor = allianceColor*startLocation;
-                activeOpMode.sleep(250);
+    public void ConfigureAllianceColor() {
+
+        while (!confirmAllianceColorSelection) {
+
+
+
+
+            activeOpMode.telemetry.addLine("Select Alliance Color");
+            activeOpMode.telemetry.addLine("D-pad up (Red) / D-pad down (Blue)");
+            activeOpMode.telemetry.addData("Current Alliance Color", currentAllianceColor);
+            activeOpMode.telemetry.addData("Press B", "Press B to confirm selection");
+            activeOpMode.telemetry.update();
+
+            if (activeOpMode.gamepad1.dpad_up) {
+                currentAllianceColor = AllianceColor.RED;
+                allianceColorMultiplier = -1;
             }
+            if (activeOpMode.gamepad1.dpad_down) {
+                currentAllianceColor = AllianceColor.BLUE;
+                allianceColorMultiplier = 1;
+            }
+            allianceColorAndLocationFactor = allianceColorMultiplier * startPositionMultiplier;
+
+            boolean G1b = activeOpMode.gamepad1.b;
+
+            if (G1b == false) {
+                toggleReadyB = true;
+            }
+
+            if (G1b && toggleReadyB) {
+                toggleReadyB = false;
+                confirmAllianceColorSelection = true;
+                activeOpMode.telemetry.addData(" Alliance Color Selected: ", currentAllianceColor);
+                activeOpMode.telemetry.update();
+            }
+        }
     }
 
-    public void ConfigureStartingLocation(LinearOpMode activeOpMode) {
-        if (activeOpMode.gamepad1.dpad_down) {
-                if (startingLocationString.equals("Row 2")) {
-                    startingLocationString = "Row 5";
-                    startLocation = -1;
-                } else if (startingLocationString.equals("Row 5")) {
-                    startingLocationString = "Row 2";
-                    startLocation = 1;
-                }
-            allianceLocationFactor = allianceColor*startLocation;
-            activeOpMode.sleep(250);
+
+    public void ConfigureStartingPosition() {
+
+        while (!confirmStartingPositionSelection) {
+
+            activeOpMode.telemetry.addLine("Select Starting Position with D-pad up (Row 5) / D-pad down (Row 2)");
+            activeOpMode.telemetry.addData("Current Starting Position ", currentStartPosition);
+            activeOpMode.telemetry.addData("Press B", "Press B to confirm selection");
+            activeOpMode.telemetry.update();
+
+            if (activeOpMode.gamepad1.dpad_up) {
+               currentStartPosition = StartPosition.ROW_5;
+               startPositionMultiplier = -1;
             }
+            if (activeOpMode.gamepad1.dpad_down) {
+                    currentStartPosition = StartPosition.ROW_2;
+                    startPositionMultiplier = 1;
+            }
+            allianceColorAndLocationFactor = allianceColorMultiplier * startPositionMultiplier;
+
+            boolean G1b = activeOpMode.gamepad1.b;
+
+            if (G1b == false) {
+                toggleReadyB = true;
+            }
+
+            if (G1b && toggleReadyB) {
+                toggleReadyB = false;
+                confirmStartingPositionSelection = true;
+                activeOpMode.telemetry.addData(" Alliance ColorSelected: ", currentAllianceColor);
+                activeOpMode.telemetry.addData(" Starting Position Selected: ", currentStartPosition);
+                activeOpMode.telemetry.update();
+            }
+
+        }
     }
 
     public void ConfigureMultiplier(LinearOpMode activeOpMode, DriveTrain MecDrive) {
+
         if (activeOpMode.gamepad1.left_stick_y > .25 && MecDrive.multiplier > MecDrive.MINMULT) {
             MecDrive.multiplier = (MecDrive.multiplier * 10 - 1) / 10;
 
@@ -82,4 +136,17 @@ public class ButtonConfig {
         activeOpMode.telemetry.addData("Drive Multiplier", MecDrive.multiplier);
         activeOpMode.telemetry.update();
     }
+
+    public enum StartPosition {
+        ROW_2,
+        ROW_5,
+        NOT_SET_YET
+    }
+
+    public enum AllianceColor {
+        BLUE,
+        RED,
+        NOT_SET_YET
+    }
+
 }

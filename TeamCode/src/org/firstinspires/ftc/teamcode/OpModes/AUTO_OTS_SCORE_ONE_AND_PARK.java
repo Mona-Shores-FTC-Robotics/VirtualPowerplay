@@ -33,7 +33,7 @@ public class AUTO_OTS_SCORE_ONE_AND_PARK extends LinearOpMode {
 
     int Signal;
     DriveTrain MecDrive = new DriveTrain();
-    ButtonConfig ButtonConfig = new ButtonConfig();
+    ButtonConfig ButtonConfig = new ButtonConfig(this);
     Arm ServoArm = new Arm();
     Intake ServoIntake = new Intake();
     Claw ServoClaw = new Claw();
@@ -68,12 +68,9 @@ public class AUTO_OTS_SCORE_ONE_AND_PARK extends LinearOpMode {
             //Use Webcam to find out Signal and store in Signal variable
             Signal = 2;
 
-            ButtonConfig.ConfigureAllianceColor(this);
-            ButtonConfig.ConfigureStartingLocation( this);
+            ButtonConfig.ConfigureAllianceColor();
+            ButtonConfig.ConfigureStartingPosition();
 
-            telemetry.addData("Alliance Color ", ButtonConfig.allianceColorString);
-            telemetry.addData("Starting Location ", ButtonConfig.startingLocationString);
-            telemetry.update();
         }
 
         runtime.reset();

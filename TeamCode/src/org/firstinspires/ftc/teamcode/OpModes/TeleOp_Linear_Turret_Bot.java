@@ -26,7 +26,7 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.Arm.*;
 public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
     DriveTrain MecDrive = new DriveTrain();
-    ButtonConfig ButtonConfig = new ButtonConfig();
+    ButtonConfig ButtonConfig = new ButtonConfig(this);
     Arm ServoArm = new Arm();
     Intake ServoIntake = new Intake();
     Claw ServoClaw = new Claw();

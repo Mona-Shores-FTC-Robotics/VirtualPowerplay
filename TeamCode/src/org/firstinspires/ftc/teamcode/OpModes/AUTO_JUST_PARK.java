@@ -22,7 +22,7 @@ public class AUTO_JUST_PARK extends LinearOpMode {
 
     DriveTrain MecDrive = new DriveTrain();
     //AprilTagVision Vision = new AprilTagVision();
-    ButtonConfig ButtonConfig = new ButtonConfig();
+    ButtonConfig ButtonConfig = new ButtonConfig(this);
     Arm ServoArm = new Arm();
     Intake ServoIntake = new Intake();
     Claw ServoClaw = new Claw();
@@ -55,11 +55,8 @@ public class AUTO_JUST_PARK extends LinearOpMode {
             //Vision.CheckForAprilTags(this);
 
             // Let the user set alliance color and starting location variables for use in code
-            ButtonConfig.ConfigureAllianceColor(this);
-            ButtonConfig.ConfigureStartingLocation( this);
-            telemetry.addData("Alliance Color ", ButtonConfig.allianceColorString);
-            telemetry.addData("Starting Location ", ButtonConfig.startingLocationString);
-            telemetry.update();
+            ButtonConfig.ConfigureAllianceColor();
+            ButtonConfig.ConfigureStartingPosition();
         }
 
         currentSignal = Signal.RIGHT;
