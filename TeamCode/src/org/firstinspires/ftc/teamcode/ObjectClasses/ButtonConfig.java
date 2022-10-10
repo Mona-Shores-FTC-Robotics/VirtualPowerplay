@@ -59,7 +59,7 @@ public class ButtonConfig {
                 toggleReadyB = true;
             }
 
-            if (G1b && toggleReadyB) {
+            if (G1b && toggleReadyB && currentAllianceColor != AllianceColor.NOT_SET_YET) {
                 toggleReadyB = false;
                 confirmAllianceColorSelection = true;
                 activeOpMode.telemetry.addData(" Alliance Color Selected: ", currentAllianceColor);
@@ -94,7 +94,7 @@ public class ButtonConfig {
                 toggleReadyB = true;
             }
 
-            if (G1b && toggleReadyB) {
+            if (G1b && toggleReadyB && currentStartPosition != StartPosition.NOT_SET_YET) {
                 toggleReadyB = false;
                 confirmStartingPositionSelection = true;
                 activeOpMode.telemetry.addData(" Alliance ColorSelected: ", currentAllianceColor);

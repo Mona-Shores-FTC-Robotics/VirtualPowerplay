@@ -44,8 +44,6 @@ public class TeleOp_Linear_Turret_Bot_STATEMACHINE extends LinearOpMode {
     Claw ServoClaw = new Claw();
     org.firstinspires.ftc.teamcode.ObjectClasses.Lift Lift = new Lift();
 
-
-
     public DriveTrain.robotState currentRobotState;
 
     private final ElapsedTime runtime = new ElapsedTime();

@@ -15,6 +15,7 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.QUARTER
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.SIXTEENTH_TILE_DISTANCE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.THREE_CONE_STACK_INTAKE_HEIGHT_MM;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.TWO_CONE_STACK_INTAKE_HEIGHT_MM;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.currentSignal;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -24,6 +25,7 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.Arm;
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Claw;
 import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
+import org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Intake;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Lift;
 
@@ -38,8 +40,6 @@ public class AUTO_OTS_SCORE_ONE_AND_PARK extends LinearOpMode {
     Intake ServoIntake = new Intake();
     Claw ServoClaw = new Claw();
     Lift Lift = new Lift();
-
-    public final ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() {
@@ -70,10 +70,21 @@ public class AUTO_OTS_SCORE_ONE_AND_PARK extends LinearOpMode {
 
             ButtonConfig.ConfigureAllianceColor();
             ButtonConfig.ConfigureStartingPosition();
-
+            telemetry.addData("Alliance Color ", ButtonConfig.currentAllianceColor);
+            telemetry.addData("Starting Position ", ButtonConfig.currentStartPosition);
+            telemetry.addData("Status", "Run Time: " + getRuntime());
+            telemetry.update();
+            sleep(20);
         }
 
-        runtime.reset();
+        resetStartTime();
+
+        //Vision.SetSignal(this);
+        telemetry.addData("Signal is ", Signal);
+        telemetry.addData("Selected Alliance Color ", ButtonConfig.currentAllianceColor);
+        telemetry.addData("Selected Starting Position ", ButtonConfig.currentStartPosition);
+        telemetry.addData("Status", "Run Time: " + getRuntime());
+        telemetry.update();
 
         //align to the wall and calibrate gyro
         MecDrive.encoderDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE, this);
@@ -105,7 +116,7 @@ public class AUTO_OTS_SCORE_ONE_AND_PARK extends LinearOpMode {
             MecDrive.strafeDrive(.5, (FULL_TILE_DISTANCE + (HALF_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor)), (FULL_TILE_DISTANCE + (HALF_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor)), this);
         }
 
-        telemetry.addData("Status", "Run Time: " + runtime);
+        telemetry.addData("Status", "Run Time: " + getRuntime());
         telemetry.update();
         sleep(6000);
 

@@ -243,7 +243,7 @@ public class DriveTrain
                 activeOpMode.telemetry.addData("Status", "Run Time: " + activeOpMode.getRuntime());
                 activeOpMode.telemetry.update();
 
-                if (activeOpMode.gamepad1.b)
+                if (activeOpMode.gamepad1.b && activeOpMode.getRuntime() > 30)
                 {
                     currentRobotState = robotState.HUMAN_CONTROLLED;
                     break;
@@ -315,10 +315,9 @@ public class DriveTrain
                     ramp = ramp -.003;
                 }
 
-                if (activeOpMode.gamepad1.b)
+                if (activeOpMode.gamepad1.b && activeOpMode.getRuntime() > 30)
                 {
                     currentRobotState = robotState.HUMAN_CONTROLLED;
-
                     break;
                 }
 

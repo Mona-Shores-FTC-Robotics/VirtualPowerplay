@@ -57,11 +57,20 @@ public class AUTO_JUST_PARK extends LinearOpMode {
             // Let the user set alliance color and starting location variables for use in code
             ButtonConfig.ConfigureAllianceColor();
             ButtonConfig.ConfigureStartingPosition();
+            telemetry.addData("Alliance Color ", ButtonConfig.currentAllianceColor);
+            telemetry.addData("Starting Position ", ButtonConfig.currentStartPosition);
+            telemetry.addData("Status", "Run Time: " + getRuntime());
+            telemetry.update();
+            sleep(20);
         }
 
+        resetStartTime();
         currentSignal = Signal.RIGHT;
         //Vision.SetSignal(this);
         telemetry.addData("Signal is ", currentSignal);
+        telemetry.addData("Selected Alliance Color ", ButtonConfig.currentAllianceColor);
+        telemetry.addData("Selected Starting Position ", ButtonConfig.currentStartPosition);
+        telemetry.addData("Status", "Run Time: " + getRuntime());
         telemetry.update();
 
         //Drive backwards into wall to make sure we are aligned
@@ -87,7 +96,11 @@ public class AUTO_JUST_PARK extends LinearOpMode {
             //Park on right
             MecDrive.strafeDrive(MED_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);
         }
+
+        telemetry.addData("Status", "Run Time: " + getRuntime());
+        telemetry.update();
     }
+
 }
 
 
