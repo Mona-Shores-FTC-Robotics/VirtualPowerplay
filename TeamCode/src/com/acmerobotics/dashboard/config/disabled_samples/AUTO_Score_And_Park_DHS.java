@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
 public class AUTO_Score_And_Park_DHS extends LinearOpMode {
 
     DriveTrain MecDrive = new DriveTrain();
-    ButtonConfig ButtonConfig = new ButtonConfig();
+    ButtonConfig ButtonConfig = new ButtonConfig(this);
     int Signal;
 
     int FULL_TILE_DIST = 50;
@@ -34,17 +34,13 @@ public class AUTO_Score_And_Park_DHS extends LinearOpMode {
         sleep(1000);
 
         while (!isStarted()) {
-            ButtonConfig.ConfigureAllianceColor(this);
-            ButtonConfig.ConfigureStartingLocation( this);
-
-            //Use Webcam to find out Signal and store in Signal variable
+                 //Use Webcam to find out Signal and store in Signal variable
             Signal = 2;
 
-            telemetry.addData("Alliance Color String ", ButtonConfig.allianceColorString);
-            telemetry.addData("Alliance Color ", ButtonConfig.allianceColor);
-            telemetry.addData("Starting Location String ", ButtonConfig.startingLocationString);
-            telemetry.addData("Starting Location ", ButtonConfig.startLocation);
-            telemetry.addData("Alliance Location Factor ", ButtonConfig.allianceLocationFactor);
+            ButtonConfig.ConfigureAllianceColor();
+            ButtonConfig.ConfigureStartingPosition();
+            telemetry.addData("Alliance Color ", ButtonConfig.currentAllianceColor);
+            telemetry.addData("Starting Location ", ButtonConfig.currentStartPosition);
             telemetry.addData("Signal ", Signal);
             telemetry.update();
         }
@@ -57,7 +53,7 @@ public class AUTO_Score_And_Park_DHS extends LinearOpMode {
             MecDrive.encoderDrive(.7, (FULL_TILE_DIST*2)+EIGHTH_TILE_DIST, (FULL_TILE_DIST*2)+EIGHTH_TILE_DIST, this);
 
             //Strafe in Front of High Pole
-            MecDrive.strafeDrive(.7, -(HALF_TILE_DIST * ButtonConfig.allianceLocationFactor), -(HALF_TILE_DIST * ButtonConfig.allianceLocationFactor), this);
+            MecDrive.strafeDrive(.7, -(HALF_TILE_DIST * ButtonConfig.allianceColorAndLocationFactor), -(HALF_TILE_DIST * ButtonConfig.allianceColorAndLocationFactor), this);
 
             //Place Cone on High Pole
             //PLACEHOLDER CODE FOR PLACING CONE
@@ -67,11 +63,11 @@ public class AUTO_Score_And_Park_DHS extends LinearOpMode {
 
             //Park after placing cone
             if (Signal == 1) {
-                MecDrive.strafeDrive(.5, (-FULL_TILE_DIST + (HALF_TILE_DIST * ButtonConfig.allianceLocationFactor)), (-FULL_TILE_DIST + (HALF_TILE_DIST * ButtonConfig.allianceLocationFactor)), this);
+                MecDrive.strafeDrive(.5, (-FULL_TILE_DIST + (HALF_TILE_DIST * ButtonConfig.allianceColorAndLocationFactor)), (-FULL_TILE_DIST + (HALF_TILE_DIST * ButtonConfig.allianceColorAndLocationFactor)), this);
             } else if (Signal == 2) {
-                MecDrive.strafeDrive(.5, (HALF_TILE_DIST* ButtonConfig.allianceLocationFactor), (HALF_TILE_DIST * ButtonConfig.allianceLocationFactor), this);
+                MecDrive.strafeDrive(.5, (HALF_TILE_DIST* ButtonConfig.allianceColorAndLocationFactor), (HALF_TILE_DIST * ButtonConfig.allianceColorAndLocationFactor), this);
             } else if (Signal == 3) {
-               MecDrive.strafeDrive(.5, (FULL_TILE_DIST + (HALF_TILE_DIST * ButtonConfig.allianceLocationFactor)), (FULL_TILE_DIST + (HALF_TILE_DIST * ButtonConfig.allianceLocationFactor)), this);
+               MecDrive.strafeDrive(.5, (FULL_TILE_DIST + (HALF_TILE_DIST * ButtonConfig.allianceColorAndLocationFactor)), (FULL_TILE_DIST + (HALF_TILE_DIST * ButtonConfig.allianceColorAndLocationFactor)), this);
             }
         }
     }

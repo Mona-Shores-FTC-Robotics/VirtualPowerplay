@@ -12,7 +12,6 @@ public final class GameConstants {
     public static final int EIGHTH_TILE_DISTANCE = QUARTER_TILE_DISTANCE /2;
     public static final int SIXTEENTH_TILE_DISTANCE = EIGHTH_TILE_DISTANCE /2;
 
-
     public static final double CONE_HEIGHT_MM = 152;
     public static final double CONE_INTAKE_HEIGHT_CHANGE_MM = 60;
 

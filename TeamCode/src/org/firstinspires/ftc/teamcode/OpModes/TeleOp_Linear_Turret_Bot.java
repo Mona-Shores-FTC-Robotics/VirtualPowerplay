@@ -67,10 +67,6 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
             MecDrive.strafe = gamepad1.left_stick_x; //-1.0 to 1.0
             MecDrive.turn = gamepad1.right_stick_x; //-1.0 to 1.0
 
-            // MecDrive.drive = -gamepad1.left_stick_y; //-1.0 to 1.0
-            //MecDrive.strafe = gamepad1.right_trigger-gamepad1.left_trigger; //-1.0 to 1.0 // right trigger strafe right, left trigger strafe left
-            //MecDrive.turn  =  gamepad1.right_stick_x; //-1.0 to 1.0
-
             MecDrive.MecanumDrive();
 
 

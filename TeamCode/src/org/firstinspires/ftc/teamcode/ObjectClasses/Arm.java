@@ -21,5 +21,4 @@ public class Arm {
     public void setPosition(double position) {
         arm.setPosition(position);
     }
-
 }

@@ -18,7 +18,7 @@ public class AUTO_SCORE_AND_PARK_ADVANCED_CTM extends LinearOpMode {
     int Signal;
 
     DriveTrain MecDrive = new DriveTrain();
-    ButtonConfig ButtonConfig = new ButtonConfig();
+    ButtonConfig ButtonConfig = new ButtonConfig(this);
 
     @Override
 
@@ -36,10 +36,10 @@ public class AUTO_SCORE_AND_PARK_ADVANCED_CTM extends LinearOpMode {
         sleep(1000);
         Signal = 1;
         while (!isStarted()) {
-            ButtonConfig.ConfigureAllianceColor(this);
-            ButtonConfig.ConfigureStartingLocation(this);
-            telemetry.addData("Alliance Color ", ButtonConfig.allianceColorString);
-            telemetry.addData("Starting Location ", ButtonConfig.startingLocationString);
+            ButtonConfig.ConfigureAllianceColor();
+            ButtonConfig.ConfigureStartingPosition();
+            telemetry.addData("Alliance Color ", ButtonConfig.currentAllianceColor);
+            telemetry.addData("Starting Location ", ButtonConfig.currentStartPosition);
             telemetry.update();
             //Use Webcam to find out Signal and store in Signal variable
 
@@ -54,7 +54,7 @@ public class AUTO_SCORE_AND_PARK_ADVANCED_CTM extends LinearOpMode {
 
         if (Signal == 1) {
             //strafe until in parking zone 1
-            MecDrive.strafeDrive(LOW_SPEED, FULL_TILE_DISTANCE * (ButtonConfig.allianceColor * ButtonConfig.startLocation), -25, this);
+            MecDrive.strafeDrive(LOW_SPEED, FULL_TILE_DISTANCE * (ButtonConfig.allianceColorMultiplier * ButtonConfig.startPositionMultiplier), -25, this);
             sleep(1000);
             MecDrive.strafeDrive(LOW_SPEED, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE, this);
             MecDrive.encoderDrive(MED_SPEED, -5, -5, this);

@@ -26,7 +26,7 @@ public class AUTO_DHS_ARM_BOT_TEST extends LinearOpMode {
     int Signal;
 
     DriveTrain MecDrive = new DriveTrain();
-    ButtonConfig ButtonConfig = new ButtonConfig();
+    ButtonConfig ButtonConfig = new ButtonConfig(this);
     public final ElapsedTime runtime = new ElapsedTime();
 
     @Override
@@ -52,10 +52,10 @@ public class AUTO_DHS_ARM_BOT_TEST extends LinearOpMode {
             //Use Webcam to find out Signal and store in Signal variable
             Signal = 1;
 
-            ButtonConfig.ConfigureAllianceColor(this);
-            ButtonConfig.ConfigureStartingLocation( this);
-            telemetry.addData("Alliance Color ", ButtonConfig.allianceColorString);
-            telemetry.addData("Starting Location ", ButtonConfig.startingLocationString);
+            ButtonConfig.ConfigureAllianceColor();
+            ButtonConfig.ConfigureStartingPosition();
+            telemetry.addData("Alliance Color ", ButtonConfig.currentAllianceColor);
+            telemetry.addData("Starting Location ", ButtonConfig.currentStartPosition);
             telemetry.update();
 
         }

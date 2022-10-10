@@ -75,57 +75,36 @@ public class AUTO_OTS_SCORE_ONE_AND_PARK extends LinearOpMode {
 
         runtime.reset();
 
-
         //align to the wall and calibrate gyro
         MecDrive.encoderDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE, this);
         MecDrive.calibrateGyro(this);
 
-        //drive to line up with the cone stack
-        MecDrive.encoderDrive(HIGH_SPEED, (FULL_TILE_DISTANCE*2 + SIXTEENTH_TILE_DISTANCE), (FULL_TILE_DISTANCE*2 + SIXTEENTH_TILE_DISTANCE), this);
-        MecDrive.turnTo(-90, this);
+        //Drive Forward
+        MecDrive.encoderDrive(MED_SPEED, (FULL_TILE_DISTANCE*2)+EIGHTH_TILE_DISTANCE, (FULL_TILE_DISTANCE*2)+EIGHTH_TILE_DISTANCE, this);
 
-        //drive toward middle of field
-        MecDrive.encoderDrive(HIGH_SPEED, -(HALF_TILE_DISTANCE), -(HALF_TILE_DISTANCE), this);
+        //Strafe in Front of High Pole
+        MecDrive.strafeDrive(MED_SPEED, -(HALF_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), -(HALF_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), this);
 
-        //rotate turret to deliver to High Junction
-        //this code won't work if high junction is on the left.
-        ServoArm.setPosition(ARM_LEFT_OUTTAKE);
+        //Drive close to High Pole
+        MecDrive.encoderDrive(MED_SPEED, EIGHTH_TILE_DISTANCE, EIGHTH_TILE_DISTANCE, this);
 
-        //raise lift to height to deliver to High Junction
-        Lift.moveLift(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM, this);
-
-        //strafe to the high pole
-        MecDrive.strafeDrive(HIGH_SPEED, -(QUARTER_TILE_DISTANCE), -(QUARTER_TILE_DISTANCE), this);
-
-        // Open claw to release cone
+        //Open claw to drop cone
         ServoClaw.toggleClaw();
-        int coneDeliveryTracker = 1;
-
-        //Give cone a moment to release;
-        sleep(100);
-
-        //Close claw for intaking next cone
+        sleep(250);
         ServoClaw.toggleClaw();
 
-        //strafe away from the high pole
-        MecDrive.strafeDrive(HIGH_SPEED, (QUARTER_TILE_DISTANCE), (QUARTER_TILE_DISTANCE), this);
+        //Back away from High Pole
+        MecDrive.encoderDrive(MED_SPEED, -EIGHTH_TILE_DISTANCE, -EIGHTH_TILE_DISTANCE, this);
 
-
-        //Park code
-        if(Signal == 1) {
-            MecDrive.encoderDrive(HIGH_SPEED, -(HALF_TILE_DISTANCE),-(HALF_TILE_DISTANCE),this);
-        }
-        else if (Signal == 2) {
-            MecDrive.encoderDrive(HIGH_SPEED, (HALF_TILE_DISTANCE),(HALF_TILE_DISTANCE),this);
-        }
-        else if (Signal == 3){
-        MecDrive.encoderDrive(HIGH_SPEED, (FULL_TILE_DISTANCE*2),(FULL_TILE_DISTANCE*2),this);
-
-
+        //Park after placing cone
+        if (Signal == 1) {
+            MecDrive.strafeDrive(.5, (-FULL_TILE_DISTANCE + (HALF_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor)), (-FULL_TILE_DISTANCE + (HALF_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor)), this);
+        } else if (Signal == 2) {
+            MecDrive.strafeDrive(.5, (HALF_TILE_DISTANCE* ButtonConfig.allianceColorAndLocationFactor), (HALF_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), this);
+        } else if (Signal == 3) {
+            MecDrive.strafeDrive(.5, (FULL_TILE_DISTANCE + (HALF_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor)), (FULL_TILE_DISTANCE + (HALF_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor)), this);
         }
 
-        telemetry.addData("Current Lift Height", Lift.liftMotor.getCurrentPosition());
-        telemetry.addData("# of Cones Delivered During Auto", coneDeliveryTracker);
         telemetry.addData("Status", "Run Time: " + runtime);
         telemetry.update();
         sleep(6000);
