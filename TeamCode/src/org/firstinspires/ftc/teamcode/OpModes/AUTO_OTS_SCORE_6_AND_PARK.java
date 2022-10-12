@@ -214,7 +214,7 @@ public class AUTO_OTS_SCORE_6_AND_PARK extends LinearOpMode {
         telemetry.addData("Status", "Run Time: " + runtime);
         telemetry.update();
         sleep(10000);
-
+    // pickle
     }
 }
 
