@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.Lift;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.Arm.*;
 
 
-@Autonomous(name = "AUTO_OTS POWERPLAY BOT SCORE, CONE STACK, AND PARK")
+@Autonomous(name = "AUTO_OTS_SCORE_6_AND_PARK")
 public class AUTO_OTS_SCORE_6_AND_PARK extends LinearOpMode {
 
     int Signal;
@@ -71,20 +71,23 @@ public class AUTO_OTS_SCORE_6_AND_PARK extends LinearOpMode {
 
         //drive to line up with the cone stack
         MecDrive.encoderDrive(HIGH_SPEED, (FULL_TILE_DISTANCE*2 + SIXTEENTH_TILE_DISTANCE), (FULL_TILE_DISTANCE*2 + SIXTEENTH_TILE_DISTANCE), this);
-        MecDrive.turnTo(-90, this);
+        MecDrive.turnTo(-90 * ButtonConfig.startPositionMultiplier * ButtonConfig.allianceColorMultiplier, this);
 
         //drive toward middle of field
         MecDrive.encoderDrive(HIGH_SPEED, -(HALF_TILE_DISTANCE), -(HALF_TILE_DISTANCE), this);
 
         //rotate turret to deliver to High Junction
         //this code won't work if high junction is on the left.
-        ServoArm.setPosition(ARM_LEFT_OUTTAKE);
+        if(ButtonConfig.allianceColorAndLocationFactor == 1){
+        ServoArm.setPosition(ARM_LEFT_OUTTAKE);}
+        else if (ButtonConfig.allianceColorAndLocationFactor == -1){
+        ServoArm.setPosition(ARM_RIGHT_OUTTAKE);}
 
         //raise lift to height to deliver to High Junction
         Lift.moveLift(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM, this);
 
         //strafe to the high pole
-        MecDrive.strafeDrive(HIGH_SPEED, -(QUARTER_TILE_DISTANCE), -(QUARTER_TILE_DISTANCE), this);
+        MecDrive.strafeDrive(HIGH_SPEED, -(QUARTER_TILE_DISTANCE * ButtonConfig.startPositionMultiplier * ButtonConfig.allianceColorMultiplier), -(QUARTER_TILE_DISTANCE * ButtonConfig.startPositionMultiplier * ButtonConfig.allianceColorMultiplier), this);
 
         // Open claw to release cone
         ServoClaw.toggleClaw();
@@ -97,7 +100,7 @@ public class AUTO_OTS_SCORE_6_AND_PARK extends LinearOpMode {
         ServoClaw.toggleClaw();
 
         //strafe away from the high pole
-        MecDrive.strafeDrive(HIGH_SPEED, (QUARTER_TILE_DISTANCE), (QUARTER_TILE_DISTANCE), this);
+        MecDrive.strafeDrive(HIGH_SPEED, (QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), (QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), this);
 
         int coneStackTracker = 5;
 
@@ -162,13 +165,16 @@ public class AUTO_OTS_SCORE_6_AND_PARK extends LinearOpMode {
             MecDrive.encoderDrive(HIGH_SPEED, -(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE), -(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE), this);
 
             //move turret to deliver position
-            ServoArm.setPosition(ARM_LEFT_OUTTAKE);
+            if(ButtonConfig.allianceColorAndLocationFactor == 1){
+                ServoArm.setPosition(ARM_LEFT_OUTTAKE);}
+            else if (ButtonConfig.allianceColorAndLocationFactor == -1){
+                ServoArm.setPosition(ARM_RIGHT_OUTTAKE);}
 
             //raise lift to height to deliver to High Junction
             Lift.moveLift(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM, this);
 
             //Strafe to the high pole
-            MecDrive.strafeDrive(HIGH_SPEED, -(QUARTER_TILE_DISTANCE), -(QUARTER_TILE_DISTANCE), this);
+            MecDrive.strafeDrive(HIGH_SPEED, -(QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), -(QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), this);
 
             //drop off cone
             ServoClaw.toggleClaw();
@@ -181,7 +187,7 @@ public class AUTO_OTS_SCORE_6_AND_PARK extends LinearOpMode {
             ServoClaw.toggleClaw();
 
             //strafe away from the high pole
-            MecDrive.strafeDrive(HIGH_SPEED, (QUARTER_TILE_DISTANCE), (QUARTER_TILE_DISTANCE), this);
+            MecDrive.strafeDrive(HIGH_SPEED, (QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), (QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), this);
         }
 
         Lift.moveLift(ONE_CONE_INTAKE_HEIGHT_MM, this);
@@ -207,7 +213,7 @@ public class AUTO_OTS_SCORE_6_AND_PARK extends LinearOpMode {
         telemetry.addData("# of Cones Delivered During Auto", coneDeliveryTracker);
         telemetry.addData("Status", "Run Time: " + runtime);
         telemetry.update();
-        sleep(6000);
+        sleep(10000);
 
     }
 }
