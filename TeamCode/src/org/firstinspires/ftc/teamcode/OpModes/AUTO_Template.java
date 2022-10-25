@@ -145,10 +145,7 @@ public class AUTO_Template extends LinearOpMode {
                 //Code to pickup a cone off the stack
 
                 //Code to deliver a cone from the stack
-
-
             }
-
 
         }
 

@@ -29,7 +29,6 @@ public class AUTO_JUST_PARK extends LinearOpMode {
     Lift Lift = new Lift();
 
 
-
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initializing");
@@ -74,34 +73,46 @@ public class AUTO_JUST_PARK extends LinearOpMode {
         telemetry.update();
 
         //Drive backwards into wall to make sure we are aligned
-        MecDrive.encoderDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE, this);
+        MecDrive.startEncoderDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE, this);
+        while (opModeIsActive() && MecDrive.alreadyDriving == true) {
+            MecDrive.ContinueDriving(this);
+        }
 
         //Drive forward 2 tiles plus a little bit more to get into position for deciding where to park
-        MecDrive.encoderDrive(MED_SPEED, FULL_TILE_DISTANCE*2+SIXTEENTH_TILE_DISTANCE, FULL_TILE_DISTANCE*2+SIXTEENTH_TILE_DISTANCE, this);
+        MecDrive.startEncoderDrive(MED_SPEED, FULL_TILE_DISTANCE * 2 + SIXTEENTH_TILE_DISTANCE, FULL_TILE_DISTANCE * 2 + SIXTEENTH_TILE_DISTANCE, this);
+        while (opModeIsActive() && MecDrive.alreadyDriving == true) {
+            MecDrive.ContinueDriving(this);
+        }
 
         //Decide where to park
         //if current Signal is the LEFT april tag then park on robot's left
-        if(currentSignal == Signal.LEFT) {
+        if (currentSignal == Signal.LEFT) {
             //Park on left
-            MecDrive.strafeDrive(MED_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, this);
+            MecDrive.startStrafeDrive(MED_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, this);
+            while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
+                MecDrive.ContinueStrafing(this);
+            }
         }
 
         //if current Signal is the MIDDLE april tag then park in middle
-        else if (currentSignal == Signal.MIDDLE ) {
+        else if (currentSignal == Signal.MIDDLE) {
             //Park in middle
-        }
+            }
 
         //if current Signal is the RIGHT april tag then park on robot's right
-        else if (currentSignal == Signal.RIGHT ){
+        else if (currentSignal == Signal.RIGHT) {
             //Park on right
-            MecDrive.strafeDrive(MED_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);
-        }
+            MecDrive.startStrafeDrive(MED_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);
+            while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
+                    MecDrive.ContinueStrafing(this);
+            }
 
-        telemetry.addData("Status", "Run Time: " + getRuntime());
-        telemetry.update();
+            telemetry.addData("Status", "Run Time: " + getRuntime());
+            telemetry.update();
+            }
+        }
     }
 
-}
 
 
 

@@ -64,7 +64,7 @@ public class AUTO_OTS_TERMINAL_COLOR_SENSOR_SCORE_6 extends LinearOpMode {
         int cones = 1;
 
         MecDrive.strafeDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, this);
-        MecDrive.colorStrafe(HIGH_SPEED, 1 , this);
+        //MecDrive.colorStrafe(HIGH_SPEED, 1 , this);
 
         //Straighten up the Robot
         MecDrive.turnTo(0, this);

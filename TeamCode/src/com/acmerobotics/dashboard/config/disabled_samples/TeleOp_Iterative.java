@@ -85,7 +85,6 @@ public class TeleOp_Iterative extends OpMode
         telemetry.addData("Drive", MecDrive.drive);
         telemetry.addData("Strafe", MecDrive.strafe);
         telemetry.addData("Turn", MecDrive.turn);
-        telemetry.addData("Color","R %d  G %d  B %d", MecDrive.colorSensor.red(), MecDrive.colorSensor.green(), MecDrive.colorSensor.blue());
 
         telemetry.addData("Motors ", MecDrive.LFDrive.getMode());
         telemetry.update();

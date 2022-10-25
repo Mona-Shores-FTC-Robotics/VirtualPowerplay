@@ -71,7 +71,7 @@ public class AUTO_OTS_TURN_AND_SCORE_6 extends LinearOpMode {
         {
 
             //Drive to stack line
-            MecDrive.colorDrive(-MED_SPEED, ButtonConfig.allianceColorMultiplier, this);
+            //MecDrive.colorDrive(-MED_SPEED, ButtonConfig.allianceColorMultiplier, this);
 
             //STRAIGHTEN
             MecDrive.turnTo(90, this);

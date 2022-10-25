@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class Arm {
 
     public static final double ARM_INTAKE = 0.5;
-    public static final double ARM_LEFT_OUTTAKE = 0;
-    public static final double ARM_RIGHT_OUTTAKE = 1.0;
+    public static final double ARM_LEFT_OUTTAKE = 1;
+    public static final double ARM_RIGHT_OUTTAKE = 0;
     public Servo arm;
 
     public void init(HardwareMap ahwMap) {

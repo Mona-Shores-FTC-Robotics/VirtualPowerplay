@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.OpModes;
+package com.acmerobotics.dashboard.config.disabled_samples;
 
 
 import static org.firstinspires.ftc.teamcode.ObjectClasses.Arm.ARM_INTAKE;
@@ -16,6 +16,7 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.QUARTER
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.W_3_JUNCTION;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.X_2_JUNCTION;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -35,6 +36,7 @@ import java.awt.Robot;
  */
 
 @TeleOp(name = "Teleop Mode w/ Turret Bot STATEMACHINE", group = "Turret Bot")
+@Disabled
 public class TeleOp_Linear_Turret_Bot_STATEMACHINE extends LinearOpMode {
 
     DriveTrain MecDrive = new DriveTrain();
