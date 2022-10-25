@@ -32,7 +32,7 @@ public class AUTO_OTS_SCORE_6_AND_PARK extends LinearOpMode {
     Lift Lift = new Lift();
 
     public final ElapsedTime runtime = new ElapsedTime();
-
+// goofy comment 2
     @Override
     public void runOpMode() {
 
