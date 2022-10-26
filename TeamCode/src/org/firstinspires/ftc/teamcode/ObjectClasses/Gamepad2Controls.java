@@ -50,13 +50,13 @@ public class Gamepad2Controls {
         if (currentGamepad2.a == true && g2A_ToggleReady == true) {
             g2A_ToggleReady = false;
             //open and close the claw
-            ServoClaw.toggleClaw();
+            //MICHAEL PLEASE PUT THE CODE TO TOGGLE THE CLAW OPEN AND CLOSED HERE
         }
 
         // Gamepad 2 -- X Button Controls
         if (currentGamepad2.x == true && g2X_ToggleReady == true) {
             g2X_ToggleReady = false;
-            ServoIntake.toggleIntake();
+            //EVELYN PLEASE PUT THE CODE TO TOGGLE THE INTAKE ON AND OFF HERE
         }
 
         // Gamepad 2 -- B Button Controls
@@ -79,7 +79,8 @@ public class Gamepad2Controls {
 
         if (currentGamepad2.right_bumper == true && g2Right_bumperToggleReady==true) {
             g2Right_bumperToggleReady = false;
-            Lift.startLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM, activeOpMode);
+            //MORGAN PLEASE WRITE THE CODE HERE TO START LIFTING TO THE HIGH JUNCTION
+
         }
 
         //----- Gamepad 2 -- DIRECTIONAL PAD Button Controls -----//
@@ -89,11 +90,13 @@ public class Gamepad2Controls {
         }
         if (currentGamepad2.dpad_left == true && g2Dpad_leftToggleReady == true) {
             g2Dpad_leftToggleReady = false;
-            ServoArm.setPosition(ARM_LEFT_OUTTAKE);
+            //OLIVER PLEASE WRITE THE CODE TO PUT THE ARM TO THE LEFT
+
         }
         if (currentGamepad2.dpad_right == true && g2Dpad_rightToggleReady == true) {
             g2Dpad_rightToggleReady = false;
-            ServoArm.setPosition(ARM_RIGHT_OUTTAKE);
+            //OLIVER PLEASE WRITE THE CODE TO PUT THE ARM TO THE RIGHT
+
         }
         if (currentGamepad2.dpad_up == true && g2Dpad_upToggleReady == true) {
             g2Dpad_upToggleReady = false;

@@ -58,16 +58,18 @@ public class Gamepad1Controls {
         }
 
         if (currentGamepad1.right_trigger > .1) {
-            MecDrive.turn = currentGamepad1.right_trigger*.2; //-1.0 to 1.0
-                  //how do we make it turn slower to the right based on the trigger value?
+            //CALEB: COMPLETE THIS CODE FOR FINE TUNING
+
         }
 
         MecDrive.MecanumDrive();
 
+        // CHRIS AND OLIVER LOOK AT THIS METHOD AND EXPLAIN TO MR. GREENE OR MR. SHUNTA HOW IT WORKS AND WHAT IT IS DOING
         SetGamepad1ButtonToggles(currentGamepad1);
 
         if (currentGamepad1.dpad_up == true && g1Dpad_upToggleReady == true) {
             g1Dpad_upToggleReady = false;
+
             if (currentGamepad1.b == true) {
                 MecDrive.startEncoderDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, activeOpMode);
             } else
@@ -78,38 +80,26 @@ public class Gamepad1Controls {
 
         if (currentGamepad1.dpad_down == true && g1Dpad_downToggleReady == true) {
             g1Dpad_downToggleReady = false;
-            if (currentGamepad1.b == true) {
-                MecDrive.startEncoderDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, activeOpMode);
-            } else
-            {
-                MecDrive.startEncoderDrive(HIGH_SPEED, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE, activeOpMode);
-            }
+            //CALEB WRITE THIS CODE FOR THE DPAD-DOWN BUTTON SO IT MOVES A FULL TILE TOWARD THE BACK OF THE ROBOT (WHERE THE INTAKE IS) IF YOU ARE HOLDING THE B BUTTON, BUT A HALF TILE IF YOU AREN'T
+
         }
 
         if (currentGamepad1.dpad_left == true && g1Dpad_leftToggleReady == true) {
             g1Dpad_leftToggleReady = false;
-            if (currentGamepad1.b == true) {
-                MecDrive.startStrafeDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, activeOpMode);
-            } else
-            {
-                MecDrive.startStrafeDrive(HIGH_SPEED, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE, activeOpMode);
-            }
+            //MICHAEL WRITE THIS CODE FOR THE DPAD-LEFT BUTTON SO IT MOVES A FULL TILE TO THE LEFT IF YOU ARE HOLDING THE B BUTTON, BUT A HALF TILE IF YOU AREN'T
+
         }
+
         if (currentGamepad1.dpad_right == true && g1Dpad_rightToggleReady == true) {
             g1Dpad_rightToggleReady = false;
-            if (currentGamepad1.b == true) {
-                MecDrive.startStrafeDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, activeOpMode);
-            }
-            else
-            {
-                MecDrive.startStrafeDrive(HIGH_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE, activeOpMode);
-            }
+            //MICHAEL WRITE THIS ONE TOO - IT SHOULD BE SIMLIAR TO THE ONE YOU WROTE FOR DPAD LEFT
+
         }
 
         if (currentGamepad1.a == true && g1A_ToggleReady == true) {
             g1A_ToggleReady = false;
             //move from alliance substation to scoring position
-            MecDrive.startEncoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE, activeOpMode);
+            //MecDrive.startEncoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE, activeOpMode);
         }
 
         if (currentGamepad1.x == true && g1X_ToggleReady == true) {
@@ -153,23 +143,7 @@ public class Gamepad1Controls {
 
         if (currentGamepad1.right_bumper == true && g1Right_bumperToggleReady == true) {
             g1Right_bumperToggleReady = false;
-
-            Orientation orientation = MecDrive.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            double currentAngle = orientation.firstAngle;
-
-            if (currentAngle < 0) {
-                currentAngle = currentAngle + 360;
-            }
-
-            if ((currentAngle > 271 && currentAngle <= 360) || (currentAngle < 6 && currentAngle >= 0)) {
-                MecDrive.turnTo(270, activeOpMode);
-            } else if (currentAngle > 2 && currentAngle <= 91) {
-                MecDrive.turnTo(0, activeOpMode);
-            } else if (currentAngle > 91 && currentAngle <= 181) {
-                MecDrive.turnTo(90, activeOpMode);
-            } else if (currentAngle > 181 && currentAngle <= 271) {
-                MecDrive.turnTo(180, activeOpMode);
-            }
+            //AMANDA CAN YOU WRITE THIS RIGHT BUMPER CODE TO TURN TO 0, 90, 180, 270 TO THE RIGHT THE OPPOSITE OF WHAT WE DO WITH THE LEFT BUMPER
         }
     }
 

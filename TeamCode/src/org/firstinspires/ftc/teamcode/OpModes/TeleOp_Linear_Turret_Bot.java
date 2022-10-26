@@ -68,7 +68,6 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
             currentGamepad1 = gamepad1;
             currentGamepad2 = gamepad2;
 
-
             if (opModeIsActive() && MecDrive.currentRobotState == DriveTrain.robotState.HUMAN_CONTROLLED)
             {
                 //Driver Controls for Gamepad1
