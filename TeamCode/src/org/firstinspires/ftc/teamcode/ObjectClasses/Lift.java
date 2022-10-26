@@ -17,11 +17,12 @@ public class Lift {
     //motor parameters
     final double TICKS_PER_REV = 537.7;
     final double DRIVE_GEAR_REDUCTION = 1;
-    final double WHEEL_DIAMETER_MM = 130;
+    final double WHEEL_DIAMETER_MM = 250;
     double COUNTS_PER_MM = (TICKS_PER_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_MM * 3.1415);
 
     final double STEP_LIFT_POWER = .8;
 
+    double LIFT_TARGET_MULTIPLIER = 10;
     double liftPowerMultiplier = 1.0;
     double LIFT_POWER_MULTIPLIER_MAX = 1.0;
     double LIFT_POWER_MULTIPLIER_MIN = .4;
@@ -37,6 +38,8 @@ public class Lift {
         liftMotor.setPower(0);
     }
 
+
+    //bad code
     public void moveLift(double targetHeightInMM, LinearOpMode activeOpMode) {
         int newLiftTarget = (int) (targetHeightInMM * COUNTS_PER_MM);
         liftMotor.setTargetPosition(newLiftTarget);
@@ -58,7 +61,7 @@ public class Lift {
             newLiftTarget = (int) (targetHeightInMM * COUNTS_PER_MM);
             liftMotor.setTargetPosition(newLiftTarget);
             liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            liftMotor.setPower(STEP_LIFT_POWER);
+            liftMotor.setPower(STEP_LIFT_POWER*liftPowerMultiplier);
             alreadyLifting = true;
         }
     }
@@ -72,21 +75,18 @@ public class Lift {
         else if (activeOpMode.opModeIsActive() && alreadyLifting == true && liftMotor.isBusy() == false) {
             //lift has reached target
             alreadyLifting = false;
-            liftMotor.setPower(0);
         }
     }
 
 
-    public void ManualLift(double power) {
-        power = power * .7;
-        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        if ((power > 0 && liftMotor.getCurrentPosition() < 1500) || (power < 0 && liftMotor.getCurrentPosition() > 250)) {
-            liftMotor.setPower(power*liftPowerMultiplier);
-        }
-        else
-        {
-            liftMotor.setPower(0);
-        }
+    public void ManualLift(double liftTarget) {
+        newLiftTarget = (int) ((liftTarget*LIFT_TARGET_MULTIPLIER) + newLiftTarget);
+        if (liftTarget >0 && newLiftTarget > 700) {newLiftTarget =700;}
+        if (liftTarget <0 && newLiftTarget < 50) {newLiftTarget =50;}
+
+        liftMotor.setTargetPosition(newLiftTarget);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotor.setPower(STEP_LIFT_POWER*liftPowerMultiplier);
     }
 
 }
