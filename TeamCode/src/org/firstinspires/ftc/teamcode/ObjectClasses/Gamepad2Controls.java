@@ -51,8 +51,6 @@ public class Gamepad2Controls {
             g2A_ToggleReady = false;
             //open and close the claw
             ServoClaw.toggleClaw();
-            activeOpMode.sleep(250);
-            ServoClaw.toggleClaw();
         }
 
         // Gamepad 2 -- X Button Controls
