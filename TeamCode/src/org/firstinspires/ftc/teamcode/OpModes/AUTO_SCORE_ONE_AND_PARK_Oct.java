@@ -10,7 +10,6 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HALF_TI
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.ONE_CONE_INTAKE_HEIGHT_MM;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.QUARTER_TILE_DISTANCE;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.*;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -23,11 +22,9 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Intake;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Lift;
 
-import java.awt.Button;
 
-
-@Autonomous(name = "AUTO_SCORE_ONE_AND_PARK")
-public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
+@Autonomous(name = "AUTO_SCORE_ONE_AND_PARK Oct")
+public class AUTO_SCORE_ONE_AND_PARK_Oct extends LinearOpMode {
 
     int Signal;
     DriveTrain MecDrive = new DriveTrain();
