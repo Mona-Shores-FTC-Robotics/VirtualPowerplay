@@ -51,6 +51,8 @@ public class Gamepad2Controls {
             g2A_ToggleReady = false;
             //open and close the claw
             //MICHAEL PLEASE PUT THE CODE TO TOGGLE THE CLAW OPEN AND CLOSED HERE
+            ServoClaw.toggleClaw();
+
         }
 
         // Gamepad 2 -- X Button Controls
