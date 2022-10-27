@@ -24,6 +24,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+import javax.xml.stream.util.XMLEventConsumer;
+
 public class Gamepad1Controls {
 
     public boolean g1Dpad_upToggleReady;
@@ -54,10 +56,11 @@ public class Gamepad1Controls {
         //fine tune turning
         if (currentGamepad1.left_trigger > .1) {
             //how do we make it turn slower to the left based on the trigger value?
-            MecDrive.turn = -currentGamepad1.left_trigger*.2; //-1.0 to 1.0
+            MecDrive.turn = -currentGamepad1.left_trigger*.5; //-1.0 to 1.0
         }
 
         if (currentGamepad1.right_trigger > .1) {
+           MecDrive.turn = currentGamepad1.right_trigger*.5;
             //CALEB: COMPLETE THIS CODE FOR FINE TUNING
 
         }
@@ -80,6 +83,13 @@ public class Gamepad1Controls {
 
         if (currentGamepad1.dpad_down == true && g1Dpad_downToggleReady == true) {
             g1Dpad_downToggleReady = false;
+
+            if (currentGamepad1.b == true) {
+                MecDrive.startEncoderDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, activeOpMode);
+            } else
+           MecDrive.startEncoderDrive(HIGH_SPEED, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE, activeOpMode); {
+
+            }
             //CALEB WRITE THIS CODE FOR THE DPAD-DOWN BUTTON SO IT MOVES A FULL TILE TOWARD THE BACK OF THE ROBOT (WHERE THE INTAKE IS) IF YOU ARE HOLDING THE B BUTTON, BUT A HALF TILE IF YOU AREN'T
 
         }
@@ -155,10 +165,26 @@ public class Gamepad1Controls {
                 MecDrive.turnTo(0, activeOpMode);
             }
         }
-
+//chicken
         if (currentGamepad1.right_bumper == true && g1Right_bumperToggleReady == true) {
             g1Right_bumperToggleReady = false;
             //AMANDA CAN YOU WRITE THIS RIGHT BUMPER CODE TO TURN TO 0, 90, 180, 270 TO THE RIGHT THE OPPOSITE OF WHAT WE DO WITH THE LEFT BUMPER
+            Orientation orientation = MecDrive.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            double currentAngle = orientation.firstAngle;
+
+            if (currentAngle < 0) {
+                currentAngle = currentAngle + 360;
+            }
+
+            if ((currentAngle <= 0 && currentAngle > -90) || (currentAngle <= 360 && currentAngle > 270)) {
+                MecDrive.turnTo(-90, activeOpMode);
+            } else if (currentAngle <= -90 && currentAngle > -180) {
+                MecDrive.turnTo(-180, activeOpMode);
+            } else if (currentAngle <= -180 && currentAngle > -270) {
+                MecDrive.turnTo(-270, activeOpMode);
+            } else if (currentAngle <= -270 && currentAngle > -360) {
+                MecDrive.turnTo(0, activeOpMode);
+            }
         }
     }
 
