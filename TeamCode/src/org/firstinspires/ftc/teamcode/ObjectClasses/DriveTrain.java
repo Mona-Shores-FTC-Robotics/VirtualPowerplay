@@ -89,6 +89,7 @@ public class DriveTrain
     public static final double MED_SPEED = .6;
     public static final double HIGH_SPEED = 1;
 
+
     BNO055IMU imu;
     public ColorSensor colorSensor;
 
@@ -220,7 +221,7 @@ public class DriveTrain
             RBDrive.setPower(abs(ramp));
 
             while (activeOpMode.opModeIsActive() &&
-                    (period.seconds() < 5) &&
+                    (period.seconds() < 10) &&
                     (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy())) {
 
                 RFDrive.setPower(abs(ramp));

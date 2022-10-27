@@ -51,6 +51,7 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
         boolean aToggleReady = false;
         boolean xToggleReady = false;
+        boolean aToggleReady2 = false;
 
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Press Start When Ready", "");
@@ -72,6 +73,7 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
             boolean G1a = gamepad1.a;
             boolean G1x = gamepad1.x;
+            boolean G2a = gamepad2.a;
 
             if (G1a == false){
                 aToggleReady = true;
@@ -79,6 +81,10 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
             if (G1x == false){
                 xToggleReady = true;
+            }
+
+            if (G2a == false){
+                aToggleReady2 = true;
             }
 
             if (G1a && aToggleReady) {
@@ -108,6 +114,11 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
                 sleep(100);
             }
 
+            if(G2a && aToggleReady2) {
+                aToggleReady2 = false;
+                ServoClaw.toggleClaw();
+                sleep(100);
+            }
 
             if (gamepad1.left_bumper) {
                 //Lift.moveLift(ONE_CONE_INTAKE_HEIGHT_MM, this);
