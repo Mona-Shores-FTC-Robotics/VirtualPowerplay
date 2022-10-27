@@ -140,7 +140,7 @@ public class Gamepad1Controls {
                 MecDrive.turnTo(0, activeOpMode);
             }
         }
-
+//chicken
         if (currentGamepad1.right_bumper == true && g1Right_bumperToggleReady == true) {
             g1Right_bumperToggleReady = false;
             //AMANDA CAN YOU WRITE THIS RIGHT BUMPER CODE TO TURN TO 0, 90, 180, 270 TO THE RIGHT THE OPPOSITE OF WHAT WE DO WITH THE LEFT BUMPER
