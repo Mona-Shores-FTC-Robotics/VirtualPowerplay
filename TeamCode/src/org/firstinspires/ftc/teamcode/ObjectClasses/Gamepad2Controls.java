@@ -57,6 +57,7 @@ public class Gamepad2Controls {
         if (currentGamepad2.x == true && g2X_ToggleReady == true) {
             g2X_ToggleReady = false;
             //EVELYN PLEASE PUT THE CODE TO TOGGLE THE INTAKE ON AND OFF HERE
+            ServoIntake.toggleIntake();
         }
 
         // Gamepad 2 -- B Button Controls
