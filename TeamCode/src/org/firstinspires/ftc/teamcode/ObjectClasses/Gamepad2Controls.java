@@ -90,12 +90,13 @@ public class Gamepad2Controls {
         }
         if (currentGamepad2.dpad_left == true && g2Dpad_leftToggleReady == true) {
             g2Dpad_leftToggleReady = false;
-            //OLIVER PLEASE WRITE THE CODE TO PUT THE ARM TO THE LEFT
+            ServoArm.setPosition(ARM_LEFT_OUTTAKE);
 
         }
         if (currentGamepad2.dpad_right == true && g2Dpad_rightToggleReady == true) {
             g2Dpad_rightToggleReady = false;
-            //OLIVER PLEASE WRITE THE CODE TO PUT THE ARM TO THE RIGHT
+            ServoArm.setPosition(ARM_RIGHT_OUTTAKE);
+            // OLIVERPLEASE WRITE THE CODE TO PUT THE ARM TO THE RIGHT
 
         }
         if (currentGamepad2.dpad_up == true && g2Dpad_upToggleReady == true) {
