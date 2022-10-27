@@ -79,7 +79,7 @@ public class Gamepad2Controls {
 
         if (currentGamepad2.right_bumper == true && g2Right_bumperToggleReady==true) {
             g2Right_bumperToggleReady = false;
-            //MORGAN PLEASE WRITE THE CODE HERE TO START LIFTING TO THE HIGH JUNCTION
+            Lift.startLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM, activeOpMode);
 
         }
 
