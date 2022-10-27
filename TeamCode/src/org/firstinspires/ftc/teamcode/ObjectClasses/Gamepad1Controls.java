@@ -54,10 +54,11 @@ public class Gamepad1Controls {
         //fine tune turning
         if (currentGamepad1.left_trigger > .1) {
             //how do we make it turn slower to the left based on the trigger value?
-            MecDrive.turn = -currentGamepad1.left_trigger*.2; //-1.0 to 1.0
+            MecDrive.turn = -currentGamepad1.left_trigger*.5; //-1.0 to 1.0
         }
 
         if (currentGamepad1.right_trigger > .1) {
+           MecDrive.turn = currentGamepad1.right_trigger*.5;
             //CALEB: COMPLETE THIS CODE FOR FINE TUNING
 
         }
@@ -80,6 +81,7 @@ public class Gamepad1Controls {
 
         if (currentGamepad1.dpad_down == true && g1Dpad_downToggleReady == true) {
             g1Dpad_downToggleReady = false;
+
             //CALEB WRITE THIS CODE FOR THE DPAD-DOWN BUTTON SO IT MOVES A FULL TILE TOWARD THE BACK OF THE ROBOT (WHERE THE INTAKE IS) IF YOU ARE HOLDING THE B BUTTON, BUT A HALF TILE IF YOU AREN'T
 
         }
