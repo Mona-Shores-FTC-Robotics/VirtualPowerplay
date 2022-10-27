@@ -24,6 +24,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+import javax.xml.stream.util.XMLEventConsumer;
+
 public class Gamepad1Controls {
 
     public boolean g1Dpad_upToggleReady;
@@ -82,6 +84,12 @@ public class Gamepad1Controls {
         if (currentGamepad1.dpad_down == true && g1Dpad_downToggleReady == true) {
             g1Dpad_downToggleReady = false;
 
+            if (currentGamepad1.b == true) {
+                MecDrive.startEncoderDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, activeOpMode);
+            } else
+           MecDrive.startEncoderDrive(HIGH_SPEED, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE, activeOpMode); {
+
+            }
             //CALEB WRITE THIS CODE FOR THE DPAD-DOWN BUTTON SO IT MOVES A FULL TILE TOWARD THE BACK OF THE ROBOT (WHERE THE INTAKE IS) IF YOU ARE HOLDING THE B BUTTON, BUT A HALF TILE IF YOU AREN'T
 
         }
