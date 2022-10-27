@@ -1,0 +1,17 @@
+Index: TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_JUST_PARK_MEG.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.firstinspires.ftc.teamcode.OpModes;\r\n\r\nimport com.qualcomm.robotcore.eventloop.opmode.Autonomous;\r\nimport com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;\r\n\r\nimport org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;\r\nimport org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;\r\n\r\n@Autonomous(name = \"AUTO_JUST_PARK_MEG\")\r\npublic class AUTO_JUST_PARK_MEG extends LinearOpMode {\r\n\r\n    int Signal;\r\n\r\n    DriveTrain MecDrive = new DriveTrain();\r\n    ButtonConfig ButtonConfig = new ButtonConfig();\r\n\r\n    @Override\r\n\r\n    public void runOpMode() {\r\n        telemetry.addData(\"Status\", \"Initializing\");\r\n        telemetry.update();\r\n\r\n        MecDrive.init(hardwareMap);\r\n\r\n        ButtonConfig.init();\r\n\r\n        // Tell the driver that initialization is complete.\r\n        telemetry.addData(\"Status\", \"Initialized\");\r\n        telemetry.update();\r\n        sleep(1000);\r\n\r\n        while (!isStarted()) {\r\n            ButtonConfig.ConfigureAllianceColor(this);\r\n            ButtonConfig.ConfigureStartingLocation(this);\r\n            telemetry.addData(\"Alliance Color \", ButtonConfig.allianceColorString);\r\n            telemetry.addData(\"Starting Location \", ButtonConfig.startingLocationString);\r\n            telemetry.update();\r\n            //Use Webcam to find out Signal and store in Signal variable\r\n            Signal = 3;\r\n        }\r\n\r\n        //Autonomous Routine Example\r\n        if (Signal == 1) {\r\n\r\n                //go straight\r\n            MecDrive.encoderDrive(.4, -20, -20, this);\r\n            MecDrive.encoderDrive(.4, 55, 55, this);\r\n                // strafe right\r\n            MecDrive.strafeDrive(.4, -50, -50, this);\r\n\r\n        }else if (Signal == 3){\r\n\r\n            // go straight\r\n        MecDrive.encoderDrive(.4, -20, -20, this);\r\n        MecDrive.encoderDrive(.4, 55, 55, this);\r\n            // strafe right\r\n        MecDrive.strafeDrive(.4, 100, 100, this);\r\n\r\n        }else if (Signal == 2){\r\n                //go straight\r\n            MecDrive.encoderDrive(.4, -20, -20, this);\r\n            MecDrive.encoderDrive(.4, 55, 55, this);\r\n    }\r\n\r\n    }\r\n\r\n}
+===================================================================
+diff --git a/TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_JUST_PARK_MEG.java b/TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_JUST_PARK_MEG.java
+--- a/TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_JUST_PARK_MEG.java	
++++ b/TeamCode/src/org/firstinspires/ftc/teamcode/OpModes/AUTO_JUST_PARK_MEG.java	
+@@ -54,7 +54,7 @@
+         MecDrive.encoderDrive(.4, -20, -20, this);
+         MecDrive.encoderDrive(.4, 55, 55, this);
+             // strafe right
+-        MecDrive.strafeDrive(.4, 100, 100, this);
++        MecDrive.strafeDrive(.4, 50, 50, this);
+ 
+         }else if (Signal == 2){
+                 //go straight
