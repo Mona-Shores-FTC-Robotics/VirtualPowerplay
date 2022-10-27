@@ -88,11 +88,26 @@ public class Gamepad1Controls {
             g1Dpad_leftToggleReady = false;
             //MICHAEL WRITE THIS CODE FOR THE DPAD-LEFT BUTTON SO IT MOVES A FULL TILE TO THE LEFT IF YOU ARE HOLDING THE B BUTTON, BUT A HALF TILE IF YOU AREN'T
 
-        }
+            if (currentGamepad1.b == true)
+            {
+                MecDrive.startStrafeDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE, activeOpMode);
+            }  else
+            {
+                MecDrive.startStrafeDrive(HIGH_SPEED, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE, activeOpMode);
+            }
 
+        }
         if (currentGamepad1.dpad_right == true && g1Dpad_rightToggleReady == true) {
             g1Dpad_rightToggleReady = false;
             //MICHAEL WRITE THIS ONE TOO - IT SHOULD BE SIMLIAR TO THE ONE YOU WROTE FOR DPAD LEFT
+
+            if (currentGamepad1.b == true)
+            {
+                MecDrive.startStrafeDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, activeOpMode);
+            } else
+            {
+                MecDrive.startStrafeDrive(HIGH_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE, activeOpMode);
+            }
 
         }
 
