@@ -51,6 +51,8 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
         boolean aToggleReady = false;
         boolean xToggleReady = false;
+        boolean intakeState = false;
+
 
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Press Start When Ready", "");
@@ -133,6 +135,14 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
                 MecDrive.turnTo(0, this);
                 MecDrive.strafeDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE, this);
             }
+
+            intakeState = gamepad2.x;
+
+            if (intakeState){
+                ServoIntake.toggleIntake();
+                sleep(400);
+            }
+
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime);
