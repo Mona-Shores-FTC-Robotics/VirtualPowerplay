@@ -31,7 +31,8 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.Lift;
 
 
 @Autonomous(name = "AUTO_OTS_SCORE_ONE_AND_PARK")
-public class AUTO_OTS_SCORE_ONE_AND_PARK extends LinearOpMode {
+public class
+AUTO_OTS_SCORE_ONE_AND_PARK extends LinearOpMode {
 
     int Signal;
     DriveTrain MecDrive = new DriveTrain();

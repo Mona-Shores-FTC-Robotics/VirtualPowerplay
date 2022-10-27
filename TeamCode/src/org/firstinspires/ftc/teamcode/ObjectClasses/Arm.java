@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.ObjectClasses;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -20,5 +21,17 @@ public class Arm {
 
     public void setPosition(double position) {
         arm.setPosition(position);
+    }
+
+    public void moveArm(LinearOpMode activeOpMode, boolean operatorY, boolean operatorB, boolean operatorX){
+        if(operatorY) {
+            setPosition(ARM_INTAKE);
+        }
+        else if (operatorB){
+            setPosition(ARM_RIGHT_OUTTAKE);
+        }
+        else if (operatorX){
+            setPosition(ARM_LEFT_OUTTAKE);
+        }
     }
 }

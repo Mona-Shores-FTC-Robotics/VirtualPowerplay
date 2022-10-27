@@ -23,7 +23,9 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.Arm.*;
  */
 
 @TeleOp(name = "Teleop Mode w/ Turret Bot", group = "Turret Bot")
-public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
+public class
+
+TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
     DriveTrain MecDrive = new DriveTrain();
     ButtonConfig ButtonConfig = new ButtonConfig(this);
@@ -49,6 +51,8 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
         Lift.moveLift(ONE_CONE_INTAKE_HEIGHT_MM,this);
 
 
+
+
         boolean aToggleReady = false;
         boolean xToggleReady = false;
 
@@ -67,10 +71,19 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
             MecDrive.strafe = gamepad1.left_stick_x; //-1.0 to 1.0
             MecDrive.turn = gamepad1.right_stick_x; //-1.0 to 1.0
 
+            if (gamepad1.right_trigger > .1) {
+                MecDrive.turn = gamepad1.right_trigger * .3;
+            }
+           if (gamepad1.left_trigger > .1) {
+               MecDrive.turn = gamepad1.left_trigger * -.3;
+           }
             MecDrive.MecanumDrive();
 
+            boolean operatorY = gamepad1.y;
+            boolean operatorB = gamepad1.b;
+            boolean operatorX = gamepad1.x;
 
-            boolean G1a = gamepad1.a;
+           /* boolean G1a = gamepad1.a;
             boolean G1x = gamepad1.x;
 
             if (G1a == false){
@@ -85,28 +98,30 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
                 aToggleReady = false;
                 ServoArm.setPosition(ARM_LEFT_OUTTAKE);
                 sleep(100);
-            }
+            }*/
 
 
-            if (gamepad1.y) {
+            /*if (gamepad1.y) {
                 ServoArm.setPosition(ARM_INTAKE);
                 sleep(100);
             }
             if (gamepad1.b) {
                 ServoArm.setPosition(ARM_RIGHT_OUTTAKE);
                 sleep(100);
-            }
+            }*/
 
-            if (gamepad1.right_trigger > 0) {
+            ServoArm.moveArm(this, operatorY, operatorB, operatorX);
+
+            /*if (gamepad1.right_trigger > 0) {
                 ServoIntake.toggleIntake();
                 sleep(100);
-            }
+            }*/
 
-            if (G1x && xToggleReady) {
+            /*if (G1x && xToggleReady) {
                 xToggleReady = false;
                 ServoClaw.toggleClaw();
                 sleep(100);
-            }
+            }*/
 
 
             if (gamepad1.left_bumper) {
