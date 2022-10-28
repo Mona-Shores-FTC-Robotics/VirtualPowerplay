@@ -99,6 +99,8 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
             telemetry.addData("Arm Position", ServoArm.arm.getPosition());
             telemetry.addData("Claw Position", ServoClaw.claw.getPosition());
             telemetry.addData("Gyro Angle", (int) MecDrive.getAbsoluteAngle(this));
+
+            telemetry.addData("Current Angle", (int) G1PadControls.currentAngle);
             telemetry.addLine("");
             telemetry.addData("# of Cones Delivered", teleopConeDeliveryTracker);
             telemetry.update();

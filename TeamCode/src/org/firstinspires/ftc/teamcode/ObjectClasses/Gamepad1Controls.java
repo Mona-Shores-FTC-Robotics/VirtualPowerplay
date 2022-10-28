@@ -28,6 +28,8 @@ import javax.xml.stream.util.XMLEventConsumer;
 
 public class Gamepad1Controls {
 
+    public double currentAngle;
+
     public boolean g1Dpad_upToggleReady;
     public boolean g1Dpad_downToggleReady;
     public boolean g1Dpad_leftToggleReady;
@@ -133,43 +135,10 @@ public class Gamepad1Controls {
         if(currentGamepad1.left_bumper == true && g1Left_bumperToggleReady == true) {
             g1Left_bumperToggleReady = false;
 
-            Orientation orientation = MecDrive.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            double currentAngle = orientation.firstAngle;
-
-            if (currentAngle < 0) {
-                currentAngle = currentAngle + 360;
-            }
-
-            if ((currentAngle >= 0 && currentAngle < 88) || (currentAngle <= 360 && currentAngle > 355)) {
-                MecDrive.turnTo(90, activeOpMode);
-            } else if (currentAngle >= 87 && currentAngle < 179) {
-                MecDrive.turnTo(180, activeOpMode);
-            } else if (currentAngle >= 179 && currentAngle < 269) {
-                MecDrive.turnTo(270, activeOpMode);
-            } else if (currentAngle >= 269 && currentAngle < 359) {
-                MecDrive.turnTo(0, activeOpMode);
-            }
         }
 //chicken
         if (currentGamepad1.right_bumper == true && g1Right_bumperToggleReady == true) {
             g1Right_bumperToggleReady = false;
-            //AMANDA CAN YOU WRITE THIS RIGHT BUMPER CODE TO TURN TO 0, 90, 180, 270 TO THE RIGHT THE OPPOSITE OF WHAT WE DO WITH THE LEFT BUMPER
-            Orientation orientation = MecDrive.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            double currentAngle = orientation.firstAngle;
-
-            if (currentAngle < 0) {
-                currentAngle = currentAngle + 360;
-            }
-
-            if ((currentAngle <= 0 && currentAngle > -90) || (currentAngle <= 360 && currentAngle > 270)) {
-                MecDrive.turnTo(-90, activeOpMode);
-            } else if (currentAngle <= -90 && currentAngle > -180) {
-                MecDrive.turnTo(-180, activeOpMode);
-            } else if (currentAngle <= -180 && currentAngle > -270) {
-                MecDrive.turnTo(-270, activeOpMode);
-            } else if (currentAngle <= -270 && currentAngle > -360) {
-                MecDrive.turnTo(0, activeOpMode);
-            }
         }
     }
 

@@ -77,6 +77,7 @@ public class Gamepad2Controls {
             Lift.startLifting(ONE_CONE_INTAKE_HEIGHT_MM, activeOpMode);
         }
 
+        //Morgan did this
         if (currentGamepad2.right_bumper == true && g2Right_bumperToggleReady==true) {
             g2Right_bumperToggleReady = false;
             Lift.startLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM, activeOpMode);
