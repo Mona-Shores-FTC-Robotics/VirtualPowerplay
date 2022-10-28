@@ -51,12 +51,15 @@ public class Gamepad2Controls {
             g2A_ToggleReady = false;
             //open and close the claw
             //MICHAEL PLEASE PUT THE CODE TO TOGGLE THE CLAW OPEN AND CLOSED HERE
+            ServoClaw.toggleClaw();
+
         }
 
         // Gamepad 2 -- X Button Controls
         if (currentGamepad2.x == true && g2X_ToggleReady == true) {
             g2X_ToggleReady = false;
             //EVELYN PLEASE PUT THE CODE TO TOGGLE THE INTAKE ON AND OFF HERE
+            ServoIntake.toggleIntake();
         }
 
         // Gamepad 2 -- B Button Controls
@@ -91,12 +94,13 @@ public class Gamepad2Controls {
         }
         if (currentGamepad2.dpad_left == true && g2Dpad_leftToggleReady == true) {
             g2Dpad_leftToggleReady = false;
-            //OLIVER PLEASE WRITE THE CODE TO PUT THE ARM TO THE LEFT
+            ServoArm.setPosition(ARM_LEFT_OUTTAKE);
 
         }
         if (currentGamepad2.dpad_right == true && g2Dpad_rightToggleReady == true) {
             g2Dpad_rightToggleReady = false;
-            //OLIVER PLEASE WRITE THE CODE TO PUT THE ARM TO THE RIGHT
+            ServoArm.setPosition(ARM_RIGHT_OUTTAKE);
+            // OLIVERPLEASE WRITE THE CODE TO PUT THE ARM TO THE RIGHT
 
         }
         if (currentGamepad2.dpad_up == true && g2Dpad_upToggleReady == true) {
