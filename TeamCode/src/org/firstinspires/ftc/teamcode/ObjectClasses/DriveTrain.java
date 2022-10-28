@@ -29,7 +29,6 @@
 
 package org.firstinspires.ftc.teamcode.ObjectClasses;
 
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.CONE_INTAKE_HEIGHT_CHANGE_MM;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.EIGHTH_TILE_DISTANCE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.FULL_TILE_DISTANCE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HALF_TILE_DISTANCE;
@@ -37,8 +36,10 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HIGH_CO
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.MEDIUM_CONE_JUNCTION_SCORE_HEIGHT_MM;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.ONE_CONE_INTAKE_HEIGHT_MM;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.QUARTER_TILE_DISTANCE;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.SIXTEENTH_TILE_DISTANCE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.W_3_JUNCTION;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.X_2_JUNCTION;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.Intake.intakeState.INTAKE_OFF;
 import static java.lang.Math.abs;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -50,6 +51,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.GyroSensorImpl;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -75,6 +77,7 @@ public class DriveTrain {
     public static final double MED_SPEED = .6;
     public static final double HIGH_SPEED = 1;
     public static final double STARTING_RAMP_VALUE = .1;
+    public static final double RAMP_INCREMENT = .1;
 
     /* Public OpMode members. */
     public DcMotor LFDrive = null;
@@ -112,6 +115,8 @@ public class DriveTrain {
     private ElapsedTime strafePeriod = new ElapsedTime();
     private ElapsedTime period = new ElapsedTime();
 
+    public autoStates currentAutomaticTask = autoStates.NO_AUTOMATIC_TASK;
+
     /* Constructor */
     public DriveTrain(LinearOpMode mode) {
         activeOpMode = mode;
@@ -138,8 +143,6 @@ public class DriveTrain {
         RFDrive.setPower(0);
         LBDrive.setPower(0);
         RBDrive.setPower(0);
-
-
     }
 
     //Set power to all motors
@@ -238,9 +241,9 @@ public class DriveTrain {
             LBDrive.setPower(abs(ramp));
             RBDrive.setPower(abs(ramp));
             if (ramp < topSpeed) {
-                ramp = ramp + .003;
+                ramp = ramp + RAMP_INCREMENT;
             } else if (ramp > topSpeed) {
-                ramp = ramp - .003;
+                ramp = ramp - RAMP_INCREMENT;
             }
         } else {
             alreadyDriving = false;
@@ -307,9 +310,9 @@ public class DriveTrain {
             LBDrive.setPower(abs(ramp));
             RBDrive.setPower(abs(ramp));
             if (ramp < topSpeed) {
-                ramp = ramp + .003;
+                ramp = ramp + RAMP_INCREMENT;
             } else if (ramp > topSpeed) {
-                ramp = ramp - .003;
+                ramp = ramp - RAMP_INCREMENT;
             }
         } else {
             alreadyStrafing = false;
@@ -327,9 +330,7 @@ public class DriveTrain {
         }
     }
 
-
     public void CheckDriveControls(Gamepad currentGamepad1, Gamepad previousGamepad1, Lift Lift, Arm ServoArm, Claw ServoClaw, Intake ServoIntake, Gyro Gyro) {
-
         //Driver controls have first priority
         if (currentGamepad1.left_stick_y != 0 || currentGamepad1.left_stick_x !=0 || currentGamepad1.right_stick_x !=0 ||
             currentGamepad1.left_trigger >0 || currentGamepad1.right_trigger >0)
@@ -338,6 +339,7 @@ public class DriveTrain {
             alreadyDriving = false;
             alreadyTurning = false;
             alreadyPIDTurning = false;
+            currentAutomaticTask = autoStates.NO_AUTOMATIC_TASK;
 
             drive = -currentGamepad1.left_stick_y; //-1.0 to 1.0
             strafe = currentGamepad1.left_stick_x; //-1.0 to 1.0
@@ -351,7 +353,7 @@ public class DriveTrain {
             }
             MecanumDrive();
         }
-        //-------DPAD Tile moves ---------
+
         else if (currentGamepad1.dpad_right  &&  !previousGamepad1.dpad_right) {
             if (currentGamepad1.b == true) {
                 startStrafeDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE);
@@ -385,8 +387,8 @@ public class DriveTrain {
         } else if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper) {
             //ROTATE TO THE LEFT TO THE CLOSEST RIGHT ANGLE 0, 90, 180, 270
             RotateClosestRightAngleToRight(Gyro);
-        } else if (currentGamepad1.y && !previousGamepad1.y) {
-            auto_deliver(W_3_JUNCTION, ServoArm, Lift, ServoClaw);
+        } else if (currentGamepad1.y && !previousGamepad1.y && currentAutomaticTask == autoStates.NO_AUTOMATIC_TASK) {
+            auto_deliver(ServoArm, Lift, ServoClaw, ServoIntake);
         } else if (alreadyDriving) {
             ContinueDriving();
         } else if (alreadyStrafing) {
@@ -395,16 +397,48 @@ public class DriveTrain {
             ContinuePIDTurning(Gyro);
         } else if (alreadyTurning) {
             ContinueTurning(Gyro);
-        } else if (!alreadyPIDTurning && !alreadyTurning && !alreadyDriving && !alreadyStrafing) {
+        } else if (currentAutomaticTask != autoStates.NO_AUTOMATIC_TASK){
+            auto_deliver(ServoArm, Lift, ServoClaw, ServoIntake);
+        }
+        else if (!alreadyPIDTurning && !alreadyTurning && !alreadyDriving && !alreadyStrafing) {
         drive = -currentGamepad1.left_stick_y; //-1.0 to 1.0
         strafe = currentGamepad1.left_stick_x; //-1.0 to 1.0
         turn = currentGamepad1.right_stick_x; //-1.0 to 1.0
         MecanumDrive();
         }
     }
-    public void auto_deliver(int deliveryDestination, Arm ServoArm, Lift Lift, Claw ServoClaw) {
-    }
 
+    public enum autoStates{DRIVE_FROM_ALLIANCE_SUBSTATION, STRAFE_TO_POLE, DELIVER_CONE, STRAFE_AWAY_FROM_POLE, DRIVE_TO_ALLIANCE_SUBSTATION, INTAKE_CONE, NO_AUTOMATIC_TASK, DRIVE_TO_OUTSIDE_ALLIANCE_SUBSTATION}
+
+    public void auto_deliver(Arm ServoArm, Lift Lift, Claw ServoClaw, Intake ServoIntake) {
+        if (currentAutomaticTask == autoStates.NO_AUTOMATIC_TASK) {
+            currentAutomaticTask = autoStates.DRIVE_TO_ALLIANCE_SUBSTATION;
+            startEncoderDrive(HIGH_SPEED, -(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE),-(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE));
+        } else if (currentAutomaticTask==autoStates.DRIVE_TO_ALLIANCE_SUBSTATION){
+            currentAutomaticTask = autoStates.INTAKE_CONE;
+            ServoIntake.toggleIntake();
+        } else if (currentAutomaticTask==autoStates.INTAKE_CONE && ServoIntake.currentIntakeState == Intake.intakeState.INTAKE_OFF){
+            currentAutomaticTask = autoStates.DRIVE_FROM_ALLIANCE_SUBSTATION;
+            startEncoderDrive(HIGH_SPEED, (FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE), (FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE));
+            Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM/2);
+        } else if (currentAutomaticTask==autoStates.DRIVE_FROM_ALLIANCE_SUBSTATION){
+           currentAutomaticTask = autoStates.STRAFE_TO_POLE;
+           startStrafeDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE);
+           ServoArm.setArmState(Arm.armState.ARM_LEFT);
+           Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
+        } else if (currentAutomaticTask==autoStates.STRAFE_TO_POLE){
+            currentAutomaticTask = autoStates.DELIVER_CONE;
+         ServoClaw.smartToggleClaw(ServoArm, Lift);
+        } else if (currentAutomaticTask==autoStates.DELIVER_CONE){
+            currentAutomaticTask = autoStates.STRAFE_AWAY_FROM_POLE;
+            startStrafeDrive(MED_SPEED, QUARTER_TILE_DISTANCE, QUARTER_TILE_DISTANCE);
+        } else if (currentAutomaticTask==autoStates.STRAFE_AWAY_FROM_POLE){
+            currentAutomaticTask = autoStates.DRIVE_TO_OUTSIDE_ALLIANCE_SUBSTATION;
+            startEncoderDrive(MED_SPEED, -(HALF_TILE_DISTANCE),-(HALF_TILE_DISTANCE));
+        } else if (currentAutomaticTask==autoStates.DRIVE_TO_OUTSIDE_ALLIANCE_SUBSTATION){
+            currentAutomaticTask = autoStates.NO_AUTOMATIC_TASK;
+        }
+    }
 
     private void RotateClosestRightAngleToLeft(Gyro Gyro) {
         double currentAngle = Gyro.getAbsoluteAngle();
@@ -474,7 +508,7 @@ public class DriveTrain {
         turn(targetAngle, Gyro);
     }
 
-    void turnToPID (double degrees, Gyro Gyro) {
+    public void turnToPID (double degrees, Gyro Gyro) {
         double absoluteAngle = Gyro.getAbsoluteAngle();
         targetAngle = degrees - absoluteAngle;
         if (targetAngle > 180) {
@@ -487,7 +521,7 @@ public class DriveTrain {
 
     }
 
-    void turnPID(double degrees, Gyro Gyro){
+    public void turnPID(double degrees, Gyro Gyro){
         alreadyPIDTurning = true;
         Gyro.resetAngle();
         pid = new TurnPIDController(degrees, .7, .1, 0);

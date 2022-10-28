@@ -14,6 +14,7 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ObjectClasses.Arm;
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
@@ -38,6 +39,8 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
     Lift Lift = new Lift(this);
     Gyro Gyro = new Gyro(this);
 
+    private final ElapsedTime runtime = new ElapsedTime();
+
     @Override
     public void runOpMode() {
 
@@ -52,7 +55,7 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
         Gyro.init(hardwareMap);
 
         //start with a cone for scoring at intake position with lift low
-        ServoArm.setPosition(ARM_CENTER_INTAKE);
+        ServoArm.setArmState(Arm.armState.ARM_CENTER);
         Lift.StartLifting(ONE_CONE_INTAKE_HEIGHT_MM);
         while (opModeIsActive() && Lift.alreadyLifting == true) {
             Lift.ContinueLifting();
@@ -72,27 +75,17 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
             ButtonConfig.ConfigureStartingPosition();
             telemetry.addData("Alliance Color ", ButtonConfig.currentAllianceColor);
             telemetry.addData("Starting Position ", ButtonConfig.currentStartPosition);
-            telemetry.addData("Status", "Run Time: " + getRuntime());
             telemetry.update();
             sleep(20);
         }
 
-        resetStartTime();
+        runtime.reset();
 
         //Vision.SetSignal(this);
         telemetry.addData("Signal is ", Signal);
         telemetry.addData("Selected Alliance Color ", ButtonConfig.currentAllianceColor);
         telemetry.addData("Selected Starting Position ", ButtonConfig.currentStartPosition);
-        telemetry.addData("Status", "Run Time: " + getRuntime());
         telemetry.update();
-
-        //align to the wall and calibrate gyro
-        MecDrive.startEncoderDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE);
-        while (opModeIsActive() && MecDrive.alreadyDriving == true) {
-            MecDrive.ContinueDriving();
-        }
-
-        Gyro.calibrateGyro();
 
         //Drive Forward
         MecDrive.startEncoderDrive(MED_SPEED, (FULL_TILE_DISTANCE*2)+EIGHTH_TILE_DISTANCE, (FULL_TILE_DISTANCE*2)+EIGHTH_TILE_DISTANCE);
@@ -104,17 +97,23 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
         if ((ButtonConfig.currentAllianceColor == AllianceColor.BLUE && ButtonConfig.currentStartPosition == StartPosition.ROW_2) ||
             (ButtonConfig.currentAllianceColor == AllianceColor.RED && ButtonConfig.currentStartPosition == StartPosition.ROW_5))
             {
-                MecDrive.turn(90, Gyro);
+                MecDrive.turnPID(90, Gyro);
+                while (opModeIsActive() && MecDrive.alreadyPIDTurning == true) {
+                    MecDrive.ContinuePIDTurning(Gyro);
+                }
             }
         else
             {
-                MecDrive.turn(-90, Gyro);
+                MecDrive.turnPID(-90, Gyro);
+                while (opModeIsActive() && MecDrive.alreadyPIDTurning == true) {
+                    MecDrive.ContinuePIDTurning(Gyro);
+                }
             }
 
         //Drive in Front of High Pole
-        MecDrive.startStrafeDrive(MED_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE);
-        while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
-            MecDrive.ContinueStrafing();
+        MecDrive.startEncoderDrive(MED_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE);
+        while (opModeIsActive() && MecDrive.alreadyDriving == true) {
+            MecDrive.ContinueDriving();
         }
 
         //Strafe close to High Pole
@@ -122,8 +121,8 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
         Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
         if ((ButtonConfig.currentAllianceColor == AllianceColor.BLUE && ButtonConfig.currentStartPosition == StartPosition.ROW_2) ||
                 (ButtonConfig.currentAllianceColor == AllianceColor.RED && ButtonConfig.currentStartPosition == StartPosition.ROW_5)) {
-            ServoArm.setPosition(ARM_LEFT_OUTTAKE);
-        } else ServoArm.setPosition(ARM_RIGHT_OUTTAKE);
+            ServoArm.setArmState(Arm.armState.ARM_RIGHT);
+        } else ServoArm.setArmState(Arm.armState.ARM_LEFT);
         while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
             MecDrive.ContinueStrafing();
             Lift.ContinueLifting();
@@ -131,8 +130,7 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
 
         //Open claw to drop cone
         ServoClaw.toggleClaw();
-        sleep(250);
-        ServoClaw.toggleClaw();
+        sleep (400);
 
         //Strafe away from High Pole
         MecDrive.startStrafeDrive(MED_SPEED, -EIGHTH_TILE_DISTANCE* ButtonConfig.allianceColorAndLocationFactor,
@@ -140,6 +138,10 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
         while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
             MecDrive.ContinueStrafing();
         }
+
+        //close the claw
+        ServoClaw.toggleClaw();
+        ServoArm.setArmState(Arm.armState.ARM_CENTER);
 
         //Park after placing cone
         if (Signal == 1) {
@@ -153,7 +155,11 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
             MecDrive.ContinueDriving();
         }
 
-        telemetry.addData("Status", "Run Time: " + getRuntime());
+
+        telemetry.addData("Signal is ", Signal);
+        telemetry.addData("Selected Alliance Color ", ButtonConfig.currentAllianceColor);
+        telemetry.addData("Selected Starting Position ", ButtonConfig.currentStartPosition);
+        telemetry.addData("Status", "Run Time: " + runtime);
         telemetry.update();
         sleep(6000);
 

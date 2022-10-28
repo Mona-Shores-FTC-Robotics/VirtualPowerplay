@@ -51,8 +51,6 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
         Gamepad previousGamepad1 = new Gamepad();
         Gamepad previousGamepad2 = new Gamepad();
 
-        Gyro.calibrateGyro();
-
         telemetry.addData("Status", "Hardware Initialized");
         telemetry.update();
 
@@ -76,7 +74,11 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
             currentGamepad1 = ButtonConfig.copy(gamepad1);
             currentGamepad2 = ButtonConfig.copy(gamepad2);
 
-            ServoClaw.CheckClaw(currentGamepad2.a, previousGamepad2.a);
+            if (runtime.seconds() > 114 && runtime.seconds() < 115) {
+                gamepad1.rumble(100);
+            }
+
+            ServoClaw.CheckClaw(currentGamepad2.a, previousGamepad2.a, ServoArm, Lift);
 
             ServoIntake.CheckIntake(currentGamepad2.x, previousGamepad2.x);
 

@@ -65,12 +65,6 @@ public class Gyro {
         return currAngle;
     }
 
-    public void calibrateGyro() {
-        Orientation offsetOrientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        gyroOffset = offsetOrientation.firstAngle;
-        activeOpMode.telemetry.addData("Gyro Offset", gyroOffset);
-    }
-
     public double getAbsoluteAngle() {
         originalOrientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double absoluteAngle = originalOrientation.firstAngle;

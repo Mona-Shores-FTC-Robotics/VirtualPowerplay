@@ -19,22 +19,27 @@ public class Arm {
         currentArmState = armState.ARM_CENTER;
     }
 
-    public void setPosition(double position) {
-        arm.setPosition(position);
+    public void setArmState(armState state)
+    {
+        if (state == armState.ARM_LEFT){
+            arm.setPosition(ARM_LEFT_OUTTAKE);
+        } else if (state == armState.ARM_CENTER){
+            arm.setPosition(ARM_CENTER_INTAKE);
+        } else if (state == armState.ARM_RIGHT){
+            arm.setPosition(ARM_RIGHT_OUTTAKE);
+        }
+        currentArmState = state;
     }
 
     public void CheckArm(Boolean armLeftCurrentButton, Boolean armLeftPreviousButton,
                          Boolean armCenterCurrentButton, Boolean armCenterPreviousButton,
                          Boolean armRightCurrentButton, Boolean armRightPreviousButton){
         if (armLeftCurrentButton && !armLeftPreviousButton) {
-            setPosition(ARM_LEFT_OUTTAKE);
-            currentArmState = armState.ARM_LEFT;
+            setArmState(armState.ARM_LEFT);
         } else if (armCenterCurrentButton && !armCenterPreviousButton) {
-            setPosition(ARM_CENTER_INTAKE);
-            currentArmState = armState.ARM_CENTER;
+            setArmState(armState.ARM_CENTER);
         } else if (armRightCurrentButton && !armRightPreviousButton) {
-           setPosition(ARM_RIGHT_OUTTAKE);
-           currentArmState = armState.ARM_RIGHT;
+            setArmState(armState.ARM_RIGHT);
         }
     }
 }
