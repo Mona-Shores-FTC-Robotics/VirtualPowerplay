@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
-import static org.firstinspires.ftc.teamcode.ObjectClasses.Arm.ARM_INTAKE;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.Arm.ARM_CENTER_INTAKE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.Arm.ARM_LEFT_OUTTAKE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.Arm.ARM_RIGHT_OUTTAKE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain.MED_SPEED;
@@ -10,7 +10,6 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HALF_TI
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.ONE_CONE_INTAKE_HEIGHT_MM;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.QUARTER_TILE_DISTANCE;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.*;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -20,6 +19,7 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.Arm;
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Claw;
 import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
+import org.firstinspires.ftc.teamcode.ObjectClasses.Gyro;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Intake;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Lift;
 
@@ -30,12 +30,13 @@ import java.awt.Button;
 public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
 
     int Signal;
-    DriveTrain MecDrive = new DriveTrain();
+    DriveTrain MecDrive = new DriveTrain(this);
     ButtonConfig ButtonConfig = new ButtonConfig(this);
     Arm ServoArm = new Arm();
     Intake ServoIntake = new Intake();
     Claw ServoClaw = new Claw();
-    Lift Lift = new Lift();
+    Lift Lift = new Lift(this);
+    Gyro Gyro = new Gyro(this);
 
     @Override
     public void runOpMode() {
@@ -48,10 +49,14 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
         ServoIntake.init(hardwareMap);
         ServoClaw.init(hardwareMap);
         Lift.init(hardwareMap);
+        Gyro.init(hardwareMap);
 
         //start with a cone for scoring at intake position with lift low
-        ServoArm.setPosition(ARM_INTAKE);
-        Lift.moveLift(ONE_CONE_INTAKE_HEIGHT_MM,this);
+        ServoArm.setPosition(ARM_CENTER_INTAKE);
+        Lift.StartLifting(ONE_CONE_INTAKE_HEIGHT_MM);
+        while (opModeIsActive() && Lift.alreadyLifting == true) {
+            Lift.ContinueLifting();
+        }
 
         ButtonConfig.init();
 
@@ -82,37 +87,46 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
         telemetry.update();
 
         //align to the wall and calibrate gyro
-        MecDrive.encoderDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE, this);
-        MecDrive.calibrateGyro(this);
+        MecDrive.startEncoderDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE);
+        while (opModeIsActive() && MecDrive.alreadyDriving == true) {
+            MecDrive.ContinueDriving();
+        }
+
+        Gyro.calibrateGyro();
 
         //Drive Forward
-        MecDrive.encoderDrive(MED_SPEED, (FULL_TILE_DISTANCE*2)+EIGHTH_TILE_DISTANCE, (FULL_TILE_DISTANCE*2)+EIGHTH_TILE_DISTANCE, this);
+        MecDrive.startEncoderDrive(MED_SPEED, (FULL_TILE_DISTANCE*2)+EIGHTH_TILE_DISTANCE, (FULL_TILE_DISTANCE*2)+EIGHTH_TILE_DISTANCE);
+        while (opModeIsActive() && MecDrive.alreadyDriving == true) {
+            MecDrive.ContinueDriving();
+        }
 
         //Rotate
         if ((ButtonConfig.currentAllianceColor == AllianceColor.BLUE && ButtonConfig.currentStartPosition == StartPosition.ROW_2) ||
             (ButtonConfig.currentAllianceColor == AllianceColor.RED && ButtonConfig.currentStartPosition == StartPosition.ROW_5))
             {
-                MecDrive.turn(90, this);
+                MecDrive.turn(90, Gyro);
             }
         else
             {
-                MecDrive.turn(-90, this);
+                MecDrive.turn(-90, Gyro);
             }
 
         //Drive in Front of High Pole
-        MecDrive.encoderDrive(MED_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE, this);
+        MecDrive.startStrafeDrive(MED_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE);
+        while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
+            MecDrive.ContinueStrafing();
+        }
 
         //Strafe close to High Pole
-        MecDrive.startStrafeDrive(MED_SPEED, EIGHTH_TILE_DISTANCE* ButtonConfig.allianceColorAndLocationFactor, EIGHTH_TILE_DISTANCE*ButtonConfig.allianceColorAndLocationFactor, this);
+        MecDrive.startStrafeDrive(MED_SPEED, EIGHTH_TILE_DISTANCE* ButtonConfig.allianceColorAndLocationFactor, EIGHTH_TILE_DISTANCE*ButtonConfig.allianceColorAndLocationFactor);
+        Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
+        if ((ButtonConfig.currentAllianceColor == AllianceColor.BLUE && ButtonConfig.currentStartPosition == StartPosition.ROW_2) ||
+                (ButtonConfig.currentAllianceColor == AllianceColor.RED && ButtonConfig.currentStartPosition == StartPosition.ROW_5)) {
+            ServoArm.setPosition(ARM_LEFT_OUTTAKE);
+        } else ServoArm.setPosition(ARM_RIGHT_OUTTAKE);
         while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
-            MecDrive.ContinueStrafing(this);
-            Lift.moveLift(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM, this);
-
-            if ((ButtonConfig.currentAllianceColor == AllianceColor.BLUE && ButtonConfig.currentStartPosition == StartPosition.ROW_2) ||
-                    (ButtonConfig.currentAllianceColor == AllianceColor.RED && ButtonConfig.currentStartPosition == StartPosition.ROW_5)) {
-                ServoArm.setPosition(ARM_LEFT_OUTTAKE);
-            } else ServoArm.setPosition(ARM_RIGHT_OUTTAKE);
-
+            MecDrive.ContinueStrafing();
+            Lift.ContinueLifting();
         }
 
         //Open claw to drop cone
@@ -121,15 +135,22 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
         ServoClaw.toggleClaw();
 
         //Strafe away from High Pole
-        MecDrive.strafeDrive(MED_SPEED, -EIGHTH_TILE_DISTANCE* ButtonConfig.allianceColorAndLocationFactor, -EIGHTH_TILE_DISTANCE* ButtonConfig.allianceColorAndLocationFactor, this);
+        MecDrive.startStrafeDrive(MED_SPEED, -EIGHTH_TILE_DISTANCE* ButtonConfig.allianceColorAndLocationFactor,
+                                            -EIGHTH_TILE_DISTANCE* ButtonConfig.allianceColorAndLocationFactor);
+        while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
+            MecDrive.ContinueStrafing();
+        }
 
         //Park after placing cone
         if (Signal == 1) {
-            MecDrive.encoderDrive(.5, ((FULL_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor)-HALF_TILE_DISTANCE), ((FULL_TILE_DISTANCE* ButtonConfig.allianceColorAndLocationFactor) - HALF_TILE_DISTANCE), this);
+            MecDrive.startEncoderDrive(.5, ((FULL_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor)-HALF_TILE_DISTANCE), ((FULL_TILE_DISTANCE* ButtonConfig.allianceColorAndLocationFactor) - HALF_TILE_DISTANCE));
         } else if (Signal == 2) {
-            MecDrive.encoderDrive(.5, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE, this);
+            MecDrive.startEncoderDrive(.5, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE);
         } else if (Signal == 3) {
-            MecDrive.encoderDrive(.5, ((-FULL_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor) -HALF_TILE_DISTANCE), ((-FULL_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor) -HALF_TILE_DISTANCE), this);
+            MecDrive.startEncoderDrive(.5, ((-FULL_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor) -HALF_TILE_DISTANCE), ((-FULL_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor) -HALF_TILE_DISTANCE));
+        }
+        while (opModeIsActive() && MecDrive.alreadyDriving == true) {
+            MecDrive.ContinueDriving();
         }
 
         telemetry.addData("Status", "Run Time: " + getRuntime());

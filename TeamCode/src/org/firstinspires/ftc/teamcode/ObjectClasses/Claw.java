@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.ObjectClasses;
 
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -27,6 +28,13 @@ public class Claw {
         else if (currentClawState == clawStates.CLAW_CLOSED) {
             claw.setPosition(CLAW_OPEN_POWER);
             currentClawState = clawStates.CLAW_OPEN;
+        }
+    }
+
+    public void CheckClaw(boolean currentButton , boolean lastButton) {
+        if (currentButton && !lastButton) {
+            //open and close the claw
+            toggleClaw();
         }
     }
 }

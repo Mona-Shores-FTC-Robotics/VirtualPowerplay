@@ -32,7 +32,6 @@ public final class GameConstants {
     public static final int X_2_JUNCTION = 2;
     public static final int X_4_JUNCTION = -2;
 
-
     public static enum Signal {LEFT, MIDDLE, RIGHT}
     public static Signal currentSignal = Signal.MIDDLE;
 

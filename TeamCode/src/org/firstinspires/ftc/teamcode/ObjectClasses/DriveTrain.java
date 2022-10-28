@@ -29,6 +29,16 @@
 
 package org.firstinspires.ftc.teamcode.ObjectClasses;
 
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.CONE_INTAKE_HEIGHT_CHANGE_MM;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.EIGHTH_TILE_DISTANCE;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.FULL_TILE_DISTANCE;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HALF_TILE_DISTANCE;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.MEDIUM_CONE_JUNCTION_SCORE_HEIGHT_MM;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.ONE_CONE_INTAKE_HEIGHT_MM;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.QUARTER_TILE_DISTANCE;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.W_3_JUNCTION;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.X_2_JUNCTION;
 import static java.lang.Math.abs;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -37,6 +47,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.GyroSensorImpl;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -64,7 +76,6 @@ public class DriveTrain {
     public static final double HIGH_SPEED = 1;
     public static final double STARTING_RAMP_VALUE = .1;
 
-
     /* Public OpMode members. */
     public DcMotor LFDrive = null;
     public DcMotor RFDrive = null;
@@ -79,34 +90,31 @@ public class DriveTrain {
     public double turn = 0;
 
     public double topSpeed = 0;
-
     public double multiplier = STARTING_DRIVE_MULTIPLIER;
     public double ramp = STARTING_RAMP_VALUE;
-
-    //gyro members
-    public Orientation lastAngles = new Orientation();
-    public double currAngle = 0.0;
-    public double gyroOffset = 0;
-    public Orientation originalOrientation;
 
     //state machine members
     public boolean alreadyDriving = false;
     public boolean alreadyStrafing = false;
-    public boolean alreadyTurning = false;
 
-    public enum robotState {HUMAN_CONTROLLED, AUTOMATIC_TASK}
-
-    public robotState currentRobotState;
-
-    /* local OpMode members. */
-    BNO055IMU imu;
+    public LinearOpMode activeOpMode;
     HardwareMap hwMap = null;
+
+    //Turn Related Variables
+    public double degreesLeftToTurn;
+    public double targetAngleInDegrees;
+    public TurnPIDController pid = new TurnPIDController(0, 0, 0, 0);
+    public boolean alreadyTurning = false;
+    public boolean alreadyPIDTurning = false;
+    public double targetAngle;
+
     private ElapsedTime drivePeriod = new ElapsedTime();
     private ElapsedTime strafePeriod = new ElapsedTime();
-    private ElapsedTime turnPeriod = new ElapsedTime();
     private ElapsedTime period = new ElapsedTime();
+
     /* Constructor */
-    public DriveTrain() {
+    public DriveTrain(LinearOpMode mode) {
+        activeOpMode = mode;
     }
 
     /* Initialize Hardware interfaces */
@@ -131,15 +139,6 @@ public class DriveTrain {
         LBDrive.setPower(0);
         RBDrive.setPower(0);
 
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json";
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-        imu = hwMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
 
     }
 
@@ -185,161 +184,7 @@ public class DriveTrain {
 
     }
 
-    public void encoderDrive(double speed, int leftInches, int rightInches, LinearOpMode activeOpMode) {
-        if (activeOpMode.opModeIsActive()) {
-            LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            int newLeftFrontTarget = (int) (leftInches * COUNTS_PER_INCH);
-            int newRightFrontTarget = (int) (rightInches * COUNTS_PER_INCH);
-            int newLeftBackTarget = (int) (leftInches * COUNTS_PER_INCH);
-            int newRightBackTarget = (int) (rightInches * COUNTS_PER_INCH);
-
-            LFDrive.setTargetPosition(newLeftFrontTarget);
-            RFDrive.setTargetPosition(newRightFrontTarget);
-            LBDrive.setTargetPosition(newLeftBackTarget);
-            RBDrive.setTargetPosition(newRightBackTarget);
-
-            LFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            RFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            LBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            RBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            period.reset();
-
-            double ramp = .1;
-
-            RFDrive.setPower(abs(ramp));
-            LFDrive.setPower(abs(ramp));
-            LBDrive.setPower(abs(ramp));
-            RBDrive.setPower(abs(ramp));
-
-            while (activeOpMode.opModeIsActive() &&
-                    (period.seconds() < 5) &&
-                    (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy())) {
-
-                RFDrive.setPower(abs(ramp));
-                LFDrive.setPower(abs(ramp));
-                LBDrive.setPower(abs(ramp));
-                RBDrive.setPower(abs(ramp));
-                if (ramp < speed) {
-                    ramp = ramp + .003;
-                } else if (ramp > speed) {
-                    ramp = ramp - .003;
-                }
-
-                activeOpMode.telemetry.addData("Encoder BL", LFDrive.getCurrentPosition());
-                activeOpMode.telemetry.addData("Encoder FR", RFDrive.getCurrentPosition());
-                activeOpMode.telemetry.addData("Encoder BL", LBDrive.getCurrentPosition());
-                activeOpMode.telemetry.addData("Encoder BR", RBDrive.getCurrentPosition());
-                activeOpMode.telemetry.addData("Encoder Target", newLeftFrontTarget);
-
-                activeOpMode.telemetry.addData("Speed", ramp);
-                activeOpMode.telemetry.addData("Status", "Run Time: " + activeOpMode.getRuntime());
-                activeOpMode.telemetry.update();
-
-                if (activeOpMode.gamepad1.b && activeOpMode.getRuntime() > 30)
-                {
-                    currentRobotState = robotState.HUMAN_CONTROLLED;
-                    break;
-                }
-
-            }
-
-            setAllPower(0);
-            LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-    }
-
-    public void strafeDrive(double speed, int leftInches, int rightInches, LinearOpMode activeOpMode) {
-        if (activeOpMode.opModeIsActive()) {
-            LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            int newLeftFrontTarget = (int) (leftInches * COUNTS_PER_INCH);
-            int newRightFrontTarget = (int) (rightInches * COUNTS_PER_INCH);
-            int newLeftBackTarget = (int) (leftInches * COUNTS_PER_INCH);
-            int newRightBackTarget = (int) (rightInches * COUNTS_PER_INCH);
-
-            LFDrive.setTargetPosition(newLeftFrontTarget);
-            RFDrive.setTargetPosition(-newRightFrontTarget);
-            LBDrive.setTargetPosition(-newLeftBackTarget);
-            RBDrive.setTargetPosition(newRightBackTarget);
-
-            LFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            RFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            LBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            RBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            period.reset();
-
-            double ramp = .1;
-
-            RFDrive.setPower(abs(ramp));
-            LFDrive.setPower(abs(ramp));
-            LBDrive.setPower(abs(ramp));
-            RBDrive.setPower(abs(ramp));
-
-            while (activeOpMode.opModeIsActive() &&
-                    (period.seconds() < 5) &&
-                    (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy())) {
-
-                RFDrive.setPower(abs(ramp));
-                LFDrive.setPower(abs(ramp));
-                LBDrive.setPower(abs(ramp));
-                RBDrive.setPower(abs(ramp));
-                if (ramp<speed){
-                    ramp = ramp + .003;
-                }
-                else if (ramp>speed){
-                    ramp = ramp -.003;
-                }
-
-                if (activeOpMode.gamepad1.b && activeOpMode.getRuntime() > 30)
-                {
-                    currentRobotState = robotState.HUMAN_CONTROLLED;
-                    break;
-                }
-
-            }
-
-            setAllPower(0);
-
-            LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-    }
-
-    public void startEncoderDrive(double speed, int leftInches, int rightInches, LinearOpMode activeOpMode) {
+    public void startEncoderDrive(double speed, int leftInches, int rightInches) {
         topSpeed = speed;
         if (activeOpMode.opModeIsActive() && alreadyDriving == false) {
 
@@ -363,11 +208,6 @@ public class DriveTrain {
             LBDrive.setTargetPosition(newLeftBackTarget);
             RBDrive.setTargetPosition(newRightBackTarget);
 
-            activeOpMode.telemetry.addData("LF Encoder Target", newLeftFrontTarget);
-            activeOpMode.telemetry.addData("RF Encoder Target", newRightFrontTarget);
-            activeOpMode.telemetry.addData("LB Encoder Target", newLeftBackTarget);
-            activeOpMode.telemetry.addData("RB Encoder Target", newRightBackTarget);
-
             LFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             RFDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             LBDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -386,11 +226,10 @@ public class DriveTrain {
 
             //we are now driving
             alreadyDriving = true;
-            currentRobotState = robotState.AUTOMATIC_TASK;
         }
     }
 
-    public void ContinueDriving(LinearOpMode activeOpMode) {
+    public void ContinueDriving() {
         if (activeOpMode.opModeIsActive() &&
                 alreadyDriving == true &&
                 (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy())) {
@@ -403,21 +242,8 @@ public class DriveTrain {
             } else if (ramp > topSpeed) {
                 ramp = ramp - .003;
             }
-
-            activeOpMode.telemetry.addData("Encoder BL", LFDrive.getCurrentPosition());
-            activeOpMode.telemetry.addData("Encoder FR", RFDrive.getCurrentPosition());
-            activeOpMode.telemetry.addData("Encoder BL", LBDrive.getCurrentPosition());
-            activeOpMode.telemetry.addData("Encoder BR", RBDrive.getCurrentPosition());
-            activeOpMode.telemetry.addData("Speed", ramp);
-            activeOpMode.telemetry.addData("Status", "Run Time: " + activeOpMode.getRuntime());
-
-            //getRuntime is not the right thing to reference here. Ideally we want to make sure pressing a button in auto doesn't cancel anything
-            if (activeOpMode.gamepad1.y && activeOpMode.getRuntime() > 30) {
-                currentRobotState = robotState.HUMAN_CONTROLLED;
-            }
         } else {
             alreadyDriving = false;
-            currentRobotState = robotState.HUMAN_CONTROLLED;
             setAllPower(0);
             LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -431,7 +257,7 @@ public class DriveTrain {
         }
     }
 
-    public void startStrafeDrive(double speed, int leftInches, int rightInches, LinearOpMode activeOpMode) {
+    public void startStrafeDrive(double speed, int leftInches, int rightInches) {
         topSpeed = speed;
         if (activeOpMode.opModeIsActive() && alreadyStrafing == false) {
             LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -469,34 +295,23 @@ public class DriveTrain {
             RBDrive.setPower(abs(ramp));
 
             alreadyStrafing = true;
-            currentRobotState = robotState.AUTOMATIC_TASK;
         }
     }
 
-        public void ContinueStrafing(LinearOpMode activeOpMode) {
-        if (    activeOpMode.opModeIsActive() &&
+    public void ContinueStrafing() {
+        if (activeOpMode.opModeIsActive() &&
                 alreadyStrafing == true &&
-                (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy()))
-        {
-                RFDrive.setPower(abs(ramp));
-                LFDrive.setPower(abs(ramp));
-                LBDrive.setPower(abs(ramp));
-                RBDrive.setPower(abs(ramp));
-                if (ramp<topSpeed){
-                    ramp = ramp + .003;
-                }
-                else if (ramp>topSpeed){
-                    ramp = ramp -.003;
-                }
-
-                if (activeOpMode.gamepad1.y && activeOpMode.getRuntime() > 30)
-                {
-                    currentRobotState = robotState.HUMAN_CONTROLLED;
-                    alreadyStrafing = false;
-                }
-        } else
-        {
-            currentRobotState = robotState.HUMAN_CONTROLLED;
+                (RFDrive.isBusy() && LFDrive.isBusy() && LBDrive.isBusy() && RBDrive.isBusy())) {
+            RFDrive.setPower(abs(ramp));
+            LFDrive.setPower(abs(ramp));
+            LBDrive.setPower(abs(ramp));
+            RBDrive.setPower(abs(ramp));
+            if (ramp < topSpeed) {
+                ramp = ramp + .003;
+            } else if (ramp > topSpeed) {
+                ramp = ramp - .003;
+            }
+        } else {
             alreadyStrafing = false;
             setAllPower(0);
 
@@ -512,78 +327,180 @@ public class DriveTrain {
         }
     }
 
-    public void resetAngle() {
-        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        currAngle = 0;
+
+    public void CheckDriveControls(Gamepad currentGamepad1, Gamepad previousGamepad1, Lift Lift, Arm ServoArm, Claw ServoClaw, Intake ServoIntake, Gyro Gyro) {
+
+        //Driver controls have first priority
+        if (currentGamepad1.left_stick_y != 0 || currentGamepad1.left_stick_x !=0 || currentGamepad1.right_stick_x !=0 ||
+            currentGamepad1.left_trigger >0 || currentGamepad1.right_trigger >0)
+        {
+            alreadyStrafing = false;
+            alreadyDriving = false;
+            alreadyTurning = false;
+            alreadyPIDTurning = false;
+
+            drive = -currentGamepad1.left_stick_y; //-1.0 to 1.0
+            strafe = currentGamepad1.left_stick_x; //-1.0 to 1.0
+            turn = currentGamepad1.right_stick_x; //-1.0 to 1.0
+
+            //Use fine tune values from triggers instead of right stick if Driver is pressing one of them
+            if (currentGamepad1.left_trigger > .1) {
+                turn = -currentGamepad1.left_trigger*.3; //-1.0 to 1.0
+            } else if (currentGamepad1.right_trigger > .1) {
+                turn = currentGamepad1.right_trigger*.3;
+            }
+            MecanumDrive();
+        }
+        //-------DPAD Tile moves ---------
+        else if (currentGamepad1.dpad_right  &&  !previousGamepad1.dpad_right) {
+            if (currentGamepad1.b == true) {
+                startStrafeDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE);
+            } else {
+                startStrafeDrive(HIGH_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE);
+            }
+        } else if (currentGamepad1.dpad_down   &&  !previousGamepad1.dpad_down)   {
+            if (currentGamepad1.b == true) {
+                startEncoderDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE);
+            } else {
+                startEncoderDrive(HIGH_SPEED, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE);
+            }
+        } else if (currentGamepad1.dpad_left   &&  !previousGamepad1.dpad_left) {
+            if (currentGamepad1.b == true) {
+                startStrafeDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE);
+            } else {
+                startStrafeDrive(HIGH_SPEED, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE);
+            }
+        } else if (currentGamepad1.dpad_up     &&  !previousGamepad1.dpad_up) {
+            if (currentGamepad1.b == true) {
+                startEncoderDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE);
+            } else {
+                startEncoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE);
+            }
+        } else if (currentGamepad1.a && !previousGamepad1.a) {
+            //move from alliance substation to scoring position
+            startEncoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE);
+        } else if (currentGamepad1.left_bumper && !previousGamepad1.left_bumper) {
+            //ROTATE TO THE LEFT TO THE CLOSEST RIGHT ANGLE 0, 90, 180, 270
+            RotateClosestRightAngleToLeft(Gyro);
+        } else if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper) {
+            //ROTATE TO THE LEFT TO THE CLOSEST RIGHT ANGLE 0, 90, 180, 270
+            RotateClosestRightAngleToRight(Gyro);
+        } else if (currentGamepad1.y && !previousGamepad1.y) {
+            auto_deliver(W_3_JUNCTION, ServoArm, Lift, ServoClaw);
+        } else if (alreadyDriving) {
+            ContinueDriving();
+        } else if (alreadyStrafing) {
+            ContinueStrafing();
+        } else if (alreadyPIDTurning) {
+            ContinuePIDTurning(Gyro);
+        } else if (alreadyTurning) {
+            ContinueTurning(Gyro);
+        } else if (!alreadyPIDTurning && !alreadyTurning && !alreadyDriving && !alreadyStrafing) {
+        drive = -currentGamepad1.left_stick_y; //-1.0 to 1.0
+        strafe = currentGamepad1.left_stick_x; //-1.0 to 1.0
+        turn = currentGamepad1.right_stick_x; //-1.0 to 1.0
+        MecanumDrive();
+        }
+    }
+    public void auto_deliver(int deliveryDestination, Arm ServoArm, Lift Lift, Claw ServoClaw) {
     }
 
-    public double getAngle() {
-        Orientation orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        double deltaAngle = orientation.firstAngle - lastAngles.firstAngle;
-        if (deltaAngle > 180)
-        {
-            deltaAngle -= 360;
+
+    private void RotateClosestRightAngleToLeft(Gyro Gyro) {
+        double currentAngle = Gyro.getAbsoluteAngle();
+        if (currentAngle >= 0 && currentAngle < 85 || currentAngle <=0 && currentAngle > -5) {
+            turnToPID(90, Gyro);
         }
-        else if (deltaAngle <= -180)
-        {
-            deltaAngle+=360;
+
+        if (currentAngle <=-5 && currentAngle > -95){
+            turnToPID(0, Gyro);
         }
-        currAngle += deltaAngle;
-        lastAngles = orientation;
-        return currAngle;
+
+        if (currentAngle <=-95 && currentAngle >= -180 || currentAngle >= 175 && currentAngle <= 180){
+            turnToPID(-90, Gyro);
+        }
+
+        if (currentAngle >= 85 && currentAngle < 175){
+            turnToPID(-180, Gyro);
+        }
+    }
+    private void RotateClosestRightAngleToRight(Gyro Gyro) {
+        double currentAngle = Gyro.getAbsoluteAngle();
+        if (currentAngle <= 0 && currentAngle > -85 || currentAngle >=0 && currentAngle < 5) {
+            turnToPID(-90, Gyro);
+        }
+
+        if (currentAngle <=-85 && currentAngle > -175){
+            turnToPID(180, Gyro);
+        }
+
+        if (currentAngle <=-175 && currentAngle >= -180 || currentAngle > 95 && currentAngle <= 180){
+            turnToPID(90, Gyro);
+        }
+
+        if (currentAngle <= 95 && currentAngle > 0){
+            turnToPID(0, Gyro);
+        }
     }
 
-    public void turn (double degrees, LinearOpMode activeOpMode)
-    {
-        resetAngle();
-        double error = degrees;
-        while (activeOpMode.opModeIsActive() && Math.abs(error) > 1)
-        {
-            double motorPower = (error < 0 ? .8 : -.8);
+    public void turn(double degrees, Gyro Gyro) {
+        alreadyTurning = true;
+        Gyro.resetAngle();
+        targetAngleInDegrees = degrees;
+        degreesLeftToTurn = degrees;
+    }
+
+    public void ContinueTurning(Gyro Gyro) {
+        if (abs(degreesLeftToTurn) > 2) {
+            double motorPower = (degreesLeftToTurn < 0 ? .8 : -.8);
             setMotorPower(-motorPower, motorPower, -motorPower, motorPower);
-            error = degrees - getAngle();
-
+            degreesLeftToTurn = targetAngleInDegrees - Gyro.getAngle();
+        } else {
+            alreadyTurning = false;
+            setAllPower(0);
         }
-        setAllPower(0);
-        LFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RFDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RBDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
     }
 
-    public void turnTo(double degrees, LinearOpMode activeOpMode)
-    {
-        Orientation orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        double error = degrees - orientation.firstAngle + gyroOffset;
+    public void turnTo(double degrees, Gyro Gyro) {
+        double absoluteAngle = Gyro.getAbsoluteAngle();
+        targetAngle = degrees - absoluteAngle;
 
-        if (error > 180)
+        if (targetAngle > 180) {
+            targetAngle -= 360;
+        } else if (targetAngle < -180)
         {
-            error -= 360;
+            targetAngle +=360;
         }
-        else if (error <= -180)
+        turn(targetAngle, Gyro);
+    }
+
+    void turnToPID (double degrees, Gyro Gyro) {
+        double absoluteAngle = Gyro.getAbsoluteAngle();
+        targetAngle = degrees - absoluteAngle;
+        if (targetAngle > 180) {
+            targetAngle -= 360;
+        } else if (targetAngle < -180)
         {
-            error+=360;
+            targetAngle +=360;
         }
-        turn(error, activeOpMode);
+        turnPID(targetAngle, Gyro);
+
     }
 
-    public void calibrateGyro(LinearOpMode activeOpMode)
-    {
-        Orientation offsetOrientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        gyroOffset = offsetOrientation.firstAngle;
-        activeOpMode.telemetry.addData("Gyro Offset", gyroOffset);
+    void turnPID(double degrees, Gyro Gyro){
+        alreadyPIDTurning = true;
+        Gyro.resetAngle();
+        pid = new TurnPIDController(degrees, .7, .1, 0);
     }
 
-    public double getAbsoluteAngle(LinearOpMode activeOpMode)
-    {
-        originalOrientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        double absoluteAngle = originalOrientation.firstAngle;
-        return absoluteAngle;
+    public void ContinuePIDTurning(Gyro Gyro) {
+        if (Math.abs(pid.pidAngleLeftToTurn) > 1) {
+            double motorPower = pid.update(Gyro.getAngle());
+            setMotorPower(-motorPower, motorPower, -motorPower, motorPower);
+        } else {
+            alreadyPIDTurning = false;
+            setAllPower(0);
+        }
     }
 }
 

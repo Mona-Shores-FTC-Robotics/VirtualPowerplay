@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.Arm;
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Claw;
 import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
+import org.firstinspires.ftc.teamcode.ObjectClasses.Gyro;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Intake;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Lift;
 
@@ -23,12 +24,13 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.Arm.*;
 public class AUTO_SCORE_6_AND_PARK extends LinearOpMode {
 
     int Signal;
-    DriveTrain MecDrive = new DriveTrain();
+    DriveTrain MecDrive = new DriveTrain(this);
     ButtonConfig ButtonConfig = new ButtonConfig(this);
     Arm ServoArm = new Arm();
     Intake ServoIntake = new Intake();
     Claw ServoClaw = new Claw();
-    Lift Lift = new Lift();
+    Lift Lift = new Lift(this);
+    Gyro Gyro = new Gyro(this);
 
     public final ElapsedTime runtime = new ElapsedTime();
 
@@ -43,7 +45,7 @@ public class AUTO_SCORE_6_AND_PARK extends LinearOpMode {
         ServoIntake.init(hardwareMap);
         ServoClaw.init(hardwareMap);
         Lift.init(hardwareMap);
-        Lift.moveLift(ONE_CONE_INTAKE_HEIGHT_MM,this);
+        Gyro.init(hardwareMap);
 
         ButtonConfig.init();
 
@@ -62,18 +64,28 @@ public class AUTO_SCORE_6_AND_PARK extends LinearOpMode {
         runtime.reset();
 
         //start with a cone for scoring at intake position with lift low
-        ServoArm.setPosition(ARM_INTAKE);
+        ServoArm.setPosition(ARM_CENTER_INTAKE);
 
         //align to the wall and calibrate gyro
-        MecDrive.startEncoderDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE, this);
-        MecDrive.calibrateGyro(this);
+        MecDrive.startEncoderDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE);
+        while (opModeIsActive() && MecDrive.alreadyDriving == true) {
+            MecDrive.ContinueDriving();
+        }
+
+        Gyro.calibrateGyro();
 
         //drive to line up with the cone stack
-        MecDrive.startEncoderDrive(HIGH_SPEED, (FULL_TILE_DISTANCE*2 + SIXTEENTH_TILE_DISTANCE), (FULL_TILE_DISTANCE*2 + SIXTEENTH_TILE_DISTANCE), this);
-        MecDrive.turnTo(-90 * ButtonConfig.startPositionMultiplier * ButtonConfig.allianceColorMultiplier, this);
+        MecDrive.startEncoderDrive(HIGH_SPEED, (FULL_TILE_DISTANCE*2 + SIXTEENTH_TILE_DISTANCE), (FULL_TILE_DISTANCE*2 + SIXTEENTH_TILE_DISTANCE));
+        while (opModeIsActive() && MecDrive.alreadyDriving == true) {
+            MecDrive.ContinueDriving();
+        }
+        MecDrive.turnTo(-90 * ButtonConfig.startPositionMultiplier * ButtonConfig.allianceColorMultiplier, Gyro);
 
         //drive toward middle of field
-        MecDrive.startEncoderDrive(HIGH_SPEED, -(HALF_TILE_DISTANCE), -(HALF_TILE_DISTANCE), this);
+        MecDrive.startEncoderDrive(HIGH_SPEED, -(HALF_TILE_DISTANCE), -(HALF_TILE_DISTANCE));
+        while (opModeIsActive() && MecDrive.alreadyDriving == true) {
+            MecDrive.ContinueDriving();
+        }
 
         //rotate turret to deliver to High Junction
         //this code won't work if high junction is on the left.
@@ -83,55 +95,68 @@ public class AUTO_SCORE_6_AND_PARK extends LinearOpMode {
         ServoArm.setPosition(ARM_RIGHT_OUTTAKE);}
 
         //raise lift to height to deliver to High Junction
-        Lift.moveLift(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM, this);
+        Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
+        while (opModeIsActive() && Lift.alreadyLifting == true) {
+            Lift.ContinueLifting();
+        }
 
         //strafe to the high pole
-        MecDrive.startStrafeDrive(HIGH_SPEED, -(QUARTER_TILE_DISTANCE * ButtonConfig.startPositionMultiplier * ButtonConfig.allianceColorMultiplier), -(QUARTER_TILE_DISTANCE * ButtonConfig.startPositionMultiplier * ButtonConfig.allianceColorMultiplier), this);
+        MecDrive.startStrafeDrive(HIGH_SPEED, -(QUARTER_TILE_DISTANCE * ButtonConfig.startPositionMultiplier * ButtonConfig.allianceColorMultiplier),
+                                              -(QUARTER_TILE_DISTANCE * ButtonConfig.startPositionMultiplier * ButtonConfig.allianceColorMultiplier));
+        while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
+            MecDrive.ContinueStrafing();
+        }
 
         // Open claw to release cone
         ServoClaw.toggleClaw();
         int coneDeliveryTracker = 1;
 
         //Give cone a moment to release;
-        sleep(100);
+        sleep(400);
 
         //Close claw for intaking next cone
         ServoClaw.toggleClaw();
 
         //strafe away from the high pole
-        MecDrive.startStrafeDrive(HIGH_SPEED, (QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), (QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), this);
+        MecDrive.startStrafeDrive(HIGH_SPEED,   (QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor),
+                                                (QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor));
+        while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
+            MecDrive.ContinueStrafing();
+        }
 
         int coneStackTracker = 5;
 
         while (coneStackTracker > 0 && (getRuntime() < 25.0))
         {
             //move turret to pickup position
-            ServoArm.setPosition(ARM_INTAKE);
+            ServoArm.setPosition(ARM_CENTER_INTAKE);
 
             //lower lift to correct cone stack intake height
             switch (coneStackTracker) {
                 case 5: {
-                    Lift.moveLift(FIVE_CONE_STACK_INTAKE_HEIGHT_MM, this);
+                    Lift.StartLifting(FIVE_CONE_STACK_INTAKE_HEIGHT_MM);
                     break;
                 }
                 case 4: {
-                    Lift.moveLift(FOUR_CONE_STACK_INTAKE_HEIGHT_MM, this);
+                    Lift.StartLifting(FOUR_CONE_STACK_INTAKE_HEIGHT_MM);
                     break;
                 }
-
                 case 3: {
-                    Lift.moveLift(THREE_CONE_STACK_INTAKE_HEIGHT_MM, this);
+                    Lift.StartLifting(THREE_CONE_STACK_INTAKE_HEIGHT_MM);
                     break;
                 }
-
                 case 2: {
-                    Lift.moveLift(TWO_CONE_STACK_INTAKE_HEIGHT_MM, this);
+                    Lift.StartLifting(TWO_CONE_STACK_INTAKE_HEIGHT_MM);
                     break;
                 }
                 case 1: {
-                    Lift.moveLift(ONE_CONE_INTAKE_HEIGHT_MM, this);
+                    Lift.StartLifting(ONE_CONE_INTAKE_HEIGHT_MM);
                     break;
                 }
+            }
+
+            while (opModeIsActive() && Lift.alreadyLifting == true) {
+                Lift.ContinueLifting();
             }
 
             telemetry.addData("# of Cones Left on Stack", coneStackTracker);
@@ -141,10 +166,17 @@ public class AUTO_SCORE_6_AND_PARK extends LinearOpMode {
             telemetry.update();
 
             //Drive to pickup cone from cone stack
-            MecDrive.startEncoderDrive(HIGH_SPEED, FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE, FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE, this);
+            MecDrive.startEncoderDrive(HIGH_SPEED,FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE,
+                                        FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE);
+            while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
+                MecDrive.ContinueStrafing();
+            }
 
             //lower lift by set amount based on current lift position
-            Lift.moveLift(Lift.liftMotor.getCurrentPosition()-CONE_INTAKE_HEIGHT_CHANGE_MM, this);
+            Lift.StartLifting(Lift.liftMotor.getCurrentPosition()-CONE_INTAKE_HEIGHT_CHANGE_MM);
+            while (opModeIsActive() && Lift.alreadyLifting == true) {
+                Lift.ContinueLifting();
+            }
 
             //turn on intake to grab cone
             ServoIntake.toggleIntake();
@@ -158,10 +190,16 @@ public class AUTO_SCORE_6_AND_PARK extends LinearOpMode {
             ServoIntake.toggleIntake();
 
             //raise lift by set amount based on current lift position
-            Lift.moveLift(Lift.liftMotor.getCurrentPosition()+CONE_INTAKE_HEIGHT_CHANGE_MM, this);
+            Lift.StartLifting(Lift.liftMotor.getCurrentPosition()+CONE_INTAKE_HEIGHT_CHANGE_MM);
+            while (opModeIsActive() && Lift.alreadyLifting == true) {
+                Lift.ContinueLifting();
+            }
 
             //Drive toward middle of field
-            MecDrive.startEncoderDrive(HIGH_SPEED, -(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE), -(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE), this);
+            MecDrive.startEncoderDrive(HIGH_SPEED, -(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE), -(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE));
+            while (opModeIsActive() && MecDrive.alreadyDriving == true) {
+                MecDrive.ContinueDriving();
+            }
 
             //move turret to deliver position
             if(ButtonConfig.allianceColorAndLocationFactor == 1){
@@ -170,50 +208,70 @@ public class AUTO_SCORE_6_AND_PARK extends LinearOpMode {
                 ServoArm.setPosition(ARM_RIGHT_OUTTAKE);}
 
             //raise lift to height to deliver to High Junction
-            Lift.moveLift(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM, this);
+            Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
+            while (opModeIsActive() && Lift.alreadyLifting == true) {
+                Lift.ContinueLifting();
+            }
 
             //Strafe to the high pole
-            MecDrive.startStrafeDrive(HIGH_SPEED, -(QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), -(QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), this);
+            MecDrive.startStrafeDrive(HIGH_SPEED,   -(QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor),
+                                                    -(QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor));
+            while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
+                MecDrive.ContinueStrafing();
+            }
 
             //drop off cone
             ServoClaw.toggleClaw();
             coneDeliveryTracker = coneDeliveryTracker +1;
 
             //wait for cone to be released
-            sleep(150);
+            sleep(350);
 
             //close claw for next intake
             ServoClaw.toggleClaw();
 
             //strafe away from the high pole
-            MecDrive.startStrafeDrive(HIGH_SPEED, (QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), (QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor), this);
+            MecDrive.startStrafeDrive(HIGH_SPEED,   (QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor),
+                                                    (QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor));
+            while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
+                MecDrive.ContinueStrafing();
+            }
         }
 
-        Lift.moveLift(ONE_CONE_INTAKE_HEIGHT_MM, this);
-        ServoArm.setPosition(ARM_INTAKE);
+        Lift.StartLifting(ONE_CONE_INTAKE_HEIGHT_MM);
+        while (opModeIsActive() && Lift.alreadyLifting == true) {
+            Lift.ContinueLifting();
+        }
+        ServoArm.setPosition(ARM_CENTER_INTAKE);
 
         //Park code
         if(Signal == 3) {
-            MecDrive.startEncoderDrive(HIGH_SPEED, -(HALF_TILE_DISTANCE), -(HALF_TILE_DISTANCE), this);
+            MecDrive.startEncoderDrive(HIGH_SPEED, -(HALF_TILE_DISTANCE), -(HALF_TILE_DISTANCE));
         }
         else if (Signal == 2) {
 
-            MecDrive.startEncoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE, this);
+            MecDrive.startEncoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE);
         }
         else if (Signal == 1){
-            MecDrive.startEncoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE, this);
+            MecDrive.startEncoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE);
+        }
+        while (opModeIsActive() && MecDrive.alreadyDriving == true) {
+            MecDrive.ContinueDriving();
         }
 
-        MecDrive.turnTo(180, this);
-        MecDrive.startEncoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE, HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE, this);
+        MecDrive.turnTo(180, Gyro);
+        MecDrive.startEncoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE, HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE);
+        while (opModeIsActive() && MecDrive.alreadyDriving == true) {
+            MecDrive.ContinueDriving();
+        }
 
         telemetry.addData("# of Cones Left on Stack", coneStackTracker);
         telemetry.addData("Current Lift Height", Lift.liftMotor.getCurrentPosition());
         telemetry.addData("# of Cones Delivered During Auto", coneDeliveryTracker);
         telemetry.addData("Status", "Run Time: " + runtime);
         telemetry.update();
-        sleep(10000);
-    // pickle
+        sleep(2000);
+
     }
 }
 

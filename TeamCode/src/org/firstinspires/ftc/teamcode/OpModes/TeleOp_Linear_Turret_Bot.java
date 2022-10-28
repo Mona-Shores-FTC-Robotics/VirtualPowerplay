@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.OpModes;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.*;
 
+import static java.lang.Math.abs;
+
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -10,22 +12,22 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.Arm;
 import org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Claw;
 import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
-import org.firstinspires.ftc.teamcode.ObjectClasses.Gamepad1Controls;
-import org.firstinspires.ftc.teamcode.ObjectClasses.Gamepad2Controls;
+
+import org.firstinspires.ftc.teamcode.ObjectClasses.Gyro;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Intake;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Lift;
+import org.firstinspires.ftc.teamcode.ObjectClasses.TurnPIDController;
 
 @TeleOp(name = "Teleop Mode w/ Turret Bot", group = "Turret Bot")
 public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
-    DriveTrain MecDrive = new DriveTrain();
+    DriveTrain MecDrive = new DriveTrain(this);
     ButtonConfig ButtonConfig = new ButtonConfig(this);
     Arm ServoArm = new Arm();
     Intake ServoIntake = new Intake();
     Claw ServoClaw = new Claw();
-    Gamepad1Controls G1PadControls = new Gamepad1Controls(this);
-    Gamepad2Controls G2PadControls = new Gamepad2Controls(this);
-    org.firstinspires.ftc.teamcode.ObjectClasses.Lift Lift = new Lift();
+    Lift Lift = new Lift(this);
+    Gyro Gyro = new Gyro(this);
 
     private final ElapsedTime runtime = new ElapsedTime();
 
@@ -41,13 +43,15 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
         ServoIntake.init(hardwareMap);
         ServoClaw.init(hardwareMap);
         Lift.init(hardwareMap);
-        Lift.moveLift(ONE_CONE_INTAKE_HEIGHT_MM,this);
-
+        Gyro.init(hardwareMap);
 
         Gamepad currentGamepad1 = new Gamepad();
         Gamepad currentGamepad2 = new Gamepad();
 
-        MecDrive.calibrateGyro(this);
+        Gamepad previousGamepad1 = new Gamepad();
+        Gamepad previousGamepad2 = new Gamepad();
+
+        Gyro.calibrateGyro();
 
         telemetry.addData("Status", "Hardware Initialized");
         telemetry.update();
@@ -61,46 +65,48 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
         }
 
         runtime.reset();
-        MecDrive.currentRobotState = DriveTrain.robotState.HUMAN_CONTROLLED;
 
         while (opModeIsActive()) {
+
+            //Store the previous loop's gamepad values.
+            previousGamepad1 = ButtonConfig.copy(currentGamepad1);
+            previousGamepad2 = ButtonConfig.copy(currentGamepad2);
+
             //Store the gamepad values to be used for this iteration of the loop.
-            currentGamepad1 = gamepad1;
-            currentGamepad2 = gamepad2;
+            currentGamepad1 = ButtonConfig.copy(gamepad1);
+            currentGamepad2 = ButtonConfig.copy(gamepad2);
 
+            ServoClaw.CheckClaw(currentGamepad2.a, previousGamepad2.a);
 
-            if (opModeIsActive() && MecDrive.currentRobotState == DriveTrain.robotState.HUMAN_CONTROLLED)
-            {
-                //Driver Controls for Gamepad1
-                G1PadControls.CheckControls(currentGamepad1, MecDrive);
+            ServoIntake.CheckIntake(currentGamepad2.x, previousGamepad2.x);
 
-                //Operator Controls for Gamepad2
-                G2PadControls.CheckControls(currentGamepad2, Lift, ServoArm, ServoClaw, ServoIntake);
+            Lift.CheckLift(     currentGamepad2.left_bumper, previousGamepad2.left_bumper,
+                                currentGamepad2.right_bumper, previousGamepad2.right_bumper,
+                                currentGamepad2.left_stick_y);
 
-            } else if (opModeIsActive() && MecDrive.currentRobotState == DriveTrain.robotState.AUTOMATIC_TASK)
-            {
-                if (MecDrive.alreadyDriving == true) {
-                    MecDrive.ContinueDriving(this);
-                }
-                else if (MecDrive.alreadyStrafing == true) {
-                    MecDrive.ContinueStrafing(this);
-                }
-                if (Lift.alreadyLifting)
-                {
-                    Lift.keepLifting(this);
-                }
-            }
+            ServoArm.CheckArm(  currentGamepad2.dpad_left, previousGamepad2.dpad_left,
+                                currentGamepad2.dpad_down, previousGamepad2.dpad_down,
+                                currentGamepad2.dpad_right, previousGamepad2.dpad_right);
 
+            MecDrive.CheckDriveControls( currentGamepad1, previousGamepad1, Lift, ServoArm, ServoClaw, ServoIntake, Gyro);
 
             // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime);
+            telemetry.addData("Run Time:","%s", runtime);
             telemetry.addData("Motors", "leftfront(%.2f), rightfront (%.2f)", MecDrive.leftFrontPower*MecDrive.multiplier, MecDrive.rightFrontPower*MecDrive.multiplier);
             telemetry.addData("Motors", "leftback (%.2f), rightback (%.2f)", MecDrive.leftBackPower*MecDrive.multiplier, MecDrive.rightBackPower*MecDrive.multiplier);
-            telemetry.addData("Lift Position", Lift.liftMotor.getCurrentPosition());
-            telemetry.addData("Arm Position", ServoArm.arm.getPosition());
-            telemetry.addData("Claw Position", ServoClaw.claw.getPosition());
-            telemetry.addData("Gyro Angle", (int) MecDrive.getAbsoluteAngle(this));
-            telemetry.addLine("");
+            telemetry.addData("Encoders" , "leftfront(%s), rightfront(%s)", MecDrive.LFDrive.getCurrentPosition(), MecDrive.RFDrive.getCurrentPosition());
+            telemetry.addData("Encoders", "leftback(%s), rightback(%s)", MecDrive.LBDrive.getCurrentPosition(), MecDrive.RBDrive.getCurrentPosition());
+            telemetry.addData("Speed", "(%.4f)", MecDrive.ramp);
+
+            telemetry.addData("Lift", "Position(%s), Target(%s)", Lift.liftMotor.getCurrentPosition(), Lift.newLiftTarget);
+            telemetry.addData("Arm Position", ServoArm.currentArmState);
+            telemetry.addData("Claw Position", ServoClaw.currentClawState);
+            telemetry.addData("Intake State", ServoIntake.currentIntakeState);
+            telemetry.addData("Absolute Gyro Angle", (int) Gyro.getAbsoluteAngle());
+            telemetry.addData("Target PID Angle", (int) MecDrive.pid.targetPIDAngle);
+            telemetry.addData("PID Angle Left to Turn", (int) MecDrive.pid.pidAngleLeftToTurn);
+            telemetry.addData("Degrees Left to Turn:", "(%.2f)", abs(MecDrive.degreesLeftToTurn));
+
             telemetry.addData("# of Cones Delivered", teleopConeDeliveryTracker);
             telemetry.update();
         }
