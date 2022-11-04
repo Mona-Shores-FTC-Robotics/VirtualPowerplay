@@ -20,16 +20,16 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.Lift;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.Arm.*;
 
 
-@Autonomous(name = "AUTO_OTS_SCORE_6_AND_PARK")
+@Autonomous(name = "AUTO_SCORE_6_AND_PARK")
 public class AUTO_SCORE_6_AND_PARK extends LinearOpMode {
 
     int Signal;
     DriveTrain MecDrive = new DriveTrain(this);
     ButtonConfig ButtonConfig = new ButtonConfig(this);
-    Arm ServoArm = new Arm();
     Intake ServoIntake = new Intake();
     Claw ServoClaw = new Claw();
     Lift Lift = new Lift(this);
+    Arm ServoArm = new Arm(Lift);
     Gyro Gyro = new Gyro(this);
 
     public final ElapsedTime runtime = new ElapsedTime();
@@ -85,30 +85,35 @@ public class AUTO_SCORE_6_AND_PARK extends LinearOpMode {
             MecDrive.ContinuePIDTurning(Gyro);
         }
 
-        //drive toward middle of field
+        //drive toward middle of field while lift to height to deliver to High Junction
+        Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
         MecDrive.startEncoderDrive(HIGH_SPEED, (HALF_TILE_DISTANCE), (HALF_TILE_DISTANCE));
         while (opModeIsActive() && MecDrive.alreadyDriving == true) {
             MecDrive.ContinueDriving();
+            Lift.ContinueLifting();
         }
+
 
         //rotate turret to deliver to High Junction
         //this code won't work if high junction is on the left.
         if(ButtonConfig.allianceColorAndLocationFactor == 1){
-        ServoArm.setArmState(armState.ARM_RIGHT);}
+            ServoArm.setArmState(armState.ARM_RIGHT);}
         else if (ButtonConfig.allianceColorAndLocationFactor == -1){
-        ServoArm.setArmState(armState.ARM_LEFT);}
+            ServoArm.setArmState(armState.ARM_LEFT);}
 
-        //strafe to the high pole while lift to height to deliver to High Junction
-        Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
+
+        //strafe to the high pole
         MecDrive.startStrafeDrive(HIGH_SPEED, (QUARTER_TILE_DISTANCE * ButtonConfig.startPositionMultiplier * ButtonConfig.allianceColorMultiplier),
                 (QUARTER_TILE_DISTANCE * ButtonConfig.startPositionMultiplier * ButtonConfig.allianceColorMultiplier));
         while (opModeIsActive() && (Lift.alreadyLifting || MecDrive.alreadyStrafing )) {
-            Lift.ContinueLifting();
-            MecDrive.ContinueStrafing();
+                      MecDrive.ContinueStrafing();
         }
 
         // Open claw to release cone
         ServoClaw.toggleClaw();
+
+        //wait for cone to be released
+        sleep(150);
 
         coneDeliveryTracker = 1;
         coneStackTracker = 5;
@@ -125,7 +130,7 @@ public class AUTO_SCORE_6_AND_PARK extends LinearOpMode {
             MecDrive.ContinueStrafing();
         }
 
-        while (coneStackTracker > 0)
+        while (coneStackTracker > 1)
         {
             //close claw for next intake
             ServoClaw.toggleClaw();
@@ -229,7 +234,7 @@ public class AUTO_SCORE_6_AND_PARK extends LinearOpMode {
             telemetry.update();
 
             //wait for cone to be released
-            sleep(350);
+            sleep(150);
 
             //strafe away from the high pole
             MecDrive.startStrafeDrive(HIGH_SPEED,   -(QUARTER_TILE_DISTANCE * ButtonConfig.allianceColorAndLocationFactor),

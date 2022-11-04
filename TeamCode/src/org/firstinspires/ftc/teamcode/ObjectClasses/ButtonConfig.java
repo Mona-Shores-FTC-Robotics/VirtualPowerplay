@@ -198,6 +198,7 @@ public class ButtonConfig {
         pad.right_bumper = gamepad.right_bumper;
         pad.left_bumper = gamepad.left_bumper;
 
+
         pad.right_trigger = gamepad.right_trigger;
         pad.left_trigger = gamepad.left_trigger;
 

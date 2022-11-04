@@ -85,8 +85,6 @@ public class Lift {
             StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
         } else if (alreadyLifting) {
             ContinueLifting();
-        } else {
-            ManualLift(0);
         }
     }
 }

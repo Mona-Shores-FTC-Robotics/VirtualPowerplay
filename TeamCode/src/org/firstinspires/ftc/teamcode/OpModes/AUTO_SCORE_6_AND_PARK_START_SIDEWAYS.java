@@ -34,16 +34,16 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.Lift;
 import java.awt.Button;
 
 
-@Autonomous(name = "AUTO_OTS_SCORE_6_AND_PARK_START_SIDEWAYS")
+@Autonomous(name = "AUTO_SCORE_6_AND_PARK_START_SIDEWAYS")
 public class AUTO_SCORE_6_AND_PARK_START_SIDEWAYS extends LinearOpMode {
 
     int Signal;
     DriveTrain MecDrive = new DriveTrain(this);
     ButtonConfig ButtonConfig = new ButtonConfig(this);
-    Arm ServoArm = new Arm();
     Intake ServoIntake = new Intake();
     Claw ServoClaw = new Claw();
     Lift Lift = new Lift(this);
+    Arm ServoArm = new Arm(Lift);
     Gyro Gyro = new Gyro(this);
 
     public final ElapsedTime runtime = new ElapsedTime();

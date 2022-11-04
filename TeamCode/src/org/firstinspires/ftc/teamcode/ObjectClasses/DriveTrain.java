@@ -1,4 +1,4 @@
-/* Copyright (c) 2017 FIRST. All rights reserved.
+package org.firstinspires.ftc.teamcode.ObjectClasses;/* Copyright (c) 2017 FIRST. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted (subject to the limitations in the disclaimer below) provided that
@@ -27,37 +27,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.ObjectClasses;
-
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.EIGHTH_TILE_DISTANCE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.FULL_TILE_DISTANCE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HALF_TILE_DISTANCE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.MEDIUM_CONE_JUNCTION_SCORE_HEIGHT_MM;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.ONE_CONE_INTAKE_HEIGHT_MM;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.QUARTER_TILE_DISTANCE;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.SIXTEENTH_TILE_DISTANCE;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.W_3_JUNCTION;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.X_2_JUNCTION;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.Intake.intakeState.INTAKE_OFF;
 import static java.lang.Math.abs;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.GyroSensorImpl;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 public class DriveTrain {
 
@@ -99,6 +79,8 @@ public class DriveTrain {
     //state machine members
     public boolean alreadyDriving = false;
     public boolean alreadyStrafing = false;
+    public boolean visionStrafing = false;
+    public boolean autoDeliver = false;
 
     public LinearOpMode activeOpMode;
     HardwareMap hwMap = null;
@@ -115,7 +97,21 @@ public class DriveTrain {
     private ElapsedTime strafePeriod = new ElapsedTime();
     private ElapsedTime period = new ElapsedTime();
 
-    public autoStates currentAutomaticTask = autoStates.NO_AUTOMATIC_TASK;
+    public enum autoDeliverStates {
+        START_AUTOMATIC_DELIVER,
+        DRIVE_FROM_ALLIANCE_SUBSTATION,
+        STRAFE_TO_POLE,
+        DELIVER_CONE,
+        STRAFE_AWAY_FROM_POLE,
+        DRIVE_TO_ALLIANCE_SUBSTATION,
+        INTAKE_CONE,
+        DRIVE_TO_OUTSIDE_ALLIANCE_SUBSTATION,
+        END_AUTOMATIC_DELIVER
+    }
+
+    public boolean manualDriving = false;
+
+    public autoDeliverStates currentAutomaticTask = autoDeliverStates.START_AUTOMATIC_DELIVER;
 
     /* Constructor */
     public DriveTrain(LinearOpMode mode) {
@@ -143,6 +139,187 @@ public class DriveTrain {
         RFDrive.setPower(0);
         LBDrive.setPower(0);
         RBDrive.setPower(0);
+    }
+
+    public void CheckManualDriveControls(float driveStick, float strafeStick, float turnStick, float fineTuneLeftTurn, float fineTuneRightTurn) {
+        //Driver controls have first priority
+        if (driveStick != 0 || strafeStick != 0 || turnStick != 0 || fineTuneLeftTurn > 0 || fineTuneRightTurn > 0) {
+            alreadyStrafing = false;
+            alreadyDriving = false;
+            alreadyTurning = false;
+            alreadyPIDTurning = false;
+            visionStrafing = false;
+            manualDriving = true;
+            autoDeliver = false;
+
+            drive = -driveStick; //-1.0 to 1.0
+            strafe = strafeStick; //-1.0 to 1.0
+            turn = turnStick; //-1.0 to 1.0
+
+            //Use fine tune values from triggers instead of right stick if Driver is pressing one of them
+            if (fineTuneLeftTurn > .1) {
+                turn = -fineTuneLeftTurn * .3; //-1.0 to 1.0
+            } else if (fineTuneRightTurn > .1) {
+                turn = fineTuneRightTurn * .3;
+            }
+            MecanumDrive();
+        }
+    }
+
+    public void CheckDpadDriveControls(boolean dpad_up, boolean dpad_right, boolean dpad_down, boolean dpad_left,
+                                       boolean lastDpad_up, boolean lastDpad_right, boolean lastDpad_down, boolean lastDpad_left,
+                                       boolean changeFunction) {
+            if (dpad_right && !lastDpad_right) {
+                if (changeFunction == true) {
+                    startStrafeDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE);
+                } else {
+                    startStrafeDrive(HIGH_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE);
+                }
+            } else if (dpad_down && !lastDpad_down) {
+                if (changeFunction == true) {
+                    startEncoderDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE);
+                } else {
+                    startEncoderDrive(HIGH_SPEED, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE);
+                }
+            } else if (dpad_left && !lastDpad_left) {
+                if (changeFunction == true) {
+                    startStrafeDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE);
+                } else {
+                    startStrafeDrive(HIGH_SPEED, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE);
+                }
+            } else if (dpad_up && !lastDpad_up) {
+                if (changeFunction == true) {
+                    startEncoderDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE);
+                } else {
+                    startEncoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE);
+                }
+            }
+        }
+
+    public void CheckAutoAwayFromAllianceSubstation(boolean button, boolean lastButton) {
+              if (button && lastButton) {
+                //move from alliance substation to scoring position
+                startEncoderDrive(MED_SPEED, HALF_TILE_DISTANCE + FULL_TILE_DISTANCE + EIGHTH_TILE_DISTANCE, HALF_TILE_DISTANCE + FULL_TILE_DISTANCE + EIGHTH_TILE_DISTANCE);
+            }
+    }
+
+    public void CheckVisionStrafing(boolean button, boolean lastButton) {
+            if (button && lastButton) {
+                visionStrafing = true;
+            }
+        }
+
+    public void CheckSquareTurning(boolean button1, boolean lastButton1, boolean button2, boolean lastButton2, Gyro Gyro) {
+            if (button1 && !lastButton1) {
+                //ROTATE TO THE LEFT TO THE CLOSEST RIGHT ANGLE 0, 90, 180, 270
+                //RotateClosestRightAngleToLeft(Gyro);
+                turnToPID(90, Gyro);
+
+            } else if (button2 && !lastButton2) {
+                //ROTATE TO THE LEFT TO THE CLOSEST RIGHT ANGLE 0, 90, 180, 270
+                //RotateClosestRightAngleToRight(Gyro);
+                turnToPID(-90, Gyro);
+            }
+    }
+    public void CheckAutoDeliver(boolean button, boolean lastButton) {
+        if (button && lastButton) {
+            autoDeliver = true;
+            currentAutomaticTask = autoDeliverStates.START_AUTOMATIC_DELIVER;
+        }
+    }
+
+    public void ContinueAutomaticTasks(Gyro Gyro, Arm ServoArm, Lift Lift, Claw ServoClaw, Intake ServoIntake) {
+        if (visionStrafing) {
+
+        } else if (alreadyDriving) {
+            ContinueDriving();
+        } else if (alreadyStrafing) {
+            ContinueStrafing();
+        } else if (alreadyPIDTurning) {
+            ContinuePIDTurning(Gyro);
+        } else if (alreadyTurning) {
+            ContinueTurning(Gyro);
+        } else if (autoDeliver) {
+            auto_deliver(ServoArm, Lift, ServoClaw, ServoIntake);
+        }
+    }
+
+    public void CheckNoManualDriveControls(float driveStick, float strafeStick, float turnStick, float fineTuneLeftTurn, float fineTuneRightTurn) {
+        if (driveStick == 0 && strafeStick == 0 && turnStick == 0 && fineTuneLeftTurn < .1 && fineTuneRightTurn < .1 &&
+            !visionStrafing && !alreadyDriving && !alreadyStrafing && !alreadyPIDTurning && !alreadyTurning && !autoDeliver) {
+            drive = 0;
+            strafe = 0;
+            turn = 0;
+            MecanumDrive();
+            manualDriving = false;
+        }
+    }
+
+    private void RotateClosestRightAngleToLeft(Gyro Gyro) {
+        double currentAngle = Gyro.getAbsoluteAngle();
+        if (currentAngle >= 0 && currentAngle < 85 || currentAngle <=0 && currentAngle > -5) {
+            turnToPID(90, Gyro);
+        }
+
+        if (currentAngle <=-5 && currentAngle > -95){
+            turnToPID(0, Gyro);
+        }
+
+        if (currentAngle <=-95 && currentAngle >= -180 || currentAngle >= 175 && currentAngle <= 180){
+            turnToPID(-90, Gyro);
+        }
+
+        if (currentAngle >= 85 && currentAngle < 175){
+            turnToPID(-180, Gyro);
+        }
+    }
+
+    private void RotateClosestRightAngleToRight(Gyro Gyro) {
+        double currentAngle = Gyro.getAbsoluteAngle();
+        if (currentAngle <= 0 && currentAngle > -85 || currentAngle >=0 && currentAngle < 5) {
+            turnToPID(-90, Gyro);
+        }
+
+        if (currentAngle <=-85 && currentAngle > -175){
+            turnToPID(180, Gyro);
+        }
+
+        if (currentAngle <=-175 && currentAngle >= -180 || currentAngle > 95 && currentAngle <= 180){
+            turnToPID(90, Gyro);
+        }
+
+        if (currentAngle <= 95 && currentAngle > 0){
+            turnToPID(0, Gyro);
+        }
+    }
+
+    public void VisionStrafing(PipeVision AutoVision) {
+        activeOpMode.telemetry.addLine("Seeking POLE with VISION");
+        if (AutoVision.pipeDetectionPipeline.isPoleCenter()) {
+            //stop moving
+            activeOpMode.telemetry.addLine("PIPE CENTER");
+            turn = 0;
+            drive = 0;
+            strafe = 0;
+            MecanumDrive();
+            visionStrafing = false;
+        } else if (AutoVision.pipeDetectionPipeline.isPoleLeft()) {
+            //strafe left
+            activeOpMode.telemetry.addLine("PIPE LEFT");
+            turn = 0;
+            drive = 0;
+            strafe = .2;
+            MecanumDrive();
+        } else if (AutoVision.pipeDetectionPipeline.isPoleRight()) {
+            //strafe right
+            activeOpMode.telemetry.addLine("PIPE RIGHT");
+            turn = 0;
+            drive = 0;
+            strafe = .2;
+            MecanumDrive();
+        } else {
+            activeOpMode.telemetry.addLine("UH OH DON'T SEE PIPE");
+        }
     }
 
     //Set power to all motors
@@ -330,152 +507,37 @@ public class DriveTrain {
         }
     }
 
-    public void CheckDriveControls(Gamepad currentGamepad1, Gamepad previousGamepad1, Lift Lift, Arm ServoArm, Claw ServoClaw, Intake ServoIntake, Gyro Gyro) {
-        //Driver controls have first priority
-        if (currentGamepad1.left_stick_y != 0 || currentGamepad1.left_stick_x !=0 || currentGamepad1.right_stick_x !=0 ||
-            currentGamepad1.left_trigger >0 || currentGamepad1.right_trigger >0)
-        {
-            alreadyStrafing = false;
-            alreadyDriving = false;
-            alreadyTurning = false;
-            alreadyPIDTurning = false;
-            currentAutomaticTask = autoStates.NO_AUTOMATIC_TASK;
-
-            drive = -currentGamepad1.left_stick_y; //-1.0 to 1.0
-            strafe = currentGamepad1.left_stick_x; //-1.0 to 1.0
-            turn = currentGamepad1.right_stick_x; //-1.0 to 1.0
-
-            //Use fine tune values from triggers instead of right stick if Driver is pressing one of them
-            if (currentGamepad1.left_trigger > .1) {
-                turn = -currentGamepad1.left_trigger*.3; //-1.0 to 1.0
-            } else if (currentGamepad1.right_trigger > .1) {
-                turn = currentGamepad1.right_trigger*.3;
-            }
-            MecanumDrive();
-        }
-
-        else if (currentGamepad1.dpad_right  &&  !previousGamepad1.dpad_right) {
-            if (currentGamepad1.b == true) {
-                startStrafeDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE);
-            } else {
-                startStrafeDrive(HIGH_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE);
-            }
-        } else if (currentGamepad1.dpad_down   &&  !previousGamepad1.dpad_down)   {
-            if (currentGamepad1.b == true) {
-                startEncoderDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE);
-            } else {
-                startEncoderDrive(HIGH_SPEED, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE);
-            }
-        } else if (currentGamepad1.dpad_left   &&  !previousGamepad1.dpad_left) {
-            if (currentGamepad1.b == true) {
-                startStrafeDrive(HIGH_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE);
-            } else {
-                startStrafeDrive(HIGH_SPEED, -HALF_TILE_DISTANCE, -HALF_TILE_DISTANCE);
-            }
-        } else if (currentGamepad1.dpad_up     &&  !previousGamepad1.dpad_up) {
-            if (currentGamepad1.b == true) {
-                startEncoderDrive(HIGH_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE);
-            } else {
-                startEncoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE);
-            }
-        } else if (currentGamepad1.a && !previousGamepad1.a) {
-            //move from alliance substation to scoring position
-            startEncoderDrive(HIGH_SPEED, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE, HALF_TILE_DISTANCE+FULL_TILE_DISTANCE+EIGHTH_TILE_DISTANCE);
-        } else if (currentGamepad1.left_bumper && !previousGamepad1.left_bumper) {
-            //ROTATE TO THE LEFT TO THE CLOSEST RIGHT ANGLE 0, 90, 180, 270
-            RotateClosestRightAngleToLeft(Gyro);
-        } else if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper) {
-            //ROTATE TO THE LEFT TO THE CLOSEST RIGHT ANGLE 0, 90, 180, 270
-            RotateClosestRightAngleToRight(Gyro);
-        } else if (currentGamepad1.y && !previousGamepad1.y && currentAutomaticTask == autoStates.NO_AUTOMATIC_TASK) {
-            auto_deliver(ServoArm, Lift, ServoClaw, ServoIntake);
-        } else if (alreadyDriving) {
-            ContinueDriving();
-        } else if (alreadyStrafing) {
-            ContinueStrafing();
-        } else if (alreadyPIDTurning) {
-            ContinuePIDTurning(Gyro);
-        } else if (alreadyTurning) {
-            ContinueTurning(Gyro);
-        } else if (currentAutomaticTask != autoStates.NO_AUTOMATIC_TASK){
-            auto_deliver(ServoArm, Lift, ServoClaw, ServoIntake);
-        }
-        else if (!alreadyPIDTurning && !alreadyTurning && !alreadyDriving && !alreadyStrafing) {
-        drive = -currentGamepad1.left_stick_y; //-1.0 to 1.0
-        strafe = currentGamepad1.left_stick_x; //-1.0 to 1.0
-        turn = currentGamepad1.right_stick_x; //-1.0 to 1.0
-        MecanumDrive();
-        }
-    }
-
-    public enum autoStates{DRIVE_FROM_ALLIANCE_SUBSTATION, STRAFE_TO_POLE, DELIVER_CONE, STRAFE_AWAY_FROM_POLE, DRIVE_TO_ALLIANCE_SUBSTATION, INTAKE_CONE, NO_AUTOMATIC_TASK, DRIVE_TO_OUTSIDE_ALLIANCE_SUBSTATION}
-
     public void auto_deliver(Arm ServoArm, Lift Lift, Claw ServoClaw, Intake ServoIntake) {
-        if (currentAutomaticTask == autoStates.NO_AUTOMATIC_TASK) {
-            currentAutomaticTask = autoStates.DRIVE_TO_ALLIANCE_SUBSTATION;
+        if (currentAutomaticTask == autoDeliverStates.START_AUTOMATIC_DELIVER) {
+            currentAutomaticTask = autoDeliverStates.DRIVE_TO_ALLIANCE_SUBSTATION;
             startEncoderDrive(HIGH_SPEED, -(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE),-(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE));
-        } else if (currentAutomaticTask==autoStates.DRIVE_TO_ALLIANCE_SUBSTATION){
-            currentAutomaticTask = autoStates.INTAKE_CONE;
+        } else if (currentAutomaticTask== autoDeliverStates.DRIVE_TO_ALLIANCE_SUBSTATION){
+            currentAutomaticTask = autoDeliverStates.INTAKE_CONE;
             ServoIntake.toggleIntake();
-        } else if (currentAutomaticTask==autoStates.INTAKE_CONE && ServoIntake.currentIntakeState == Intake.intakeState.INTAKE_OFF){
-            currentAutomaticTask = autoStates.DRIVE_FROM_ALLIANCE_SUBSTATION;
+        } else if (currentAutomaticTask== autoDeliverStates.INTAKE_CONE && ServoIntake.currentIntakeState == Intake.intakeState.INTAKE_OFF){
+            currentAutomaticTask = autoDeliverStates.DRIVE_FROM_ALLIANCE_SUBSTATION;
             startEncoderDrive(HIGH_SPEED, (FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE), (FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE));
             Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM/2);
-        } else if (currentAutomaticTask==autoStates.DRIVE_FROM_ALLIANCE_SUBSTATION){
-           currentAutomaticTask = autoStates.STRAFE_TO_POLE;
-           startStrafeDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE);
-           ServoArm.setArmState(Arm.armState.ARM_LEFT);
-           Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
-        } else if (currentAutomaticTask==autoStates.STRAFE_TO_POLE){
-            currentAutomaticTask = autoStates.DELIVER_CONE;
-         ServoClaw.smartToggleClaw(ServoArm, Lift);
-        } else if (currentAutomaticTask==autoStates.DELIVER_CONE){
-            currentAutomaticTask = autoStates.STRAFE_AWAY_FROM_POLE;
+        } else if (currentAutomaticTask== autoDeliverStates.DRIVE_FROM_ALLIANCE_SUBSTATION){
+            currentAutomaticTask = autoDeliverStates.STRAFE_TO_POLE;
+            startStrafeDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE);
+            ServoArm.setArmState(Arm.armState.ARM_LEFT);
+            Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
+        } else if (currentAutomaticTask== autoDeliverStates.STRAFE_TO_POLE){
+            currentAutomaticTask = autoDeliverStates.DELIVER_CONE;
+            ServoClaw.smartToggleClaw(ServoArm, Lift);
+        } else if (currentAutomaticTask== autoDeliverStates.DELIVER_CONE){
+            currentAutomaticTask = autoDeliverStates.STRAFE_AWAY_FROM_POLE;
             startStrafeDrive(MED_SPEED, QUARTER_TILE_DISTANCE, QUARTER_TILE_DISTANCE);
-        } else if (currentAutomaticTask==autoStates.STRAFE_AWAY_FROM_POLE){
-            currentAutomaticTask = autoStates.DRIVE_TO_OUTSIDE_ALLIANCE_SUBSTATION;
+        } else if (currentAutomaticTask== autoDeliverStates.STRAFE_AWAY_FROM_POLE){
+            currentAutomaticTask = autoDeliverStates.DRIVE_TO_OUTSIDE_ALLIANCE_SUBSTATION;
             startEncoderDrive(MED_SPEED, -(HALF_TILE_DISTANCE),-(HALF_TILE_DISTANCE));
-        } else if (currentAutomaticTask==autoStates.DRIVE_TO_OUTSIDE_ALLIANCE_SUBSTATION){
-            currentAutomaticTask = autoStates.NO_AUTOMATIC_TASK;
+        } else if (currentAutomaticTask== autoDeliverStates.DRIVE_TO_OUTSIDE_ALLIANCE_SUBSTATION){
+            currentAutomaticTask = autoDeliverStates.END_AUTOMATIC_DELIVER;
+            autoDeliver = false;
         }
     }
 
-    private void RotateClosestRightAngleToLeft(Gyro Gyro) {
-        double currentAngle = Gyro.getAbsoluteAngle();
-        if (currentAngle >= 0 && currentAngle < 85 || currentAngle <=0 && currentAngle > -5) {
-            turnToPID(90, Gyro);
-        }
-
-        if (currentAngle <=-5 && currentAngle > -95){
-            turnToPID(0, Gyro);
-        }
-
-        if (currentAngle <=-95 && currentAngle >= -180 || currentAngle >= 175 && currentAngle <= 180){
-            turnToPID(-90, Gyro);
-        }
-
-        if (currentAngle >= 85 && currentAngle < 175){
-            turnToPID(-180, Gyro);
-        }
-    }
-    private void RotateClosestRightAngleToRight(Gyro Gyro) {
-        double currentAngle = Gyro.getAbsoluteAngle();
-        if (currentAngle <= 0 && currentAngle > -85 || currentAngle >=0 && currentAngle < 5) {
-            turnToPID(-90, Gyro);
-        }
-
-        if (currentAngle <=-85 && currentAngle > -175){
-            turnToPID(180, Gyro);
-        }
-
-        if (currentAngle <=-175 && currentAngle >= -180 || currentAngle > 95 && currentAngle <= 180){
-            turnToPID(90, Gyro);
-        }
-
-        if (currentAngle <= 95 && currentAngle > 0){
-            turnToPID(0, Gyro);
-        }
-    }
 
     public void turn(double degrees, Gyro Gyro) {
         alreadyTurning = true;
@@ -524,7 +586,7 @@ public class DriveTrain {
     public void turnPID(double degrees, Gyro Gyro){
         alreadyPIDTurning = true;
         Gyro.resetAngle();
-        pid = new TurnPIDController(degrees, .7, .1, 0);
+        pid = new TurnPIDController(degrees, .05, .1, 0);
     }
 
     public void ContinuePIDTurning(Gyro Gyro) {
