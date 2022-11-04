@@ -98,6 +98,7 @@ public class DriveTrain {
     private ElapsedTime period = new ElapsedTime();
 
     public enum autoDeliverStates {
+        FIRST_STEP,
         START_AUTOMATIC_DELIVER,
         DRIVE_FROM_ALLIANCE_SUBSTATION,
         STRAFE_TO_POLE,
@@ -212,17 +213,21 @@ public class DriveTrain {
     public void CheckSquareTurning(boolean button1, boolean lastButton1, boolean button2, boolean lastButton2, Gyro Gyro) {
             if (button1 && !lastButton1) {
                 //ROTATE TO THE LEFT TO THE CLOSEST RIGHT ANGLE 0, 90, 180, 270
-                //RotateClosestRightAngleToLeft(Gyro);
-                turnToPID(90, Gyro);
-
+                RotateClosestRightAngleToLeft(Gyro);
             } else if (button2 && !lastButton2) {
                 //ROTATE TO THE LEFT TO THE CLOSEST RIGHT ANGLE 0, 90, 180, 270
-                //RotateClosestRightAngleToRight(Gyro);
-                turnToPID(-90, Gyro);
+                RotateClosestRightAngleToRight(Gyro);
             }
     }
     public void CheckAutoDeliver(boolean button, boolean lastButton) {
         if (button && lastButton) {
+            autoDeliver = true;
+            currentAutomaticTask = autoDeliverStates.START_AUTOMATIC_DELIVER;
+        }
+    }
+
+    public void CheckTileAutoDeliver(boolean closeLeft, boolean farLeft, boolean closeRight, boolean farRight) {
+        if (closeLeft) {
             autoDeliver = true;
             currentAutomaticTask = autoDeliverStates.START_AUTOMATIC_DELIVER;
         }
@@ -257,38 +262,39 @@ public class DriveTrain {
 
     private void RotateClosestRightAngleToLeft(Gyro Gyro) {
         double currentAngle = Gyro.getAbsoluteAngle();
-        if (currentAngle >= 0 && currentAngle < 85 || currentAngle <=0 && currentAngle > -5) {
-            turnToPID(90, Gyro);
-        }
 
-        if (currentAngle <=-5 && currentAngle > -95){
+        if (currentAngle < 0 && currentAngle > -85){
             turnToPID(0, Gyro);
         }
 
-        if (currentAngle <=-95 && currentAngle >= -180 || currentAngle >= 175 && currentAngle <= 180){
+        if (currentAngle >= 5 && currentAngle < 90) {
+            turnToPID(90, Gyro);
+        }
+
+        if (currentAngle < -90 && currentAngle >= -175){
             turnToPID(-90, Gyro);
         }
 
-        if (currentAngle >= 85 && currentAngle < 175){
-            turnToPID(-180, Gyro);
+        if (currentAngle >= 95 && currentAngle < 180){
+            turnToPID(180, Gyro);
         }
     }
 
     private void RotateClosestRightAngleToRight(Gyro Gyro) {
         double currentAngle = Gyro.getAbsoluteAngle();
-        if (currentAngle <= 0 && currentAngle > -85 || currentAngle >=0 && currentAngle < 5) {
+        if (currentAngle < -5 && currentAngle >= -90) {
             turnToPID(-90, Gyro);
         }
 
-        if (currentAngle <=-85 && currentAngle > -175){
-            turnToPID(180, Gyro);
+        if (currentAngle < -95 && currentAngle >= -180){
+            turnToPID(-180, Gyro);
         }
 
-        if (currentAngle <=-175 && currentAngle >= -180 || currentAngle > 95 && currentAngle <= 180){
+        if (currentAngle < 175 && currentAngle >= 90){
             turnToPID(90, Gyro);
         }
 
-        if (currentAngle <= 95 && currentAngle > 0){
+        if (currentAngle < 85 && currentAngle >= 0){
             turnToPID(0, Gyro);
         }
     }
@@ -509,6 +515,9 @@ public class DriveTrain {
 
     public void auto_deliver(Arm ServoArm, Lift Lift, Claw ServoClaw, Intake ServoIntake) {
         if (currentAutomaticTask == autoDeliverStates.START_AUTOMATIC_DELIVER) {
+            // I don't know why it does this one twice, i had to add a dummy step in to get around it.
+            currentAutomaticTask = autoDeliverStates.FIRST_STEP;
+        } else if (currentAutomaticTask == autoDeliverStates.FIRST_STEP) {
             currentAutomaticTask = autoDeliverStates.DRIVE_TO_ALLIANCE_SUBSTATION;
             startEncoderDrive(HIGH_SPEED, -(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE),-(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE));
         } else if (currentAutomaticTask== autoDeliverStates.DRIVE_TO_ALLIANCE_SUBSTATION){

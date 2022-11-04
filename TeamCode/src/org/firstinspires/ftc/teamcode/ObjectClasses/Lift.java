@@ -40,7 +40,6 @@ public class Lift {
         liftMotor  = ahwMap.get(DcMotor.class, "lift_motor");
         liftMotor.setDirection(DcMotor.Direction.FORWARD);
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
         liftMotor.setPower(0);
     }
 

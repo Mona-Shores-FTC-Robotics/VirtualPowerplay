@@ -119,18 +119,23 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
                     Gyro);
 
             //Driver control to move set distance away from alliance substation
-            MecDrive.CheckAutoAwayFromAllianceSubstation(currentGamepad1.b, previousGamepad1.b);
+            //MecDrive.CheckAutoAwayFromAllianceSubstation(currentGamepad1.start, previousGamepad1.start);
 
             //Driver control to use vision to center on pipe by strafing
-            MecDrive.CheckVisionStrafing(currentGamepad1.y, previousGamepad1.y);
+            //MecDrive.CheckVisionStrafing(currentGamepad1.y, previousGamepad1.y);
 
-            MecDrive.CheckAutoDeliver(currentGamepad1.x, previousGamepad1.x);
+            MecDrive.CheckAutoDeliver(currentGamepad1.back, previousGamepad1.back);
+
+            MecDrive.CheckTileAutoDeliver(currentGamepad1.x, previousGamepad1.y, currentGamepad1.a, previousGamepad1.b);
+
 
             //Automated tasks (driving, turning, strafing, vision strafing, auto deliver)
             MecDrive.ContinueAutomaticTasks(Gyro, ServoArm, Lift, ServoClaw, ServoIntake);
 
             MecDrive.CheckNoManualDriveControls(currentGamepad1.left_stick_y, currentGamepad1.left_stick_x, currentGamepad1.right_stick_x,
                     currentGamepad1.left_trigger, currentGamepad1.right_trigger);
+
+
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Run Time:","%s", runtime);
@@ -145,9 +150,7 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
             telemetry.addData("Claw Position", ServoClaw.currentClawState);
             telemetry.addData("Intake State", ServoIntake.currentIntakeState);
             telemetry.addData("Absolute Gyro Angle", (int) Gyro.getAbsoluteAngle());
-            telemetry.addData("Target PID Angle", (int) MecDrive.pid.targetPIDAngle);
             telemetry.addData("PID Angle Left to Turn", (int) MecDrive.pid.pidAngleLeftToTurn);
-            telemetry.addData("Degrees Left to Turn:", "(%.2f)", abs(MecDrive.degreesLeftToTurn));
             telemetry.addData("Automatic Deliver STate", "(%s)", MecDrive.currentAutomaticTask);
 
             telemetry.addData("# of Cones Delivered", teleopConeDeliveryTracker);
