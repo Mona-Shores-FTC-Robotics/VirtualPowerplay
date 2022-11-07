@@ -81,6 +81,9 @@ public class DriveTrain {
     public boolean alreadyStrafing = false;
     public boolean visionStrafing = false;
     public boolean autoDeliver = false;
+    public boolean rowLock = false;
+    public boolean armLock = false;
+    public Arm.armState autoArmState = Arm.armState.ARM_LEFT;
 
     public LinearOpMode activeOpMode;
     HardwareMap hwMap = null;
@@ -97,10 +100,13 @@ public class DriveTrain {
     private ElapsedTime strafePeriod = new ElapsedTime();
     private ElapsedTime period = new ElapsedTime();
 
+    public int targetJunctionColumn = 3;
+    public int targetJunctionRow = 2;
+
     public enum autoDeliverStates {
         FIRST_STEP,
         START_AUTOMATIC_DELIVER,
-        DRIVE_FROM_ALLIANCE_SUBSTATION,
+        DRIVE_TO_TARGET_JUNCTION_ROW,
         STRAFE_TO_POLE,
         DELIVER_CONE,
         STRAFE_AWAY_FROM_POLE,
@@ -226,12 +232,41 @@ public class DriveTrain {
         }
     }
 
-    public void CheckTileAutoDeliver(boolean closeLeft, boolean farLeft, boolean closeRight, boolean farRight) {
-        if (closeLeft) {
-            autoDeliver = true;
-            currentAutomaticTask = autoDeliverStates.START_AUTOMATIC_DELIVER;
+    public void SetArmAutoDeliver(boolean armLeft, boolean lastArmLeft, boolean armRight, boolean lastArmRight) {
+        if (armLeft && !lastArmLeft && armLock == false) {
+            autoArmState = Arm.armState.ARM_LEFT;
+        } else if (armRight && !lastArmRight && armLock == false) {
+            autoArmState = Arm.armState.ARM_RIGHT;
         }
     }
+
+    public void SetTileAutoDeliverRow(boolean rowDown, boolean lastRowDown, boolean rowUp, boolean lastRowUp) {
+        if (rowDown && !lastRowDown && rowLock == false) {
+            targetJunctionRow = targetJunctionRow - 1;
+            if (targetJunctionRow < 0) {
+                targetJunctionRow = 4;
+            }
+            //check if the row is even
+            if (targetJunctionRow % 2 == 0) {
+                autoArmState = Arm.armState.ARM_RIGHT;
+            } else {
+                autoArmState = Arm.armState.ARM_LEFT;
+            }
+
+        } else if (rowUp && !lastRowUp && rowLock == false) {
+            targetJunctionRow = targetJunctionRow + 1;
+            if (targetJunctionRow > 4) {
+                targetJunctionRow = 0;
+            }
+            //check if the row is even
+            if (targetJunctionRow % 2 == 0) {
+                autoArmState = Arm.armState.ARM_RIGHT;
+            } else {
+                autoArmState = Arm.armState.ARM_LEFT;
+            }
+        }
+    }
+
 
     public void ContinueAutomaticTasks(Gyro Gyro, Arm ServoArm, Lift Lift, Claw ServoClaw, Intake ServoIntake) {
         if (visionStrafing) {
@@ -524,23 +559,38 @@ public class DriveTrain {
             currentAutomaticTask = autoDeliverStates.INTAKE_CONE;
             ServoIntake.toggleIntake();
         } else if (currentAutomaticTask== autoDeliverStates.INTAKE_CONE && ServoIntake.currentIntakeState == Intake.intakeState.INTAKE_OFF){
-            currentAutomaticTask = autoDeliverStates.DRIVE_FROM_ALLIANCE_SUBSTATION;
-            startEncoderDrive(HIGH_SPEED, (FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE), (FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE));
+            currentAutomaticTask = autoDeliverStates.DRIVE_TO_TARGET_JUNCTION_ROW;
+            rowLock = true;
+            startEncoderDrive(HIGH_SPEED, (FULL_TILE_DISTANCE*targetJunctionRow+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE), (FULL_TILE_DISTANCE*targetJunctionRow+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE));
             Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM/2);
-        } else if (currentAutomaticTask== autoDeliverStates.DRIVE_FROM_ALLIANCE_SUBSTATION){
+        } else if (currentAutomaticTask== autoDeliverStates.DRIVE_TO_TARGET_JUNCTION_ROW) {
+            armLock = true;
             currentAutomaticTask = autoDeliverStates.STRAFE_TO_POLE;
-            startStrafeDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE);
-            ServoArm.setArmState(Arm.armState.ARM_LEFT);
+
+            if (autoArmState == Arm.armState.ARM_LEFT) {
+                startStrafeDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE);
+                ServoArm.setArmState(Arm.armState.ARM_LEFT);
+            } else if (autoArmState == Arm.armState.ARM_RIGHT) {
+                startStrafeDrive(MED_SPEED, QUARTER_TILE_DISTANCE, QUARTER_TILE_DISTANCE);
+                ServoArm.setArmState(Arm.armState.ARM_RIGHT);
+            }
             Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
         } else if (currentAutomaticTask== autoDeliverStates.STRAFE_TO_POLE){
             currentAutomaticTask = autoDeliverStates.DELIVER_CONE;
             ServoClaw.smartToggleClaw(ServoArm, Lift);
         } else if (currentAutomaticTask== autoDeliverStates.DELIVER_CONE){
             currentAutomaticTask = autoDeliverStates.STRAFE_AWAY_FROM_POLE;
-            startStrafeDrive(MED_SPEED, QUARTER_TILE_DISTANCE, QUARTER_TILE_DISTANCE);
+            if (autoArmState == Arm.armState.ARM_LEFT) {
+                startStrafeDrive(MED_SPEED, QUARTER_TILE_DISTANCE, QUARTER_TILE_DISTANCE);
+            } else if (autoArmState == Arm.armState.ARM_RIGHT) {
+                startStrafeDrive(MED_SPEED, -QUARTER_TILE_DISTANCE, -QUARTER_TILE_DISTANCE);
+            }
+            armLock = false;
+
         } else if (currentAutomaticTask== autoDeliverStates.STRAFE_AWAY_FROM_POLE){
             currentAutomaticTask = autoDeliverStates.DRIVE_TO_OUTSIDE_ALLIANCE_SUBSTATION;
-            startEncoderDrive(MED_SPEED, -(HALF_TILE_DISTANCE),-(HALF_TILE_DISTANCE));
+            startEncoderDrive(HIGH_SPEED, -(FULL_TILE_DISTANCE*targetJunctionRow),-(FULL_TILE_DISTANCE*targetJunctionRow));
+            rowLock = false;
         } else if (currentAutomaticTask== autoDeliverStates.DRIVE_TO_OUTSIDE_ALLIANCE_SUBSTATION){
             currentAutomaticTask = autoDeliverStates.END_AUTOMATIC_DELIVER;
             autoDeliver = false;

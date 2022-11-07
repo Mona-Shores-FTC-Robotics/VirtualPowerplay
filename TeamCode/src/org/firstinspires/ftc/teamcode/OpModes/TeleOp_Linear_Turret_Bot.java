@@ -126,8 +126,8 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
             MecDrive.CheckAutoDeliver(currentGamepad1.back, previousGamepad1.back);
 
-            MecDrive.CheckTileAutoDeliver(currentGamepad1.x, previousGamepad1.y, currentGamepad1.a, previousGamepad1.b);
-
+            MecDrive.SetArmAutoDeliver(currentGamepad1.x, previousGamepad1.x, currentGamepad1.b, previousGamepad1.b);
+            MecDrive.SetTileAutoDeliverRow(currentGamepad1.a, previousGamepad1.a, currentGamepad1.y, previousGamepad1.y);
 
             //Automated tasks (driving, turning, strafing, vision strafing, auto deliver)
             MecDrive.ContinueAutomaticTasks(Gyro, ServoArm, Lift, ServoClaw, ServoIntake);
@@ -139,19 +139,14 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Run Time:","%s", runtime);
-            telemetry.addData("Motors", "leftfront(%.2f), rightfront (%.2f)", MecDrive.leftFrontPower*MecDrive.multiplier, MecDrive.rightFrontPower*MecDrive.multiplier);
-            telemetry.addData("Motors", "leftback (%.2f), rightback (%.2f)", MecDrive.leftBackPower*MecDrive.multiplier, MecDrive.rightBackPower*MecDrive.multiplier);
-            telemetry.addData("Encoders" , "leftfront(%s), rightfront(%s)", MecDrive.LFDrive.getCurrentPosition(), MecDrive.RFDrive.getCurrentPosition());
-            telemetry.addData("Encoders", "leftback(%s), rightback(%s)", MecDrive.LBDrive.getCurrentPosition(), MecDrive.RBDrive.getCurrentPosition());
-            telemetry.addData("Speed", "(%.4f)", MecDrive.ramp);
 
             telemetry.addData("Lift", "Position(%s), Target(%s)", Lift.liftMotor.getCurrentPosition(), Lift.newLiftTarget);
             telemetry.addData("Arm Position", ServoArm.currentArmState);
             telemetry.addData("Claw Position", ServoClaw.currentClawState);
             telemetry.addData("Intake State", ServoIntake.currentIntakeState);
             telemetry.addData("Absolute Gyro Angle", (int) Gyro.getAbsoluteAngle());
-            telemetry.addData("PID Angle Left to Turn", (int) MecDrive.pid.pidAngleLeftToTurn);
-            telemetry.addData("Automatic Deliver STate", "(%s)", MecDrive.currentAutomaticTask);
+            telemetry.addData("Automatic Deliver State", "(%s)", MecDrive.currentAutomaticTask);
+            telemetry.addData("Target Tile", "(Row %s, Arm %s)", MecDrive.targetJunctionRow, MecDrive.autoArmState);
 
             telemetry.addData("# of Cones Delivered", teleopConeDeliveryTracker);
             telemetry.update();
