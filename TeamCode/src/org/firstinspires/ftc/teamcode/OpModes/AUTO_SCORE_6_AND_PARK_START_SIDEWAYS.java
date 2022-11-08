@@ -109,18 +109,15 @@ public class AUTO_SCORE_6_AND_PARK_START_SIDEWAYS extends LinearOpMode {
         }
 
         //rotate turret to deliver to High Junction
-
         if(ButtonConfig.allianceColorAndLocationFactor == 1){
         ServoArm.setPosition(ARM_RIGHT_OUTTAKE);}
         else if (ButtonConfig.allianceColorAndLocationFactor == -1){
         ServoArm.setPosition(ARM_LEFT_OUTTAKE);}
 
-        //strafe to the high pole while lift to height to deliver to High Junction
-
+        //strafe to the high pole to deliver to High Junction
         MecDrive.startStrafeDrive(HIGH_SPEED, (QUARTER_TILE_DISTANCE * ButtonConfig.startPositionMultiplier * ButtonConfig.allianceColorMultiplier),
                 (QUARTER_TILE_DISTANCE * ButtonConfig.startPositionMultiplier * ButtonConfig.allianceColorMultiplier));
         while (opModeIsActive() && (MecDrive.alreadyStrafing )) {
-
             MecDrive.ContinueStrafing();
         }
 
@@ -259,7 +256,7 @@ public class AUTO_SCORE_6_AND_PARK_START_SIDEWAYS extends LinearOpMode {
             telemetry.update();
         }
 
-        ServoArm.setArmState(armState.ARM_CENTER);
+        ServoArm.setPosition(ARM_CENTER_INTAKE);
         ServoClaw.toggleClaw();
         Lift.StartLifting(ONE_CONE_INTAKE_HEIGHT_ENC_VAL);
 
