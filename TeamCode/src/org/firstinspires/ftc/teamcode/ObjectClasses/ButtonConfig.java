@@ -149,34 +149,7 @@ public class ButtonConfig {
         activeOpMode.telemetry.addData("Drive Multiplier", MecDrive.multiplier);
     }
 
-    public void ConfigureLiftMultiplier(LinearOpMode activeOpMode, Lift m_Lift) {
-
-        if (activeOpMode.gamepad2.left_stick_y > .25 && m_Lift.liftPowerMultiplier > m_Lift.LIFT_POWER_MULTIPLIER_MIN) {
-            m_Lift.liftPowerMultiplier = (m_Lift.liftPowerMultiplier * 10 - 1) / 10;
-
-            try {
-                sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        } else {
-            if (activeOpMode.gamepad2.left_stick_y < -.25 && m_Lift.liftPowerMultiplier < m_Lift.LIFT_POWER_MULTIPLIER_MAX) {
-                m_Lift.liftPowerMultiplier = (m_Lift.liftPowerMultiplier * 10 + 1) / 10;
-            }
-
-            try {
-                sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        activeOpMode.telemetry.addData("Lift Multiplier", m_Lift.liftPowerMultiplier);
-    }
-
-
-
-    public enum StartPosition {
+        public enum StartPosition {
         ROW_2,
         ROW_5,
         NOT_SET_YET

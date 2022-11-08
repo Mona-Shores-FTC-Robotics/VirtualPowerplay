@@ -1,14 +1,13 @@
 package org.firstinspires.ftc.teamcode.ObjectClasses;
 
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Claw {
 
-    public static final double CLAW_OPEN_POWER = .4;
-    public static final double CLAW_CLOSED_POWER = .5;
+    public static final double CLAW_OPEN_POWER = 0;
+    public static final double CLAW_CLOSED_POWER = .25;
     public Servo claw;
     public enum clawStates {CLAW_OPEN, CLAW_CLOSED}
     public clawStates currentClawState;
@@ -34,27 +33,45 @@ public class Claw {
         }
     }
 
-    public void CheckClaw(boolean currentButton , boolean lastButton, Arm servoarm, Lift lift) {
+    public void CheckClaw(boolean currentButton , boolean lastButton, Arm servoarm) {
         if (currentButton && !lastButton) {
             //open and close the claw
-           smartToggleClaw(servoarm, lift);
-        } else if (currentClawState == clawStates.CLAW_OPEN && afterClawOpensDelayPeriod.seconds() > 1)
-        {
-            smartToggleClaw(servoarm, lift);
+           toggleClaw();
         }
     }
 
-    public void smartToggleClaw(Arm servoarm, Lift lift) {
+    public void AdvancedCheckClaw(boolean currentButton , boolean lastButton, Arm servoarm) {
+        //Keep resetting the delay period as long as the button is pressed
+        if (currentButton){
+            afterClawOpensDelayPeriod.reset();
+        }
+
+        //toggle the claw open or closed when button is pressed
+        if (currentButton && !lastButton) {
+            smartToggleClaw(servoarm);
+        }
+
+        //reset the delay period one final time after the button is released
+        else if (!currentButton && lastButton) {
+            afterClawOpensDelayPeriod.reset();
+        }
+        //if the claw is open and the delay period has passed, close the claw (including centering the arm and lowering the lift)
+        else if (currentClawState == clawStates.CLAW_OPEN && afterClawOpensDelayPeriod.seconds() > 1){
+            smartToggleClaw(servoarm);
+        }
+    }
+
+    public void smartToggleClaw(Arm servoarm) {
         if (currentClawState == clawStates.CLAW_OPEN) {
+            //If the claw was open, close it
             claw.setPosition(CLAW_CLOSED_POWER);
             currentClawState = clawStates.CLAW_CLOSED;
+            //Center the arm, which also lowers the lift to the cone intake height after 1 second
             servoarm.setArmState(Arm.armState.ARM_CENTER);
-            lift.StartLifting(GameConstants.ONE_CONE_INTAKE_HEIGHT_MM);
-        }
-        else if (currentClawState == clawStates.CLAW_CLOSED) {
+        } else if (currentClawState == clawStates.CLAW_CLOSED) {
+            //If the claw was closed, open it
             claw.setPosition(CLAW_OPEN_POWER);
             currentClawState = clawStates.CLAW_OPEN;
-            afterClawOpensDelayPeriod.reset();
         }
     }
 

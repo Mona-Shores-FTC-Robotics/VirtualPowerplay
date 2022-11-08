@@ -1,35 +1,44 @@
 package org.firstinspires.ftc.teamcode.ObjectClasses;
 
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.ONE_CONE_INTAKE_HEIGHT_MM;
-import static java.lang.Math.abs;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.FIVE_CONE_STACK_INTAKE_HEIGHT_ENC_VAL;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.FOUR_CONE_STACK_INTAKE_HEIGHT_ENC_VAL;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.GROUND_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HIGH_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.LOW_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.MEDIUM_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.ONE_CONE_INTAKE_HEIGHT_ENC_VAL;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.THREE_CONE_STACK_INTAKE_HEIGHT_ENC_VAL;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.TWO_CONE_STACK_INTAKE_HEIGHT_ENC_VAL;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Lift {
 
+    //lift power parameters
+    final double ABOVE_THRESHOLD_POWER = .8;
+    final double ENCODER_THRESHOLD = 500;
+    final double BELOW_THRESHOLD_POWER = .3;
+    final int MAX_LIFT_HEIGHT = 1480;
+    final int MIN_LIFT_HEIGHT = 0;
+    final double LIFT_TARGET_MULTIPLIER = 10;
+
+    LinearOpMode activeOpMode;
     public DcMotor liftMotor = null;
     public boolean alreadyLifting = false;
     public int newLiftTarget;
-    //motor parameters
-    final double TICKS_PER_REV = 537.7;
-    final double DRIVE_GEAR_REDUCTION = 1;
-    final double WHEEL_DIAMETER_MM = 250;
-    double COUNTS_PER_MM = (TICKS_PER_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_MM * 3.1415);
 
-    final double STEP_LIFT_POWER = .8;
+    public enum liftJunctionStates { HIGH_CONE_JUNCTION_SCORE_HEIGHT, MEDIUM_CONE_JUNCTION_SCORE_HEIGHT,
+                            LOW_CONE_JUNCTION_SCORE_HEIGHT, GROUND_CONE_JUNCTION_SCORE_HEIGHT,
+                            CONE_INTAKE_HEIGHT}
 
-    double LIFT_TARGET_MULTIPLIER = 10;
-    double liftPowerMultiplier = 1.0;
-    double LIFT_POWER_MULTIPLIER_MAX = 1.0;
-    double LIFT_POWER_MULTIPLIER_MIN = .4;
+    public enum liftConeStackStates {   ONE_CONE_INTAKE_HEIGHT, TWO_CONE_STACK_INTAKE_HEIGHT,
+                                        THREE_CONE_STACK_INTAKE_HEIGHT, FOUR_CONE_STACK_INTAKE_HEIGHT,
+                                        FIVE_CONE_STACK_INTAKE_HEIGHT}
 
-    LinearOpMode activeOpMode;
+    public liftJunctionStates currentLiftJunctionState;
+    public liftConeStackStates currentLiftConeStackState;
 
     public Lift(LinearOpMode mode){
         activeOpMode = mode;
@@ -38,18 +47,25 @@ public class Lift {
     public void init(HardwareMap ahwMap) {
         // Define and Initialize Motor
         liftMotor  = ahwMap.get(DcMotor.class, "lift_motor");
-        liftMotor.setDirection(DcMotor.Direction.FORWARD);
+        liftMotor.setDirection(DcMotor.Direction.REVERSE);
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftMotor.setPower(0);
+        currentLiftJunctionState = liftJunctionStates.CONE_INTAKE_HEIGHT;
+        currentLiftConeStackState = liftConeStackStates.ONE_CONE_INTAKE_HEIGHT;
     }
 
-    public void StartLifting(double targetHeightInMM) {
-        if (activeOpMode.opModeIsActive() && alreadyLifting == false) {
+    public void StartLifting(double targetHeightEncVal) {
+        if (activeOpMode.opModeIsActive()) {
             //begin lifting
-            newLiftTarget = (int) (targetHeightInMM * COUNTS_PER_MM);
+            newLiftTarget = (int) (targetHeightEncVal);
             liftMotor.setTargetPosition(newLiftTarget);
             liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            liftMotor.setPower(STEP_LIFT_POWER*liftPowerMultiplier);
+            //lower the motor slowly if the target is below 500
+            if (newLiftTarget < ENCODER_THRESHOLD) {
+                liftMotor.setPower(BELOW_THRESHOLD_POWER);
+            } else {
+                liftMotor.setPower(ABOVE_THRESHOLD_POWER);
+            }
             alreadyLifting = true;
         }
     }
@@ -66,11 +82,91 @@ public class Lift {
     public void ManualLift(double liftTarget) {
         alreadyLifting = false;
         newLiftTarget = (int) ((liftTarget*LIFT_TARGET_MULTIPLIER) + newLiftTarget);
-        if (liftTarget >0 && newLiftTarget > 700) {newLiftTarget =700;}
-        if (liftTarget <0 && newLiftTarget < 50) {newLiftTarget =50;}
+        if (liftTarget >0 && newLiftTarget > MAX_LIFT_HEIGHT) {newLiftTarget = MAX_LIFT_HEIGHT;}
+        if (liftTarget <0 && newLiftTarget < MIN_LIFT_HEIGHT) {newLiftTarget = MIN_LIFT_HEIGHT;}
         liftMotor.setTargetPosition(newLiftTarget);
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.setPower(STEP_LIFT_POWER*liftPowerMultiplier);
+        if (liftTarget < 0) {
+            liftMotor.setPower(BELOW_THRESHOLD_POWER);
+        } else if (liftTarget >0) {
+            liftMotor.setPower(ABOVE_THRESHOLD_POWER);
+        }
+    }
+
+    public void RaiseLiftOneJunctionStage() {
+        if (currentLiftJunctionState == liftJunctionStates.HIGH_CONE_JUNCTION_SCORE_HEIGHT) {
+            currentLiftJunctionState = liftJunctionStates.MEDIUM_CONE_JUNCTION_SCORE_HEIGHT;
+            StartLifting(MEDIUM_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL);
+        } else if (currentLiftJunctionState == liftJunctionStates.MEDIUM_CONE_JUNCTION_SCORE_HEIGHT) {
+            currentLiftJunctionState = liftJunctionStates.LOW_CONE_JUNCTION_SCORE_HEIGHT;
+            StartLifting(LOW_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL);
+        } else if (currentLiftJunctionState == liftJunctionStates.LOW_CONE_JUNCTION_SCORE_HEIGHT) {
+            currentLiftJunctionState = liftJunctionStates.GROUND_CONE_JUNCTION_SCORE_HEIGHT;
+            StartLifting(GROUND_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL);
+        } else if (currentLiftJunctionState == liftJunctionStates.GROUND_CONE_JUNCTION_SCORE_HEIGHT) {
+            currentLiftJunctionState = liftJunctionStates.CONE_INTAKE_HEIGHT;
+            StartLifting(ONE_CONE_INTAKE_HEIGHT_ENC_VAL);
+        } else if (currentLiftJunctionState == liftJunctionStates.CONE_INTAKE_HEIGHT) {
+            currentLiftJunctionState = liftJunctionStates.CONE_INTAKE_HEIGHT;
+            StartLifting(ONE_CONE_INTAKE_HEIGHT_ENC_VAL);
+        }
+    }
+
+    public void LowerLiftOneJunctionStage() {
+        if (currentLiftJunctionState == liftJunctionStates.HIGH_CONE_JUNCTION_SCORE_HEIGHT) {
+            currentLiftJunctionState = liftJunctionStates.HIGH_CONE_JUNCTION_SCORE_HEIGHT;
+            StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL);
+        } else if (currentLiftJunctionState == liftJunctionStates.MEDIUM_CONE_JUNCTION_SCORE_HEIGHT) {
+            currentLiftJunctionState = liftJunctionStates.HIGH_CONE_JUNCTION_SCORE_HEIGHT;
+            StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL);
+        } else if (currentLiftJunctionState == liftJunctionStates.LOW_CONE_JUNCTION_SCORE_HEIGHT) {
+            currentLiftJunctionState = liftJunctionStates.MEDIUM_CONE_JUNCTION_SCORE_HEIGHT;
+            StartLifting(MEDIUM_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL);
+        } else if (currentLiftJunctionState == liftJunctionStates.GROUND_CONE_JUNCTION_SCORE_HEIGHT) {
+            currentLiftJunctionState = liftJunctionStates.LOW_CONE_JUNCTION_SCORE_HEIGHT;
+            StartLifting(LOW_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL);
+        } else if (currentLiftJunctionState == liftJunctionStates.CONE_INTAKE_HEIGHT) {
+            currentLiftJunctionState = liftJunctionStates.GROUND_CONE_JUNCTION_SCORE_HEIGHT;
+            StartLifting(GROUND_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL);
+        }
+    }
+
+    public void LowerLiftOneConeStackStage() {
+        if (currentLiftConeStackState == liftConeStackStates.FIVE_CONE_STACK_INTAKE_HEIGHT) {
+            currentLiftConeStackState = liftConeStackStates.FOUR_CONE_STACK_INTAKE_HEIGHT;
+            StartLifting(FOUR_CONE_STACK_INTAKE_HEIGHT_ENC_VAL);
+        } else if (currentLiftConeStackState == liftConeStackStates.FOUR_CONE_STACK_INTAKE_HEIGHT) {
+            currentLiftConeStackState = liftConeStackStates.THREE_CONE_STACK_INTAKE_HEIGHT;
+            StartLifting(THREE_CONE_STACK_INTAKE_HEIGHT_ENC_VAL);
+        } else if (currentLiftConeStackState == liftConeStackStates.THREE_CONE_STACK_INTAKE_HEIGHT) {
+            currentLiftConeStackState = liftConeStackStates.TWO_CONE_STACK_INTAKE_HEIGHT;
+            StartLifting(TWO_CONE_STACK_INTAKE_HEIGHT_ENC_VAL);
+        } else if (currentLiftConeStackState == liftConeStackStates.TWO_CONE_STACK_INTAKE_HEIGHT) {
+            currentLiftConeStackState = liftConeStackStates.ONE_CONE_INTAKE_HEIGHT;
+            StartLifting(ONE_CONE_INTAKE_HEIGHT_ENC_VAL);
+        } else if (currentLiftConeStackState == liftConeStackStates.ONE_CONE_INTAKE_HEIGHT) {
+            currentLiftConeStackState = liftConeStackStates.ONE_CONE_INTAKE_HEIGHT;
+            StartLifting(ONE_CONE_INTAKE_HEIGHT_ENC_VAL);
+        }
+    }
+
+    public void RaiseLiftOneConeStackStage() {
+        if (currentLiftConeStackState == liftConeStackStates.ONE_CONE_INTAKE_HEIGHT) {
+            currentLiftConeStackState = liftConeStackStates.TWO_CONE_STACK_INTAKE_HEIGHT;
+            StartLifting(TWO_CONE_STACK_INTAKE_HEIGHT_ENC_VAL);
+        } else if (currentLiftConeStackState == liftConeStackStates.TWO_CONE_STACK_INTAKE_HEIGHT) {
+            currentLiftConeStackState = liftConeStackStates.THREE_CONE_STACK_INTAKE_HEIGHT;
+            StartLifting(THREE_CONE_STACK_INTAKE_HEIGHT_ENC_VAL);
+        } else if (currentLiftConeStackState == liftConeStackStates.THREE_CONE_STACK_INTAKE_HEIGHT) {
+            currentLiftConeStackState = liftConeStackStates.FOUR_CONE_STACK_INTAKE_HEIGHT;
+            StartLifting(FOUR_CONE_STACK_INTAKE_HEIGHT_ENC_VAL);
+        } else if (currentLiftConeStackState == liftConeStackStates.FOUR_CONE_STACK_INTAKE_HEIGHT) {
+            currentLiftConeStackState = liftConeStackStates.FIVE_CONE_STACK_INTAKE_HEIGHT;
+            StartLifting(FIVE_CONE_STACK_INTAKE_HEIGHT_ENC_VAL);
+        } else if (currentLiftConeStackState == liftConeStackStates.FIVE_CONE_STACK_INTAKE_HEIGHT) {
+            currentLiftConeStackState = liftConeStackStates.FIVE_CONE_STACK_INTAKE_HEIGHT;
+            StartLifting(FIVE_CONE_STACK_INTAKE_HEIGHT_ENC_VAL);
+        }
     }
 
     public void CheckLift(Boolean liftStageDownCurrentButton, Boolean liftStageDownPreivousButton,
@@ -79,11 +175,37 @@ public class Lift {
         if (manualLiftTargetChange != 0) {
             ManualLift(-manualLiftTargetChange);
         } else if (liftStageDownCurrentButton && !liftStageDownPreivousButton) {
-            StartLifting(ONE_CONE_INTAKE_HEIGHT_MM);
+            StartLifting(ONE_CONE_INTAKE_HEIGHT_ENC_VAL);
         } else if (liftStageUpCurrentButton && !liftStageUpPreviousButton) {
-            StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
+            StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL);
         } else if (alreadyLifting) {
             ContinueLifting();
         }
     }
+
+    public void AdvancedCheckLift(  Boolean liftStageDownCurrentButton, Boolean liftStageDownPreivousButton,
+                                    Boolean liftStageUpCurrentButton, Boolean liftStageUpPreviousButton,
+                                    Boolean modifierButton,
+                                    double manualLiftTargetChange) {
+        if (manualLiftTargetChange != 0) {
+            ManualLift(-manualLiftTargetChange);
+        } else if (liftStageDownCurrentButton && !liftStageDownPreivousButton) {
+            if (!modifierButton) {
+                LowerLiftOneJunctionStage();
+            } else if (modifierButton) {
+                LowerLiftOneConeStackStage();
+            }
+        } else if (liftStageUpCurrentButton && !liftStageUpPreviousButton) {
+            if (!modifierButton) {
+                RaiseLiftOneJunctionStage();
+            } else if (modifierButton) {
+                RaiseLiftOneConeStackStage();
+            }
+        } else if (alreadyLifting) {
+            ContinueLifting();
+        }
+    }
+
+
+
 }

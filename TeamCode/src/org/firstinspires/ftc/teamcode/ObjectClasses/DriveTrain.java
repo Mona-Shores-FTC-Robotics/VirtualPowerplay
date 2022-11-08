@@ -30,7 +30,7 @@ package org.firstinspires.ftc.teamcode.ObjectClasses;/* Copyright (c) 2017 FIRST
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.EIGHTH_TILE_DISTANCE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.FULL_TILE_DISTANCE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HALF_TILE_DISTANCE;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HIGH_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.QUARTER_TILE_DISTANCE;
 import static java.lang.Math.abs;
 
@@ -270,7 +270,6 @@ public class DriveTrain {
 
     public void ContinueAutomaticTasks(Gyro Gyro, Arm ServoArm, Lift Lift, Claw ServoClaw, Intake ServoIntake) {
         if (visionStrafing) {
-
         } else if (alreadyDriving) {
             ContinueDriving();
         } else if (alreadyStrafing) {
@@ -562,7 +561,7 @@ public class DriveTrain {
             currentAutomaticTask = autoDeliverStates.DRIVE_TO_TARGET_JUNCTION_ROW;
             rowLock = true;
             startEncoderDrive(HIGH_SPEED, (FULL_TILE_DISTANCE*targetJunctionRow+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE), (FULL_TILE_DISTANCE*targetJunctionRow+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE));
-            Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM/2);
+            Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL/2);
         } else if (currentAutomaticTask== autoDeliverStates.DRIVE_TO_TARGET_JUNCTION_ROW) {
             armLock = true;
             currentAutomaticTask = autoDeliverStates.STRAFE_TO_POLE;
@@ -574,10 +573,10 @@ public class DriveTrain {
                 startStrafeDrive(MED_SPEED, QUARTER_TILE_DISTANCE, QUARTER_TILE_DISTANCE);
                 ServoArm.setArmState(Arm.armState.ARM_RIGHT);
             }
-            Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
+            Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL);
         } else if (currentAutomaticTask== autoDeliverStates.STRAFE_TO_POLE){
             currentAutomaticTask = autoDeliverStates.DELIVER_CONE;
-            ServoClaw.smartToggleClaw(ServoArm, Lift);
+            ServoClaw.smartToggleClaw(ServoArm);
         } else if (currentAutomaticTask== autoDeliverStates.DELIVER_CONE){
             currentAutomaticTask = autoDeliverStates.STRAFE_AWAY_FROM_POLE;
             if (autoArmState == Arm.armState.ARM_LEFT) {

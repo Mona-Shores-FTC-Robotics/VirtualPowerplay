@@ -16,7 +16,6 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.Intake;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Lift;
 import org.firstinspires.ftc.teamcode.ObjectClasses.PipeVision;
 
-
 @TeleOp(name = "TeleOp Mode", group = "Turret Bot")
 public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
@@ -59,7 +58,6 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
         while (!isStarted()) {
             telemetry.addData("Status", "Configuring Buttons");
             ButtonConfig.ConfigureMultiplier(this, MecDrive);
-            ButtonConfig.ConfigureLiftMultiplier(this, Lift);
             telemetry.addData("Status", "Press START once multipliers are set");
             telemetry.update();
         }
@@ -90,17 +88,19 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
             //-----CHECK OPERATOR CONTROLS ------//
 
-            ServoClaw.CheckClaw(currentGamepad2.a, previousGamepad2.a, ServoArm, Lift);
+            ServoClaw.AdvancedCheckClaw(    currentGamepad2.a, previousGamepad2.a, ServoArm);
 
-            ServoIntake.CheckIntake(currentGamepad2.x, previousGamepad2.x);
+            ServoIntake.AdvancedCheckIntake(currentGamepad2.x, previousGamepad2.x);
 
-            ServoArm.CheckArm(  currentGamepad2.dpad_left, previousGamepad2.dpad_left,
-                                currentGamepad2.dpad_down, previousGamepad2.dpad_down,
-                                currentGamepad2.dpad_right, previousGamepad2.dpad_right);
+            ServoArm.AdvancedCheckArm(              currentGamepad2.dpad_left, previousGamepad2.dpad_left,
+                                            currentGamepad2.dpad_down, previousGamepad2.dpad_down,
+                                            currentGamepad2.dpad_right, previousGamepad2.dpad_right,
+                                            currentGamepad2.dpad_up, previousGamepad2.dpad_up);
 
-            Lift.CheckLift(     currentGamepad2.left_bumper, previousGamepad2.left_bumper,
-                                currentGamepad2.right_bumper, previousGamepad2.right_bumper,
-                                currentGamepad2.left_stick_y);
+            Lift.AdvancedCheckLift(         currentGamepad2.left_bumper, previousGamepad2.left_bumper,
+                                            currentGamepad2.right_bumper, previousGamepad2.right_bumper,
+                                            currentGamepad2.b,
+                                            currentGamepad2.left_stick_y);
 
             //-----CHECK DRIVER CONTROLS ------//
 
@@ -119,15 +119,13 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
                     Gyro);
 
             //Driver control to move set distance away from alliance substation
-            //MecDrive.CheckAutoAwayFromAllianceSubstation(currentGamepad1.start, previousGamepad1.start);
+            //MecDrive.CheckAutoAwayFromAllianceSubstation(currentGamepad1.b, previousGamepad1.b);
 
             //Driver control to use vision to center on pipe by strafing
             //MecDrive.CheckVisionStrafing(currentGamepad1.y, previousGamepad1.y);
 
-            MecDrive.CheckAutoDeliver(currentGamepad1.back, previousGamepad1.back);
-
-            MecDrive.SetArmAutoDeliver(currentGamepad1.x, previousGamepad1.x, currentGamepad1.b, previousGamepad1.b);
-            MecDrive.SetTileAutoDeliverRow(currentGamepad1.a, previousGamepad1.a, currentGamepad1.y, previousGamepad1.y);
+            //Driver control to automatically pickup and deliver a cone
+            //MecDrive.CheckAutoDeliver(currentGamepad1.back, previousGamepad1.back);
 
             //Automated tasks (driving, turning, strafing, vision strafing, auto deliver)
             MecDrive.ContinueAutomaticTasks(Gyro, ServoArm, Lift, ServoClaw, ServoIntake);
@@ -135,18 +133,23 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
             MecDrive.CheckNoManualDriveControls(currentGamepad1.left_stick_y, currentGamepad1.left_stick_x, currentGamepad1.right_stick_x,
                     currentGamepad1.left_trigger, currentGamepad1.right_trigger);
 
-
-
             // Show the elapsed game time and wheel power.
             telemetry.addData("Run Time:","%s", runtime);
+            telemetry.addData("Motors", "leftfront(%.2f), rightfront (%.2f)", MecDrive.leftFrontPower*MecDrive.multiplier, MecDrive.rightFrontPower*MecDrive.multiplier);
+            telemetry.addData("Motors", "leftback (%.2f), rightback (%.2f)", MecDrive.leftBackPower*MecDrive.multiplier, MecDrive.rightBackPower*MecDrive.multiplier);
+            telemetry.addData("Encoders" , "leftfront(%s), rightfront(%s)", MecDrive.LFDrive.getCurrentPosition(), MecDrive.RFDrive.getCurrentPosition());
+            telemetry.addData("Encoders", "leftback(%s), rightback(%s)", MecDrive.LBDrive.getCurrentPosition(), MecDrive.RBDrive.getCurrentPosition());
+            telemetry.addData("Speed", "(%.4f)", MecDrive.ramp);
 
             telemetry.addData("Lift", "Position(%s), Target(%s)", Lift.liftMotor.getCurrentPosition(), Lift.newLiftTarget);
             telemetry.addData("Arm Position", ServoArm.currentArmState);
             telemetry.addData("Claw Position", ServoClaw.currentClawState);
             telemetry.addData("Intake State", ServoIntake.currentIntakeState);
             telemetry.addData("Absolute Gyro Angle", (int) Gyro.getAbsoluteAngle());
-            telemetry.addData("Automatic Deliver State", "(%s)", MecDrive.currentAutomaticTask);
-            telemetry.addData("Target Tile", "(Row %s, Arm %s)", MecDrive.targetJunctionRow, MecDrive.autoArmState);
+            telemetry.addData("Target PID Angle", (int) MecDrive.pid.targetPIDAngle);
+            telemetry.addData("PID Angle Left to Turn", (int) MecDrive.pid.pidAngleLeftToTurn);
+            telemetry.addData("Degrees Left to Turn:", "(%.2f)", abs(MecDrive.degreesLeftToTurn));
+            telemetry.addData("Automatic Deliver STate", "(%s)", MecDrive.currentAutomaticTask);
 
             telemetry.addData("# of Cones Delivered", teleopConeDeliveryTracker);
             telemetry.update();

@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.ObjectClasses;
 
-import static java.lang.Thread.sleep;
-
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -16,6 +13,9 @@ public class Intake {
 
     public enum intakeState {INTAKE_ON, INTAKE_OFF}
     public ElapsedTime afterIntakeOnDelayPeriod = new ElapsedTime();
+
+
+
 
     public void init(HardwareMap ahwMap) {
         intake1 = ahwMap.servo.get("intake1_servo");
@@ -36,16 +36,33 @@ public class Intake {
             intake1.setPosition(1);
             intake2.setPosition(0);
             currentIntakeState = intakeState.INTAKE_ON;
-            afterIntakeOnDelayPeriod.reset();
+        }
+    }
+    public void CheckIntake(Boolean currentButtonPress, Boolean previousButtonPress) {
+        //When you press and release the button, toggle the intake
+        if (currentButtonPress && !previousButtonPress) {
+            toggleIntake();
         }
     }
 
-    public void CheckIntake(Boolean currentButtonPress, Boolean previousButtonPress) {
+    public void AdvancedCheckIntake(Boolean currentButtonPress, Boolean previousButtonPress) {
+
+        //Keep resetting the delay period as long as the button is pressed
+        if (currentButtonPress){
+            afterIntakeOnDelayPeriod.reset();
+        }
+
+        //When you press and release the button, toggle the intake
         if (currentButtonPress && !previousButtonPress) {
             toggleIntake();
-        } else if (currentIntakeState == intakeState.INTAKE_ON && afterIntakeOnDelayPeriod.seconds() > .800)
-        {
-            toggleIntake();
+        }
+        //When you release the button, reset the delay period one final time after which the intake will automatically toggle
+        else if (!currentButtonPress && previousButtonPress){
+            afterIntakeOnDelayPeriod.reset();
+        }
+        //If the intake has been on longer than 1 second after the operator released the button, turn it off
+        else if (currentIntakeState == intakeState.INTAKE_ON && afterIntakeOnDelayPeriod.seconds() > 1) {
+           toggleIntake();
         }
     }
 }

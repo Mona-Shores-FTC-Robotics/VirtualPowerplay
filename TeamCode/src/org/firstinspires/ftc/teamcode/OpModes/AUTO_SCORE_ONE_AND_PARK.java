@@ -5,10 +5,11 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.Arm.ARM_LEFT_OUTTAKE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.Arm.ARM_RIGHT_OUTTAKE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain.MED_SPEED;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.EIGHTH_TILE_DISTANCE;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.FIVE_CONE_STACK_INTAKE_HEIGHT_ENC_VAL;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.FULL_TILE_DISTANCE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HALF_TILE_DISTANCE;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM;
-import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.ONE_CONE_INTAKE_HEIGHT_MM;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.HIGH_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL;
+import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.ONE_CONE_INTAKE_HEIGHT_ENC_VAL;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.QUARTER_TILE_DISTANCE;
 import static org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig.*;
 
@@ -57,7 +58,7 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
 
         //start with a cone for scoring at intake position with lift low
         ServoArm.setArmState(Arm.armState.ARM_CENTER);
-        Lift.StartLifting(ONE_CONE_INTAKE_HEIGHT_MM);
+        Lift.StartLifting(ONE_CONE_INTAKE_HEIGHT_ENC_VAL);
         while (opModeIsActive() && Lift.alreadyLifting == true) {
             Lift.ContinueLifting();
         }
@@ -113,20 +114,20 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
 
         //Drive in Front of High Pole
         MecDrive.startEncoderDrive(MED_SPEED, HALF_TILE_DISTANCE, HALF_TILE_DISTANCE);
+        Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL);
         while (opModeIsActive() && MecDrive.alreadyDriving == true) {
             MecDrive.ContinueDriving();
+            Lift.ContinueLifting();
         }
 
         //Strafe close to High Pole
         MecDrive.startStrafeDrive(MED_SPEED, EIGHTH_TILE_DISTANCE* ButtonConfig.allianceColorAndLocationFactor, EIGHTH_TILE_DISTANCE*ButtonConfig.allianceColorAndLocationFactor);
-        Lift.StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_MM);
         if ((ButtonConfig.currentAllianceColor == AllianceColor.BLUE && ButtonConfig.currentStartPosition == StartPosition.ROW_2) ||
                 (ButtonConfig.currentAllianceColor == AllianceColor.RED && ButtonConfig.currentStartPosition == StartPosition.ROW_5)) {
-            ServoArm.setArmState(Arm.armState.ARM_RIGHT);
-        } else ServoArm.setArmState(Arm.armState.ARM_LEFT);
+            ServoArm.setPosition(ARM_RIGHT_OUTTAKE);
+        } else ServoArm.setPosition(ARM_LEFT_OUTTAKE);
         while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
             MecDrive.ContinueStrafing();
-            Lift.ContinueLifting();
         }
 
         //Open claw to drop cone
@@ -142,7 +143,8 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
 
         //close the claw
         ServoClaw.toggleClaw();
-        ServoArm.setArmState(Arm.armState.ARM_CENTER);
+        ServoArm.setPosition(ARM_CENTER_INTAKE);
+        Lift.StartLifting(FIVE_CONE_STACK_INTAKE_HEIGHT_ENC_VAL);
 
         //Park after placing cone
         if (Signal == 1) {
