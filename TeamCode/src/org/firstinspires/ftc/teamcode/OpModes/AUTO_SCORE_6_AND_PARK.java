@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.GameConstants.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ObjectClasses.Arm;
@@ -51,6 +52,11 @@ public class AUTO_SCORE_6_AND_PARK extends LinearOpMode {
 
         ButtonConfig.init();
 
+        Gamepad currentGamepad2 = new Gamepad();
+
+        Gamepad previousGamepad2 = new Gamepad();
+
+
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -61,6 +67,17 @@ public class AUTO_SCORE_6_AND_PARK extends LinearOpMode {
             Signal = 3;
             ButtonConfig.ConfigureAllianceColor();
             ButtonConfig.ConfigureStartingPosition();
+
+            //Store the previous loop's gamepad values.
+            previousGamepad2 = ButtonConfig.copy(currentGamepad2);
+
+            //Store the gamepad values to be used for this iteration of the loop.
+            currentGamepad2 = ButtonConfig.copy(gamepad2);
+
+            //Let the second gamepad control the claw and intake during init so the starting cone can be easily loaded
+            ServoIntake.CheckIntake(currentGamepad2.x, previousGamepad2.x);
+            ServoClaw.AutonomousCheckClaw(currentGamepad2.a, previousGamepad2.a);
+
         }
 
         runtime.reset();

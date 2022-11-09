@@ -17,28 +17,28 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Lift {
 
     //lift power parameters
-    final double ABOVE_THRESHOLD_POWER = .8;
-    final double ENCODER_THRESHOLD = 500;
-    final double BELOW_THRESHOLD_POWER = .3;
+    final double ABOVE_THRESHOLD_POWER = .4;
+    final double ENCODER_THRESHOLD = 100;
+    final double BELOW_THRESHOLD_POWER = .1;
     final int MAX_LIFT_HEIGHT = 1480;
     final int MIN_LIFT_HEIGHT = 0;
-    final double LIFT_TARGET_MULTIPLIER = 10;
+    final double LIFT_TARGET_MULTIPLIER = 1;
+
+    public enum liftJunctionStates { HIGH_CONE_JUNCTION_SCORE_HEIGHT, MEDIUM_CONE_JUNCTION_SCORE_HEIGHT,
+        LOW_CONE_JUNCTION_SCORE_HEIGHT, GROUND_CONE_JUNCTION_SCORE_HEIGHT,
+        CONE_INTAKE_HEIGHT}
+
+    public enum liftConeStackStates {   ONE_CONE_INTAKE_HEIGHT, TWO_CONE_STACK_INTAKE_HEIGHT,
+        THREE_CONE_STACK_INTAKE_HEIGHT, FOUR_CONE_STACK_INTAKE_HEIGHT,
+        FIVE_CONE_STACK_INTAKE_HEIGHT}
+
+    public liftJunctionStates currentLiftJunctionState;
+    public liftConeStackStates currentLiftConeStackState;
 
     LinearOpMode activeOpMode;
     public DcMotor liftMotor = null;
     public boolean alreadyLifting = false;
     public int newLiftTarget;
-
-    public enum liftJunctionStates { HIGH_CONE_JUNCTION_SCORE_HEIGHT, MEDIUM_CONE_JUNCTION_SCORE_HEIGHT,
-                            LOW_CONE_JUNCTION_SCORE_HEIGHT, GROUND_CONE_JUNCTION_SCORE_HEIGHT,
-                            CONE_INTAKE_HEIGHT}
-
-    public enum liftConeStackStates {   ONE_CONE_INTAKE_HEIGHT, TWO_CONE_STACK_INTAKE_HEIGHT,
-                                        THREE_CONE_STACK_INTAKE_HEIGHT, FOUR_CONE_STACK_INTAKE_HEIGHT,
-                                        FIVE_CONE_STACK_INTAKE_HEIGHT}
-
-    public liftJunctionStates currentLiftJunctionState;
-    public liftConeStackStates currentLiftConeStackState;
 
     public Lift(LinearOpMode mode){
         activeOpMode = mode;
@@ -60,9 +60,16 @@ public class Lift {
             newLiftTarget = (int) (targetHeightEncVal);
             liftMotor.setTargetPosition(newLiftTarget);
             liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            //lower the motor slowly if the target is below 500
-            if (newLiftTarget < ENCODER_THRESHOLD) {
+
+            //deltaLift is the amount the lift has to move to get to the new height
+            double deltaLift = targetHeightEncVal - liftMotor.getCurrentPosition();
+
+            //turn motor power off if the new target is below threshold encoder value (100)
+            //only do this if the lift is being moved down from a higher position, don't do this if its being lifted up
+            if (deltaLift < 0 && newLiftTarget < ENCODER_THRESHOLD) {
                 liftMotor.setPower(BELOW_THRESHOLD_POWER);
+                currentLiftJunctionState = liftJunctionStates.CONE_INTAKE_HEIGHT;
+                currentLiftConeStackState = liftConeStackStates.ONE_CONE_INTAKE_HEIGHT;
             } else {
                 liftMotor.setPower(ABOVE_THRESHOLD_POWER);
             }
@@ -81,19 +88,32 @@ public class Lift {
 
     public void ManualLift(double liftTarget) {
         alreadyLifting = false;
+
+        //how do we get rid of bumpy lowering of lift? could we make step size larger when lowering the lift? would this even work? How could we quickly test?
+
         newLiftTarget = (int) ((liftTarget*LIFT_TARGET_MULTIPLIER) + newLiftTarget);
         if (liftTarget >0 && newLiftTarget > MAX_LIFT_HEIGHT) {newLiftTarget = MAX_LIFT_HEIGHT;}
         if (liftTarget <0 && newLiftTarget < MIN_LIFT_HEIGHT) {newLiftTarget = MIN_LIFT_HEIGHT;}
         liftMotor.setTargetPosition(newLiftTarget);
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        if (liftTarget < 0) {
+
+        //if the lift is being lowered and the new target is below 100, set power to 0
+        if (liftTarget < 0 && newLiftTarget < 100) {
             liftMotor.setPower(BELOW_THRESHOLD_POWER);
-        } else if (liftTarget >0) {
+        }
+
+        //if the lift is being lowered and the new target is above 100, set power to .5???
+        else if (liftTarget < 0 && newLiftTarget >= 100) {
+            liftMotor.setPower(.5);
+        }
+
+        //if the lift is being raised, set the power to .8
+        else if (liftTarget >0) {
             liftMotor.setPower(ABOVE_THRESHOLD_POWER);
         }
     }
 
-    public void RaiseLiftOneJunctionStage() {
+    public void LowerLiftOneJunctionStage() {
         if (currentLiftJunctionState == liftJunctionStates.HIGH_CONE_JUNCTION_SCORE_HEIGHT) {
             currentLiftJunctionState = liftJunctionStates.MEDIUM_CONE_JUNCTION_SCORE_HEIGHT;
             StartLifting(MEDIUM_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL);
@@ -112,7 +132,7 @@ public class Lift {
         }
     }
 
-    public void LowerLiftOneJunctionStage() {
+    public void RaiseLiftOneJunctionStage() {
         if (currentLiftJunctionState == liftJunctionStates.HIGH_CONE_JUNCTION_SCORE_HEIGHT) {
             currentLiftJunctionState = liftJunctionStates.HIGH_CONE_JUNCTION_SCORE_HEIGHT;
             StartLifting(HIGH_CONE_JUNCTION_SCORE_HEIGHT_ENC_VAL);

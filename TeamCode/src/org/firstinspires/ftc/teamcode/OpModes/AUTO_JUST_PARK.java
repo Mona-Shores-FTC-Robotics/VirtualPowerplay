@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.Lift;
 
 @Autonomous(name = "AUTO_JUST_PARK")
 public class AUTO_JUST_PARK extends LinearOpMode {
-
+    int dummySignal = 0;
     DriveTrain MecDrive = new DriveTrain(this);
     //AprilTagVision Vision = new AprilTagVision();
     ButtonConfig ButtonConfig = new ButtonConfig(this);
@@ -50,9 +50,9 @@ public class AUTO_JUST_PARK extends LinearOpMode {
         }
 
         resetStartTime();
-        currentSignal = Signal.RIGHT;
+        dummySignal = 3;
         //Vision.SetSignal(this);
-        telemetry.addData("Signal is ", currentSignal);
+        telemetry.addData("Signal is ", dummySignal);
         telemetry.addData("Selected Alliance Color ", ButtonConfig.currentAllianceColor);
         telemetry.addData("Selected Starting Position ", ButtonConfig.currentStartPosition);
         telemetry.addData("Status", "Run Time: " + getRuntime());
@@ -72,7 +72,7 @@ public class AUTO_JUST_PARK extends LinearOpMode {
 
         //Decide where to park
         //if current Signal is the LEFT april tag then park on robot's left
-        if (currentSignal == Signal.LEFT) {
+        if (dummySignal == 1) {
             //Park on left
             MecDrive.startStrafeDrive(MED_SPEED, -FULL_TILE_DISTANCE, -FULL_TILE_DISTANCE);
             while (opModeIsActive() && MecDrive.alreadyStrafing == true) {
@@ -81,12 +81,12 @@ public class AUTO_JUST_PARK extends LinearOpMode {
         }
 
         //if current Signal is the MIDDLE april tag then park in middle
-        else if (currentSignal == Signal.MIDDLE) {
+        else if (dummySignal == 2) {
             //Park in middle
             }
 
         //if current Signal is the RIGHT april tag then park on robot's right
-        else if (currentSignal == Signal.RIGHT) {
+        else if (dummySignal == 3) {
             //Park on right
             MecDrive.startStrafeDrive(MED_SPEED, FULL_TILE_DISTANCE, FULL_TILE_DISTANCE);
             while (opModeIsActive() && MecDrive.alreadyStrafing == true) {

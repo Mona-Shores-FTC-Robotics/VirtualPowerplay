@@ -15,6 +15,7 @@ import static org.firstinspires.ftc.teamcode.ObjectClasses.ButtonConfig.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ObjectClasses.Arm;
@@ -56,6 +57,11 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
         Lift.init(hardwareMap);
         Gyro.init(hardwareMap);
 
+
+        Gamepad currentGamepad2 = new Gamepad();
+
+        Gamepad previousGamepad2 = new Gamepad();
+
         //start with a cone for scoring at intake position with lift low
         ServoArm.setArmState(Arm.armState.ARM_CENTER);
         Lift.StartLifting(ONE_CONE_INTAKE_HEIGHT_ENC_VAL);
@@ -73,8 +79,20 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
         while (!isStarted()) {
             //Use Webcam to find out Signal and store in Signal variable
             Signal = 3;
+
             ButtonConfig.ConfigureAllianceColor();
             ButtonConfig.ConfigureStartingPosition();
+
+            //Store the previous loop's gamepad values.
+            previousGamepad2 = ButtonConfig.copy(currentGamepad2);
+
+            //Store the gamepad values to be used for this iteration of the loop.
+            currentGamepad2 = ButtonConfig.copy(gamepad2);
+
+            //Let the second gamepad control the claw and intake during init so the starting cone can be easily loaded
+            ServoIntake.CheckIntake(currentGamepad2.x, previousGamepad2.x);
+            ServoClaw.AutonomousCheckClaw(currentGamepad2.a, previousGamepad2.a);
+
             telemetry.addData("Alliance Color ", ButtonConfig.currentAllianceColor);
             telemetry.addData("Starting Position ", ButtonConfig.currentStartPosition);
             telemetry.update();

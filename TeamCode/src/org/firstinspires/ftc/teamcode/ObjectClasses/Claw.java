@@ -76,5 +76,15 @@ public class Claw {
     }
 
 
+    public void AutonomousCheckClaw(boolean currentButton , boolean lastButton) {
+        if (currentButton && !lastButton) {
+            //open and close the claw
+            toggleClaw();
+        }
+    }
+
+
+
+
 
 }
