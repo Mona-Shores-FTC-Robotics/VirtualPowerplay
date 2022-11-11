@@ -9,19 +9,19 @@ import java.util.ArrayList;
 
 public class ButtonConfig {
 
-    private boolean confirmAllianceColorSelection = false;
-    private boolean confirmStartingPositionSelection = false;
+    private static boolean confirmAllianceColorSelection = false;
+    private static boolean confirmStartingPositionSelection = false;
     boolean toggleReadyB = false;
 
     LinearOpMode activeOpMode;
-    public AllianceColor currentAllianceColor;
-    public int allianceColorMultiplier;//-1 = RED 1 = blue
+    public static AllianceColor currentAllianceColor;
+    public static int allianceColorMultiplier;//-1 = RED 1 = blue
 
-    public StartPosition currentStartPosition;
-    public int startPositionMultiplier; //1 is row 2 and -1 is row 5
+    public static StartPosition currentStartPosition;
+    public static int startPositionMultiplier; //1 is row 2 and -1 is row 5
 
     // alliance color times starting location
-    public int allianceColorAndLocationFactor;
+    public static int allianceColorAndLocationFactor;
 
 
     //Button States
@@ -36,10 +36,6 @@ public class ButtonConfig {
     public boolean G1dpad_rightToggleReady = false;
     public boolean G1right_bumperToggleReady = false;
     public boolean G1left_bumperToggleReady = false;
-
-
-
-
 
     public ButtonConfig(LinearOpMode activeOpMode) {
         this.activeOpMode = activeOpMode;
@@ -88,7 +84,6 @@ public class ButtonConfig {
             }
         }
     }
-
 
     public void ConfigureStartingPosition() {
 

@@ -57,9 +57,7 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
         Lift.init(hardwareMap);
         Gyro.init(hardwareMap);
 
-
         Gamepad currentGamepad2 = new Gamepad();
-
         Gamepad previousGamepad2 = new Gamepad();
 
         //start with a cone for scoring at intake position with lift low
@@ -182,8 +180,6 @@ public class AUTO_SCORE_ONE_AND_PARK extends LinearOpMode {
         telemetry.addData("Selected Starting Position ", ButtonConfig.currentStartPosition);
         telemetry.addData("Status", "Run Time: " + runtime);
         telemetry.update();
-        sleep(6000);
-
     }
 }
 

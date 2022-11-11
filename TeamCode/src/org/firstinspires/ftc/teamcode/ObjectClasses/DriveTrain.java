@@ -59,6 +59,7 @@ public class DriveTrain {
     public static final double STARTING_RAMP_VALUE = .1;
     public static final double RAMP_INCREMENT = .1;
 
+    public int check =0;
     /* Public OpMode members. */
     public DcMotor LFDrive = null;
     public DcMotor RFDrive = null;
@@ -548,16 +549,22 @@ public class DriveTrain {
     }
 
     public void auto_deliver(Arm ServoArm, Lift Lift, Claw ServoClaw, Intake ServoIntake) {
+
         if (currentAutomaticTask == autoDeliverStates.START_AUTOMATIC_DELIVER) {
             // I don't know why it does this one twice, i had to add a dummy step in to get around it.
             currentAutomaticTask = autoDeliverStates.FIRST_STEP;
         } else if (currentAutomaticTask == autoDeliverStates.FIRST_STEP) {
+            //if we can get a sensor maybe we can use that instead of just driving too far into the wall. 
             currentAutomaticTask = autoDeliverStates.DRIVE_TO_ALLIANCE_SUBSTATION;
-            startEncoderDrive(HIGH_SPEED, -(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE),-(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE));
+            startEncoderDrive(MED_SPEED, -(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE),-(FULL_TILE_DISTANCE+HALF_TILE_DISTANCE+QUARTER_TILE_DISTANCE));
         } else if (currentAutomaticTask== autoDeliverStates.DRIVE_TO_ALLIANCE_SUBSTATION){
-            currentAutomaticTask = autoDeliverStates.INTAKE_CONE;
-            ServoIntake.toggleIntake();
-        } else if (currentAutomaticTask== autoDeliverStates.INTAKE_CONE && ServoIntake.currentIntakeState == Intake.intakeState.INTAKE_OFF){
+
+            ServoIntake.AutoDeliverIntakeToggle();
+            if (ServoIntake.currentIntakeState == Intake.intakeState.INTAKE_OFF){
+                currentAutomaticTask = autoDeliverStates.INTAKE_CONE;
+            }
+        } else if (currentAutomaticTask== autoDeliverStates.INTAKE_CONE ){
+            //can we make this use the gryoscope to drive straight in case the robot orientation gets messed up when we drive to the wall?
             currentAutomaticTask = autoDeliverStates.DRIVE_TO_TARGET_JUNCTION_ROW;
             rowLock = true;
             startEncoderDrive(HIGH_SPEED, (FULL_TILE_DISTANCE*targetJunctionRow+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE), (FULL_TILE_DISTANCE*targetJunctionRow+HALF_TILE_DISTANCE+EIGHTH_TILE_DISTANCE));

@@ -46,23 +46,26 @@ public class Intake {
     }
 
     public void AdvancedCheckIntake(Boolean currentButtonPress, Boolean previousButtonPress) {
-
-        //Keep resetting the delay period as long as the button is pressed
-        if (currentButtonPress){
-            afterIntakeOnDelayPeriod.reset();
-        }
-
         //When you press and release the button, toggle the intake
         if (currentButtonPress && !previousButtonPress) {
             toggleIntake();
         }
         //When you release the button, reset the delay period one final time after which the intake will automatically toggle
         else if (!currentButtonPress && previousButtonPress){
-            afterIntakeOnDelayPeriod.reset();
+            toggleIntake();
         }
-        //If the intake has been on longer than 1 second after the operator released the button, turn it off
-        else if (currentIntakeState == intakeState.INTAKE_ON && afterIntakeOnDelayPeriod.seconds() > 1) {
-           toggleIntake();
+    }
+
+    public void AutoDeliverIntakeToggle() {
+        if (currentIntakeState == intakeState.INTAKE_OFF) {
+            intake1.setPosition(1);
+            intake2.setPosition(0);
+            currentIntakeState = intakeState.INTAKE_ON;
+            afterIntakeOnDelayPeriod.reset();
+        } else if (currentIntakeState == intakeState.INTAKE_ON && (afterIntakeOnDelayPeriod.seconds() > 1)) {
+            intake1.setPosition(.5);
+            intake2.setPosition(.5);
+            currentIntakeState = intakeState.INTAKE_OFF;
         }
     }
 }

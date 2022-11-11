@@ -319,7 +319,6 @@ public class AUTO_SCORE_6_AND_PARK_START_SIDEWAYS extends LinearOpMode {
         telemetry.addData("Current Lift Height", Lift.liftMotor.getCurrentPosition());
         telemetry.addData("Status", "Run Time: " + runtime);
         telemetry.update();
-        sleep(2000);
 
     }
 }
