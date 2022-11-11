@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.ObjectClasses;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -23,7 +22,7 @@ public class Gyro {
     //gyro members
     public Orientation lastAngles = new Orientation();
     public double currAngle = 0.0;
-    public double gyroOffset = 0;
+
     public Orientation originalOrientation;
     LinearOpMode activeOpMode;
 
@@ -70,6 +69,5 @@ public class Gyro {
         double absoluteAngle = originalOrientation.firstAngle;
         return absoluteAngle;
     }
-
 
 }

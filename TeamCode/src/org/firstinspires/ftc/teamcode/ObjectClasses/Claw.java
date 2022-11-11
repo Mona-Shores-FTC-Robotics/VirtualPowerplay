@@ -33,7 +33,7 @@ public class Claw {
         }
     }
 
-    public void CheckClaw(boolean currentButton , boolean lastButton, Arm servoarm) {
+    public void CheckClaw(boolean currentButton , boolean lastButton) {
         if (currentButton && !lastButton) {
             //open and close the claw
            toggleClaw();
@@ -76,10 +76,12 @@ public class Claw {
     }
 
 
-    public void AutonomousCheckClaw(boolean currentButton , boolean lastButton) {
-        if (currentButton && !lastButton) {
-            //open and close the claw
-            toggleClaw();
+    public void AutoDeliverClawTogggle() {
+        if (currentClawState == clawStates.CLAW_CLOSED) {
+            //If the claw was closed, open it
+            claw.setPosition(CLAW_OPEN_POWER);
+            currentClawState = clawStates.CLAW_OPEN;
+            afterClawOpensDelayPeriod.reset();
         }
     }
 

@@ -14,13 +14,14 @@ import org.firstinspires.ftc.teamcode.ObjectClasses.DriveTrain;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Gyro;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Intake;
 import org.firstinspires.ftc.teamcode.ObjectClasses.Lift;
-import org.firstinspires.ftc.teamcode.ObjectClasses.PipeVision;
+
+import java.awt.Button;
 
 @TeleOp(name = "TeleOp Mode", group = "Turret Bot")
 public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
     DriveTrain MecDrive = new DriveTrain(this);
-    ButtonConfig ButtonConfig = new ButtonConfig(this);
+    ButtonConfig BConfig = new ButtonConfig(this);
 
     Intake ServoIntake = new Intake();
     Claw ServoClaw = new Claw();
@@ -56,25 +57,41 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
         telemetry.update();
 
         while (!isStarted()) {
+
+            //save current and previous gamepad values for one loop
+            previousGamepad1 = BConfig.copy(currentGamepad1);
+            currentGamepad1 = BConfig.copy(gamepad1);
+
+            // User sets starting location left or right, and confirms selection with a button press
+            // LEFT is a multiplier of 1, RIGHT is a multiplier of -1
+            BConfig.ConfigureStartingPosition( currentGamepad1.dpad_left, previousGamepad1.dpad_left,
+                    currentGamepad1.dpad_right, previousGamepad1.dpad_right,
+                    currentGamepad1.b,          previousGamepad1.b);
+
+
             telemetry.addData("Status", "Configuring Buttons");
-            ButtonConfig.ConfigureMultiplier(this, MecDrive);
-            telemetry.addData("Status", "Press START once multipliers are set");
-            telemetry.addData("Alliance Color ", ButtonConfig.currentAllianceColor);
-            telemetry.addData("Starting Position ", ButtonConfig.currentStartPosition);
+            BConfig.ConfigureMultiplier(this, MecDrive);
+
+            telemetry.addData("Current Starting Position ", ButtonConfig.currentStartPosition);
+            telemetry.addData("Current Starting Position ", ButtonConfig.startPositionMultiplier);
+            if (ButtonConfig.confirmStartingPositionSelection == false) {
+                telemetry.addData("Unlocked", "Press CIRCLE to lock selection");
+            } else {
+                telemetry.addData("Locked", "Press CIRCLE to unlock Starting position selection from Auto");
+            }
             telemetry.update();
         }
-
         runtime.reset();
 
         while (opModeIsActive()) {
 
             //Store the previous loop's gamepad values.
-            previousGamepad1 = ButtonConfig.copy(currentGamepad1);
-            previousGamepad2 = ButtonConfig.copy(currentGamepad2);
+            previousGamepad1 = BConfig.copy(currentGamepad1);
+            previousGamepad2 = BConfig.copy(currentGamepad2);
 
             //Store the gamepad values to be used for this iteration of the loop.
-            currentGamepad1 = ButtonConfig.copy(gamepad1);
-            currentGamepad2 = ButtonConfig.copy(gamepad2);
+            currentGamepad1 = BConfig.copy(gamepad1);
+            currentGamepad2 = BConfig.copy(gamepad2);
 
             //alert driver 5 seconds until END GAME
             if (runtime.seconds() > 84 && runtime.seconds() < 85) {
@@ -90,11 +107,11 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
             //-----CHECK OPERATOR CONTROLS ------//
 
-            ServoClaw.AdvancedCheckClaw(    currentGamepad2.a, previousGamepad2.a, ServoArm);
+            ServoClaw.AdvancedCheckClaw(    currentGamepad2.y, previousGamepad2.y, ServoArm);
 
             ServoIntake.AdvancedCheckIntake(currentGamepad2.x, previousGamepad2.x);
 
-            ServoArm.AdvancedCheckArm(              currentGamepad2.dpad_left, previousGamepad2.dpad_left,
+            ServoArm.AdvancedCheckArm(      currentGamepad2.dpad_left, previousGamepad2.dpad_left,
                                             currentGamepad2.dpad_down, previousGamepad2.dpad_down,
                                             currentGamepad2.dpad_right, previousGamepad2.dpad_right,
                                             currentGamepad2.dpad_up, previousGamepad2.dpad_up);
@@ -127,7 +144,8 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
             //MecDrive.CheckVisionStrafing(currentGamepad1.y, previousGamepad1.y);
 
             //Driver control to automatically pickup and deliver a cone
-            MecDrive.CheckAutoDeliver(currentGamepad1.back, previousGamepad1.back);
+            MecDrive.CheckAutoDeliver(  currentGamepad1.back, previousGamepad1.back,
+                                        currentGamepad1.start, previousGamepad1.start);
 
             //Automated tasks (driving, turning, strafing, vision strafing, auto deliver)
             MecDrive.ContinueAutomaticTasks(Gyro, ServoArm, Lift, ServoClaw, ServoIntake);
@@ -137,10 +155,14 @@ public class TeleOp_Linear_Turret_Bot extends LinearOpMode {
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Run Time:","%s", runtime);
+            telemetry.addData("Selected Starting Position ", ButtonConfig.currentStartPosition);
+            telemetry.addData("Selected Starting Position ", ButtonConfig.startPositionMultiplier);
             telemetry.addData("Lift", "Position(%s), Target(%s)", Lift.liftMotor.getCurrentPosition(), Lift.newLiftTarget);
-            telemetry.addData("Automatic Deliver STate", "(%s)", MecDrive.currentAutomaticTask);
+            telemetry.addData("Arm Position", ServoArm.currentArmState);
+            telemetry.addData("Claw Position", ServoClaw.currentClawState);
+            telemetry.addData("Intake State", ServoIntake.currentIntakeState);
+            telemetry.addData("Automatic Deliver State", "(%s)", MecDrive.currentAutomaticTask);
             telemetry.addData("# of Cones Delivered", teleopConeDeliveryTracker);
-            telemetry.addData("Check", MecDrive.check);
             telemetry.update();
         }
         MecDrive.drive = 0;

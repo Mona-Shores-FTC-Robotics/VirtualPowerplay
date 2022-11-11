@@ -17,12 +17,15 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Lift {
 
     //lift power parameters
-    final double ABOVE_THRESHOLD_POWER = .4;
-    final double ENCODER_THRESHOLD = 100;
-    final double BELOW_THRESHOLD_POWER = .1;
+    final double ABOVE_LIFT_FALL_THRESHOLD_POWER = .3;
+    final double LIFT_FALL_THRESHOLD_ENC_VAL = 100;
+    final double BELOW_LIFT_FALL_THRESHOLD_POWER = 0;
+    final double LIFT_RAISE_POWER = 1;
     final int MAX_LIFT_HEIGHT = 1480;
     final int MIN_LIFT_HEIGHT = 0;
-    final double LIFT_TARGET_MULTIPLIER = 1;
+    final int SAFE_FALL_HEIGHT = 400;
+    final double LIFT_TARGET_MULTIPLIER = 20;
+
 
     public enum liftJunctionStates { HIGH_CONE_JUNCTION_SCORE_HEIGHT, MEDIUM_CONE_JUNCTION_SCORE_HEIGHT,
         LOW_CONE_JUNCTION_SCORE_HEIGHT, GROUND_CONE_JUNCTION_SCORE_HEIGHT,
@@ -62,20 +65,30 @@ public class Lift {
             liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             //deltaLift is the amount the lift has to move to get to the new height
+            //if its negative the lift is being lowered, if its positive the lift is being raised
             double deltaLift = targetHeightEncVal - liftMotor.getCurrentPosition();
 
-            //turn motor power off if the new target is below threshold encoder value (100)
+            //turn motor power off if the new target is below the fall threshold encoder value (100) and the current positions is below a safe fall height
             //only do this if the lift is being moved down from a higher position, don't do this if its being lifted up
-            if (deltaLift < 0 && newLiftTarget < ENCODER_THRESHOLD) {
-                liftMotor.setPower(BELOW_THRESHOLD_POWER);
+            if (deltaLift < 0 && newLiftTarget <= LIFT_FALL_THRESHOLD_ENC_VAL && (liftMotor.getCurrentPosition() <= SAFE_FALL_HEIGHT) ) {
+                liftMotor.setPower(BELOW_LIFT_FALL_THRESHOLD_POWER);
+                liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 currentLiftJunctionState = liftJunctionStates.CONE_INTAKE_HEIGHT;
                 currentLiftConeStackState = liftConeStackStates.ONE_CONE_INTAKE_HEIGHT;
-            } else {
-                liftMotor.setPower(ABOVE_THRESHOLD_POWER);
+            }
+            //if the lift is trying to go below the fall threshold (100), but its too high to turn the power off, then just lower the lift power
+            //once lift is below the safe fall height, the if statement above will shut off power completely
+            else if (deltaLift < 0 && newLiftTarget <= LIFT_FALL_THRESHOLD_ENC_VAL && (liftMotor.getCurrentPosition() > SAFE_FALL_HEIGHT)) {
+                //how do we make it go slower but in a smoother way on the way down?
+                //Could we try a different mode rather than run to position here?
+                liftMotor.setPower(ABOVE_LIFT_FALL_THRESHOLD_POWER);
+            } else
+                liftMotor.setPower(LIFT_RAISE_POWER);
             }
             alreadyLifting = true;
         }
-    }
+
 
     public void ContinueLifting() {
         if (liftMotor.isBusy() == true) {
@@ -97,19 +110,28 @@ public class Lift {
         liftMotor.setTargetPosition(newLiftTarget);
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        //if the lift is being lowered and the new target is below 100, set power to 0
-        if (liftTarget < 0 && newLiftTarget < 100) {
-            liftMotor.setPower(BELOW_THRESHOLD_POWER);
+        //if the lift is being lowered and the new target is below 100 and the lift is below a safe fall height, then turn the power off and re-zero the encoder
+        if (liftTarget < 0 && newLiftTarget < LIFT_FALL_THRESHOLD_ENC_VAL && (liftMotor.getCurrentPosition() <= SAFE_FALL_HEIGHT)) {
+            liftMotor.setPower(BELOW_LIFT_FALL_THRESHOLD_POWER);
+            liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            currentLiftJunctionState = liftJunctionStates.CONE_INTAKE_HEIGHT;
+            currentLiftConeStackState = liftConeStackStates.ONE_CONE_INTAKE_HEIGHT;
         }
 
-        //if the lift is being lowered and the new target is above 100, set power to .5???
-        else if (liftTarget < 0 && newLiftTarget >= 100) {
-            liftMotor.setPower(.5);
+        //if the lift is being lowered and the new target is below 100 and the lift is above the safe fall height, then just lower power
+        else if (liftTarget < 0 && newLiftTarget < LIFT_FALL_THRESHOLD_ENC_VAL && (liftMotor.getCurrentPosition() > SAFE_FALL_HEIGHT)) {
+            liftMotor.setPower(ABOVE_LIFT_FALL_THRESHOLD_POWER);
+        }
+
+        //if the lift is being lowered and the new target is above the fall threshold, then lower the lift power
+        else if (liftTarget < 0 && newLiftTarget > LIFT_FALL_THRESHOLD_ENC_VAL) {
+            liftMotor.setPower(ABOVE_LIFT_FALL_THRESHOLD_POWER);
         }
 
         //if the lift is being raised, set the power to .8
         else if (liftTarget >0) {
-            liftMotor.setPower(ABOVE_THRESHOLD_POWER);
+            liftMotor.setPower(LIFT_RAISE_POWER);
         }
     }
 
@@ -221,7 +243,8 @@ public class Lift {
             } else if (modifierButton) {
                 RaiseLiftOneConeStackStage();
             }
-        } else if (alreadyLifting) {
+        }
+            else if (alreadyLifting) {
             ContinueLifting();
         }
     }
