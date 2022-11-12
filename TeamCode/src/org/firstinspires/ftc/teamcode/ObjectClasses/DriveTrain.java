@@ -115,7 +115,6 @@ public class DriveTrain {
         DRIVE_FROM_ALLIANCE_SUBSTATION,
         STRAFE_TO_POLE,
         DELIVER_CONE,
-        WAIT_FOR_CONE_TO_DROP,
         STRAFE_AWAY_FROM_POLE,
         DRIVE_TO_ALLIANCE_SUBSTATION,
         INTAKE_CONE,
