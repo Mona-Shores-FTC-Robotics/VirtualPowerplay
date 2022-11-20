@@ -18,7 +18,7 @@ public class MechanumBase extends VirtualBot {
 
     public final MotorType MOTOR_TYPE;
     private DcMotorExImpl[] motors = null;
-    //private VirtualRobotController.GyroSensorImpl gyro = null;
+    //private VirtualRobotController.GyroSens orImpl gyro = null;
     private BNO055IMUImpl imu = null;
     private VirtualRobotController.ColorSensorImpl colorSensor = null;
     private VirtualRobotController.DistanceSensorImpl[] distanceSensors = null;

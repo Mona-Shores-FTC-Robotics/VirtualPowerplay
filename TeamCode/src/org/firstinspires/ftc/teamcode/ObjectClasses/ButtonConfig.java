@@ -19,16 +19,16 @@ public class ButtonConfig {
         NOT_SET_YET
     }
 
-    public static int startPositionMultiplier = 1; //1 is LEFT and -1 RIGHT
+    public static int startPositionMultiplier; //1 is LEFT and -1 RIGHT
 
     public ButtonConfig(LinearOpMode activeOpMode) {
         this.activeOpMode = activeOpMode;
     }
 
     public void init() {
-        currentStartPosition = StartingPosition.NOT_SET_YET;
-        confirmStartingPositionSelection = false;
-        startPositionMultiplier = 1;
+        ButtonConfig.currentStartPosition = StartingPosition.RIGHT_SIDE;
+        ButtonConfig.startPositionMultiplier = -1;
+        ButtonConfig.confirmStartingPositionSelection = false;
     }
 
     public void ConfigureStartingPosition(  Boolean leftButton, Boolean previousLeftButton,
@@ -38,21 +38,20 @@ public class ButtonConfig {
         if (!confirmStartingPositionSelection && !activeOpMode.isStarted()) {
 
             if (leftButton && !previousLeftButton) {
-               ButtonConfig.currentStartPosition = StartingPosition.LEFT_SIDE;
-               ButtonConfig.startPositionMultiplier = 1;
+               currentStartPosition = StartingPosition.LEFT_SIDE;
+               startPositionMultiplier = 1;
             }
             if (rightButton && !previousRightButton) {
-                ButtonConfig.currentStartPosition = StartingPosition.RIGHT_SIDE;
-                ButtonConfig.startPositionMultiplier  = -1;
+                currentStartPosition = StartingPosition.RIGHT_SIDE;
+                startPositionMultiplier = -1;
             }
-
-            if (confirmButton && !previousConfirmButton && currentStartPosition != StartingPosition.NOT_SET_YET) {
+            if (confirmButton && !previousConfirmButton && currentStartPosition!= StartingPosition.NOT_SET_YET) {
                 confirmStartingPositionSelection = true;
             }
-        } else {
-            if (confirmButton && !previousConfirmButton) {
-                confirmStartingPositionSelection = false;
-            }
+        } else
+
+        if (confirmButton && !previousConfirmButton) {
+            confirmStartingPositionSelection = false;
         }
     }
 
@@ -80,8 +79,6 @@ public class ButtonConfig {
         }
         activeOpMode.telemetry.addData("Drive Multiplier", MecDrive.multiplier);
     }
-
-
 
     public Gamepad copy(Gamepad gamepad) {
         Gamepad pad = new Gamepad();

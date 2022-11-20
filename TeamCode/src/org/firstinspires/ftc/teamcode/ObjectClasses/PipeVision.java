@@ -64,10 +64,8 @@ public class PipeVision {
             else if (pipeDetectionPipeline.isPoleLeft()) {
                 //strafe left
                 MecDrive.strafe = -.2;
-            } else if (pipeDetectionPipeline.isPoleRight()) {
-                //strafe right
-                MecDrive.strafe = .2;
-            }
+            } else //strafe right
+                if (pipeDetectionPipeline.isPoleRight()) MecDrive.strafe = .2;
             else {
                 activeOpMode.telemetry.addLine("UH OH DON'T SEE ANY YELLOW PIPES");
                 activeOpMode.telemetry.update();

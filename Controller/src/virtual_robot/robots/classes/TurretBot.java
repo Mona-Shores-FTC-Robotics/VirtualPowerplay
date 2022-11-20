@@ -126,10 +126,12 @@ public class TurretBot extends MechanumBase {
         turretRotate = new Rotate(0, TURRET_PIVOT_X, TURRET_PIVOT_Y);
         turret.getTransforms().add(turretRotate);
 
-        intake1GroupRotateTransform = new Rotate(0, 22, 12);
+        intake1GroupRotateTransform = new Rotate(0, 22, 65);
         intake1Group.getTransforms().add(intake1GroupRotateTransform);
 
-        intake2GroupRotateTransform = new Rotate(0, 53, 12);
+        intake2GroupRotateTransform = new Rotate(0, 53, 65);
+
+
         intake2Group.getTransforms().add(intake2GroupRotateTransform);
 
         clawRotate = new Rotate(0, CLAW_PIVOT_X, CLAW_PIVOT_Y);
@@ -182,7 +184,7 @@ public class TurretBot extends MechanumBase {
 
     private double getTurretAngle() {
             // Using GoBilda servos programmed to 300 degrees of rotation
-            double servoAngle = 270 * (turretServo.getInternalPosition() - 0.5) + -45;
+            double servoAngle = 270 * (turretServo.getInternalPosition() - 0.5) + -225;
             // 5:1 gear reduction
             double turretAngle = servoAngle;
             return turretAngle;
@@ -190,7 +192,7 @@ public class TurretBot extends MechanumBase {
 
     private double getClawAngle() {
         // Using GoBilda servos programmed to 300 degrees of rotation
-        double servoAngle = 180 * (clawServo.getInternalPosition() - 0.5) + 45;
+        double servoAngle = 60 * (clawServo.getInternalPosition() - 0.5);
         // 5:1 gear reduction
         double clawAngle = servoAngle;
         return clawAngle;

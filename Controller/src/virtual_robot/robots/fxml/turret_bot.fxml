@@ -23,7 +23,7 @@
 
 
         <!--The color sensor-->
-        <Circle centerX="37.0" centerY="37.0" radius="10.0" strokeType="INSIDE" strokeWidth="0.0">
+        <Circle centerX="37.0" centerY="52.0" radius="10.0" strokeType="INSIDE" strokeWidth="0.0">
             <fill>
                 <RadialGradient centerX="0.4722222222222222" centerY="0.4666666666666667"
                     radius="0.6046511627906976">
@@ -44,15 +44,15 @@
 
         <Group fx:id="intake1Group">
             <children>
-                <Circle fx:id="intake1Circle" centerX="22.0" centerY="12" fill="DODGERBLUE" radius="12.0" stroke="BLACK" strokeType="INSIDE" />
-                <Circle centerX="22.0" centerY="3.0" radius="3.0" stroke="BLACK" strokeType="INSIDE" />
+                <Circle fx:id="intake1Circle" centerX="22.0" centerY="65" fill="DODGERBLUE" radius="12.0" stroke="BLACK" strokeType="INSIDE" />
+                <Circle centerX="22.0" centerY="57" radius="3.0" stroke="BLACK" strokeType="INSIDE" />
             </children>
         </Group>
 
         <Group fx:id="intake2Group">
             <children>
-                <Circle fx:id="intake2Circle" centerX="53.0" centerY="12.0" fill="DODGERBLUE" radius="12.0" stroke="BLACK" strokeType="INSIDE" />
-                <Circle centerX="53.0" centerY="3.0" radius="3.0" stroke="BLACK" strokeType="INSIDE" />
+                <Circle fx:id="intake2Circle" centerX="53.0" centerY="65.0" fill="DODGERBLUE" radius="12.0" stroke="BLACK" strokeType="INSIDE" />
+                <Circle centerX="53.0" centerY="57" radius="3.0" stroke="BLACK" strokeType="INSIDE" />
             </children>
         </Group>
 
